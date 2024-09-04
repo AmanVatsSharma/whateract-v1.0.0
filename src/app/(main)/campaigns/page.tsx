@@ -90,9 +90,9 @@ export default function AdvancedCampaignManagementPro() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-900 text-white">
+    <div className="flex flex-col lg:flex-row min-h-screen pt-[90px] bg-gray-900 text-white">
       {/* Sidebar */}
-      <aside className="w-full lg:w-64 bg-gray-800 p-4 lg:p-6 border-r border-gray-700">
+      {/* <aside className="w-full lg:w-64 bg-gray-800 p-4 lg:p-6 border-r border-gray-700">
         <h2 className="text-2xl font-bold mb-6 text-purple-400">WhatsApp Pro Max</h2>
         <nav className="space-y-2">
           <Button variant="ghost" className="w-full justify-start text-gray-300 hover:text-white hover:bg-gray-700">
@@ -124,7 +124,7 @@ export default function AdvancedCampaignManagementPro() {
             Settings
           </Button>
         </nav>
-      </aside>
+      </aside> */}
 
       {/* Main Content */}
       <main className="flex-1 p-4 lg:p-6 overflow-auto">
