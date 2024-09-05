@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Contact {
+  id          Int      @id @default(autoincrement())
+  phoneNumber String   @unique
+  name        String?
+  email       String?
+  tags        Tag[]
+  customFields Json?
+  lastInteraction DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Tag {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  contacts Contact[]
+}
+
+model Campaign {
+  id        Int      @id @default(autoincrement())
+  name      String
+  message   String
+  schedule  DateTime?
+  status    CampaignStatus
+  performance Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Template {
+  id          Int      @id @default(autoincrement())
+  name        String
+  content     String
+  status      TemplateStatus
+  category    TemplateCategory
+  language    String
+  performance Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  content   String
+  status    MessageStatus
+  sentAt    DateTime?
+  contactId Int
+  contact   Contact  @relation(fields: [contactId], references: [id])
+}
+
+model Workflow {
+  id        Int      @id @default(autoincrement())
+  name      String
+  steps     Json
+  status    WorkflowStatus
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ChatbotFlow {
+  id        Int      @id @default(autoincrement())
+  name      String
+  nodes     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  RUNNING
+  COMPLETED
+  CANCELLED
+}
+
+enum TemplateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TemplateCategory {
+  MARKETING
+  TRANSACTIONAL
+  OTP
+}
+
+enum MessageStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+enum WorkflowStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
