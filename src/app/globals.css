@@ -1,88 +1,274 @@
+/**
+ * Global CSS Styles for WhatsApp Marketing Platform
+ * 
+ * This file contains:
+ * - Tailwind CSS imports
+ * - Modern color system with gradients
+ * - Dark/Light theme variables
+ * - Custom utilities for glassmorphism and animations
+ * - Responsive design utilities
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   ROOT VARIABLES - LIGHT THEME
+   ============================================ */
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  /* Primary gradient colors for modern UI */
+  --foreground-rgb: 15, 23, 42;
+  --background-start-rgb: 248, 250, 252;
+  --background-end-rgb: 241, 245, 249;
+  
+  /* Gradient definitions */
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
 }
 
+/* ============================================
+   DARK THEME OVERRIDES
+   ============================================ */
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    --foreground-rgb: 248, 250, 252;
+    --background-start-rgb: 15, 23, 42;
+    --background-end-rgb: 30, 41, 59;
   }
 }
 
+/* ============================================
+   CUSTOM UTILITIES
+   ============================================ */
 @layer utilities {
+  /* Text balance for better typography */
   .text-balance {
     text-wrap: balance;
   }
+  
+  /* Glassmorphism effect for modern UI */
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Gradient text effect */
+  .gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Smooth transitions */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
+/* ============================================
+   SHADCN UI THEME VARIABLES
+   ============================================ */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    /* Modern light theme with vibrant colors */
+    --background: 240 10% 98%;
+    --foreground: 222 47% 11%;
+    
+    /* Card styling with subtle elevation */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 222 47% 11%;
+    
+    /* Popover/dropdown styling */
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
+    --popover-foreground: 222 47% 11%;
+    
+    /* Primary brand colors - Indigo/Purple gradient */
+    --primary: 263 70% 50%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary accent colors */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 11%;
+    
+    /* Muted backgrounds and text */
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16% 47%;
+    
+    /* Accent colors for highlights */
+    --accent: 220 14% 96%;
+    --accent-foreground: 222 47% 11%;
+    
+    /* Destructive/error states */
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    
+    /* Border and input colors */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 263 70% 50%;
+    
+    /* Chart colors - vibrant palette */
+    --chart-1: 263 70% 50%;
+    --chart-2: 173 80% 40%;
+    --chart-3: 43 96% 56%;
+    --chart-4: 27 87% 67%;
+    --chart-5: 339 90% 51%;
+    
+    /* Border radius for consistent rounded corners */
+    --radius: 0.75rem;
   }
+  
+  /* Dark theme with modern aesthetics */
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    /* Dark background with subtle gradient */
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    
+    /* Dark card styling */
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    
+    /* Dark popover styling */
+    --popover: 222 47% 15%;
+    --popover-foreground: 210 40% 98%;
+    
+    /* Primary colors for dark mode */
+    --primary: 263 70% 60%;
+    --primary-foreground: 210 40% 98%;
+    
+    /* Dark secondary colors */
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    
+    /* Dark muted backgrounds */
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    
+    /* Dark accent colors */
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+    
+    /* Dark destructive states */
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
+    
+    /* Dark borders and inputs */
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 263 70% 60%;
+    
+    /* Dark mode chart colors */
+    --chart-1: 263 70% 60%;
+    --chart-2: 173 80% 45%;
+    --chart-3: 43 96% 60%;
+    --chart-4: 27 87% 70%;
+    --chart-5: 339 90% 55%;
   }
 }
 
+/* ============================================
+   BASE STYLES
+   ============================================ */
 @layer base {
+  /* Apply consistent border colors */
   * {
     @apply border-border;
   }
+  
+  /* Body styling with gradient background */
   body {
-    @apply bg-background text-foreground;
+    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 text-foreground antialiased;
+    min-height: 100vh;
+  }
+  
+  /* Smooth scrolling behavior */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Improved heading styles */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+  
+  /* Link styles */
+  a {
+    @apply transition-colors;
+  }
+}
+
+/* ============================================
+   CUSTOM ANIMATIONS
+   ============================================ */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  background-size: 1000px 100%;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+@layer utilities {
+  /* Mobile-first responsive padding */
+  .container-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* Responsive text sizes */
+  .text-responsive-xl {
+    @apply text-2xl sm:text-3xl lg:text-4xl;
+  }
+  
+  .text-responsive-lg {
+    @apply text-xl sm:text-2xl lg:text-3xl;
+  }
+  
+  /* Mobile-friendly spacing */
+  .section-spacing {
+    @apply py-8 sm:py-12 lg:py-16;
   }
 }
