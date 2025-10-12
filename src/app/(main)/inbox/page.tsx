@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { apiClient } from "@/lib/api-client";
 import { createLogger } from "@/lib/logger";
-import { mocks } from "@/lib/mock-adapter";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -57,6 +57,25 @@ export default function InboxPage() {
     if (!message.trim() || !selected) return;
     logger.info("send", { to: selected.id, message });
     setMessage("");
+  };
+
+  const suggestAiReply = async () => {
+    try {
+      const res = await apiClient.post("/ai/reply", {
+        text: message || selected?.lastMessage || "",
+        conversationId: selected?.id,
+      });
+      const suggestion: string = res.data?.suggestion || "";
+      if (suggestion) {
+        setMessage(suggestion);
+        toast.success("AI suggestion ready");
+      } else {
+        toast.info("No suggestion available");
+      }
+    } catch (e) {
+      logger.error("ai suggest failed", e);
+      toast.error("AI suggestion failed");
+    }
   };
 
   return (
@@ -153,7 +172,9 @@ export default function InboxPage() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline"><Sparkles className="mr-2 h-4 w-4" />AI Reply</Button>
+                    <Button variant="outline" onClick={suggestAiReply}>
+                      <Sparkles className="mr-2 h-4 w-4" />AI Reply
+                    </Button>
                   </TooltipTrigger>
                   <TooltipContent>Suggest a reply</TooltipContent>
                 </Tooltip>
