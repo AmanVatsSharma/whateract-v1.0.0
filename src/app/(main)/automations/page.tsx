@@ -40,15 +40,17 @@ const initialEdges = [
     { id: 'e2-3', source: '2', target: '3' },
 ]
 
+type AutomationRule = typeof automationRules[number]
+
 export default function Automation() {
     const [isCreating, setIsCreating] = useState(false)
-    const [selectedAutomation, setSelectedAutomation] = useState(null)
+    const [selectedAutomation, setSelectedAutomation] = useState<AutomationRule | null>(null)
     const [isABTestingModalOpen, setIsABTestingModalOpen] = useState(false)
     const [isPerformanceModalOpen, setIsPerformanceModalOpen] = useState(false)
     const [nodes, setNodes] = useState(initialNodes)
     const [edges, setEdges] = useState(initialEdges)
 
-    const onDragEnd = (result) => {
+    const onDragEnd = (result: any) => {
         // Implement drag and drop logic here
     }
 

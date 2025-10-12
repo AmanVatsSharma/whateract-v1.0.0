@@ -233,7 +233,7 @@ export default function Header() {
                     <DialogHeader>
                         <DialogTitle>Help & Feedback</DialogTitle>
                         <DialogDescription>
-                            We'd love to hear your thoughts on how we can improve your experience.
+                            We&amp;#39;d love to hear your thoughts on how we can improve your experience.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
@@ -241,7 +241,7 @@ export default function Header() {
                             <Label htmlFor="feedback-type" className="text-right">
                                 Type
                             </Label>
-                            <Select className="col-span-3">
+                            <Select>
                                 <SelectTrigger className="bg-gray-700 text-white">
                                     <SelectValue placeholder="Select feedback type" />
                                 </SelectTrigger>

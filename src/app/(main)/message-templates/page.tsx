@@ -9,9 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Switch } from "@/components/ui/switch"
@@ -22,7 +22,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
-import { Calendar as CalendarIcon, ChevronDown, Plus, Search, Settings, Trash, MessageSquare, Edit, Copy, BarChart2, PieChart as PieChartIcon, Send, Eye, ThumbsUp, AlertCircle, CheckCircle2, MoreVertical, FileText, Tag, Clock, ArrowUpRight, Image, FileVideo, Paperclip, History, Sparkles, LayoutGrid } from "lucide-react"
+import { Calendar as CalendarIcon, ChevronDown, Plus, Search, Settings, Trash, MessageSquare, Edit, Copy, BarChart2, PieChart as PieChartIcon, Send, Eye, ThumbsUp, AlertCircle, CheckCircle2, MoreVertical, FileText, Tag, Clock, ArrowUpRight, Image as ImageIcon, FileVideo, Paperclip, History, Sparkles, LayoutGrid } from "lucide-react"
 import { toast } from "sonner"
 import dynamic from 'next/dynamic'
 
@@ -30,9 +30,9 @@ const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
 import 'react-quill/dist/quill.snow.css'
 
 const templates = [
-    { id: 1, name: "Welcome Message", content: "Welcome to our community! We're excited to have you on board. Here's what you can expect from us...", category: "Onboarding", status: "Active", usageCount: 1250, conversionRate: 15, sentiment: 0.8, version: 2, lastUpdated: "2023-06-15" },
+    { id: 1, name: "Welcome Message", content: "Welcome to our community! We\'re excited to have you on board. Here\'s what you can expect from us...", category: "Onboarding", status: "Active", usageCount: 1250, conversionRate: 15, sentiment: 0.8, version: 2, lastUpdated: "2023-06-15" },
     { id: 2, name: "Product Launch", content: "Exciting news! Our new product [Product Name] is now available. Be among the first to try it out! Use code LAUNCH20 for 20% off.", category: "Promotional", status: "Active", usageCount: 3000, conversionRate: 22, sentiment: 0.9, version: 3, lastUpdated: "2023-06-20" },
-    { id: 3, name: "Abandoned Cart Reminder", content: "Hey there! We noticed you left some items in your cart. Don't miss out on these great deals. Complete your purchase now and get free shipping!", category: "Retargeting", status: "Active", usageCount: 5000, conversionRate: 18, sentiment: 0.7, version: 1, lastUpdated: "2023-06-18" },
+    { id: 3, name: "Abandoned Cart Reminder", content: "Hey there! We noticed you left some items in your cart. Don\'t miss out on these great deals. Complete your purchase now and get free shipping!", category: "Retargeting", status: "Active", usageCount: 5000, conversionRate: 18, sentiment: 0.7, version: 1, lastUpdated: "2023-06-18" },
     { id: 4, name: "Customer Feedback", content: "We value your opinion! Please take a moment to share your thoughts on your recent experience with us. Your feedback helps us improve.", category: "Engagement", status: "Active", usageCount: 2000, conversionRate: 12, sentiment: 0.6, version: 4, lastUpdated: "2023-06-22" },
     { id: 5, name: "Holiday Sale", content: "🎉 Our biggest sale of the year is here! Enjoy up to 50% off on all products. Shop now before stocks run out!", category: "Promotional", status: "Draft", usageCount: 0, conversionRate: 0, sentiment: 0, version: 1, lastUpdated: "2023-06-23" },
 ]
@@ -55,9 +55,11 @@ const templateUsageTrendData = [
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8']
 
+type TemplateItem = typeof templates[number]
+
 export default function EnhancedMessageTemplates() {
     const [isCreatingTemplate, setIsCreatingTemplate] = useState(false)
-    const [selectedTemplate, setSelectedTemplate] = useState(null)
+    const [selectedTemplate, setSelectedTemplate] = useState<TemplateItem | null>(null)
     const [isEditingTemplate, setIsEditingTemplate] = useState(false)
     const [isScheduling, setIsScheduling] = useState(false)
     const [isABTesting, setIsABTesting] = useState(false)
@@ -66,7 +68,7 @@ export default function EnhancedMessageTemplates() {
     const [tone, setTone] = useState('friendly')
     const [isGenerating, setIsGenerating] = useState(false)
 
-    const handleEditorChange = (content) => {
+    const handleEditorChange = (content: string) => {
         setEditorContent(content)
     }
 
@@ -375,7 +377,7 @@ export default function EnhancedMessageTemplates() {
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <h4 className="font-medium text-gray-300 mb-2">Variation A</h4>
-                                            <p className="text-sm text-gray-400 mb-2">Welcome! We're excited to have you join our community...</p>
+                                            <p className="text-sm text-gray-400 mb-2">Welcome! We&amp;#39;re excited to have you join our community...</p>
                                             <div className="space-y-1">
                                                 <div className="flex justify-between text-sm">
                                                     <span className="text-gray-400">Open Rate:</span>
@@ -393,7 +395,7 @@ export default function EnhancedMessageTemplates() {
                                         </div>
                                         <div>
                                             <h4 className="font-medium text-gray-300 mb-2">Variation B</h4>
-                                            <p className="text-sm text-gray-400 mb-2">Hi there! Thanks for joining us. Here's what you can expect...</p>
+                                            <p className="text-sm text-gray-400 mb-2">Hi there! Thanks for joining us. Here&amp;#39;s what you can expect...</p>
                                             <div className="space-y-1">
                                                 <div className="flex justify-between text-sm">
                                                     <span className="text-gray-400">Open Rate:</span>
@@ -428,7 +430,7 @@ export default function EnhancedMessageTemplates() {
                     <DialogContent className="sm:max-w-[800px] bg-gray-800 text-white">
                         <DialogHeader>
                             <DialogTitle className="text-purple-400">{isEditingTemplate ? 'Edit Template' : 'Create New Template'}</DialogTitle>
-                            <DialogDescription className="text-gray-400">
+                                    <DialogDescription className="text-gray-400">
                                 {isEditingTemplate ? 'Edit your existing message template.' : 'Create a new message template for your WhatsApp campaigns.'}
                             </DialogDescription>
                         </DialogHeader>
@@ -522,7 +524,7 @@ export default function EnhancedMessageTemplates() {
                                 </Label>
                                 <div className="flex items-center space-x-2 col-span-3">
                                     <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
-                                        <Image className="mr-2 h-4 w-4" />
+                                        <ImageIcon className="mr-2 h-4 w-4" />
                                         Add Image
                                     </Button>
                                     <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
@@ -588,7 +590,7 @@ export default function EnhancedMessageTemplates() {
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
                                 <Label className="text-right text-gray-300">Sentiment</Label>
-                                <div className="col-span-3 text-gray-300">{(selectedTemplate?.sentiment * 100).toFixed(0)}% Positive</div>
+                                <div className="col-span-3 text-gray-300">{selectedTemplate ? (selectedTemplate.sentiment * 100).toFixed(0) : "0"}% Positive</div>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
                                 <Label className="text-right text-gray-300">Version</Label>

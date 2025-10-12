@@ -57,7 +57,7 @@ export default function InboxPage() {
       }
     }
     load();
-  }, []);
+  }, [selected]);
 
   const filtered = useMemo(() => {
     return conversations.filter((c) =>

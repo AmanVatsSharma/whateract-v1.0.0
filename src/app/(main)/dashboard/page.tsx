@@ -60,7 +60,7 @@ export default function Dashboard() {
         { id: 'activity', title: 'Recent Activity' },
     ])
 
-    const onDragEnd = (result) => {
+    const onDragEnd = (result: any) => {
         if (!result.destination) {
             return
         }

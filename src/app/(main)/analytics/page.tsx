@@ -62,8 +62,10 @@ const predictiveData = [
     { month: 'Oct', actual: null, predicted: 1800 },
 ]
 
+type DateRange = { from?: Date; to?: Date } | undefined
+
 export default function Analytics() {
-    const [date, setDate] = useState<Date | undefined>(new Date())
+    const [date, setDate] = useState<DateRange>({ from: new Date(), to: new Date() })
     const [isCustomReportModalOpen, setIsCustomReportModalOpen] = useState(false)
 
     return (
@@ -81,14 +83,14 @@ export default function Analytics() {
                                 )}
                             >
                                 <CalendarIcon className="mr-2 h-4 w-4" />
-                                {date ? format(date, "PPP") : <span>Pick a date range</span>}
+                                {date?.from ? format(date.from, "PPP") : <span>Pick a date range</span>}
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0 bg-gray-800 border-gray-700">
                             <Calendar
                                 mode="range"
-                                selected={date}
-                                onSelect={setDate}
+                                selected={date as any}
+                                onSelect={setDate as any}
                                 initialFocus
                                 className="bg-gray-800 text-white"
                             />
