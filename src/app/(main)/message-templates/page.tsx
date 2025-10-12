@@ -23,6 +23,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { Calendar as CalendarIcon, ChevronDown, Plus, Search, Settings, Trash, MessageSquare, Edit, Copy, BarChart2, PieChart as PieChartIcon, Send, Eye, ThumbsUp, AlertCircle, CheckCircle2, MoreVertical, FileText, Tag, Clock, ArrowUpRight, Image, FileVideo, Paperclip, History, Sparkles, LayoutGrid } from "lucide-react"
+import { toast } from "sonner"
 import dynamic from 'next/dynamic'
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
@@ -62,6 +63,8 @@ export default function EnhancedMessageTemplates() {
     const [isABTesting, setIsABTesting] = useState(false)
     const [date, setDate] = useState<Date | undefined>(new Date())
     const [editorContent, setEditorContent] = useState('')
+    const [tone, setTone] = useState('friendly')
+    const [isGenerating, setIsGenerating] = useState(false)
 
     const handleEditorChange = (content) => {
         setEditorContent(content)
@@ -456,7 +459,7 @@ export default function EnhancedMessageTemplates() {
                                 <Label htmlFor="template-content" className="text-right text-gray-300 mt-2">
                                     Content
                                 </Label>
-                                <div className="col-span-3">
+                                <div className="col-span-3 space-y-2">
                                     <ReactQuill
                                         theme="snow"
                                         value={editorContent || selectedTemplate?.content}
@@ -472,6 +475,36 @@ export default function EnhancedMessageTemplates() {
                                             ],
                                         }}
                                     />
+                                    <div className="flex items-center gap-2">
+                                        <Select value={tone} onValueChange={setTone}>
+                                            <SelectTrigger className="w-[160px] bg-gray-700 border-gray-600 text-white"><SelectValue placeholder="Tone" /></SelectTrigger>
+                                            <SelectContent className="bg-gray-700 border-gray-600 text-white">
+                                                <SelectItem value="friendly">Friendly</SelectItem>
+                                                <SelectItem value="professional">Professional</SelectItem>
+                                                <SelectItem value="concise">Concise</SelectItem>
+                                                <SelectItem value="casual">Casual</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <Button variant="outline" onClick={async () => {
+                                            try {
+                                                setIsGenerating(true)
+                                                const res = await fetch('/api/ai/generate', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify({ prompt: editorContent || selectedTemplate?.content || '', tone })
+                                                })
+                                                const data = await res.json()
+                                                if (data?.content) {
+                                                    setEditorContent(data.content)
+                                                    toast.success('Generated new content')
+                                                }
+                                            } finally {
+                                                setIsGenerating(false)
+                                            }
+                                        }} disabled={isGenerating}>
+                                            <Sparkles className="mr-2 h-4 w-4" /> {isGenerating ? 'Generating...' : 'AI Generate'}
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">

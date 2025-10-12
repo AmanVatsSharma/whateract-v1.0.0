@@ -57,8 +57,39 @@ mocks.register("GET", "/campaigns", async () => {
   await delay(400);
   return {
     data: [
-      { id: "cmp_1", name: "Diwali Blast", status: "scheduled" },
-      { id: "cmp_2", name: "Winter Sale", status: "draft" },
+      {
+        id: "cmp_1",
+        name: "Diwali Blast",
+        status: "Active",
+        sent: 12000,
+        delivered: 11500,
+        read: 9800,
+        responded: 2100,
+        conversionRate: 17.5,
+        roi: 280,
+      },
+      {
+        id: "cmp_2",
+        name: "Winter Sale",
+        status: "Draft",
+        sent: 0,
+        delivered: 0,
+        read: 0,
+        responded: 0,
+        conversionRate: 0,
+        roi: 0,
+      },
+      {
+        id: "cmp_3",
+        name: "Feedback Survey",
+        status: "Scheduled",
+        sent: 0,
+        delivered: 0,
+        read: 0,
+        responded: 0,
+        conversionRate: 0,
+        roi: 0,
+      },
     ],
   };
 });
