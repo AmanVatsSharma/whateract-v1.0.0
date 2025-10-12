@@ -1,0 +1,171 @@
+"use client";
+import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { apiClient } from "@/lib/api-client";
+import { createLogger } from "@/lib/logger";
+import { mocks } from "@/lib/mock-adapter";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Paperclip, Send, Sparkles, Star, Filter, Search } from "lucide-react";
+
+const logger = createLogger("inbox");
+
+type Conversation = {
+  id: string;
+  name: string;
+  lastMessage: string;
+  unread: number;
+  priority: "low" | "high";
+  tags: string[];
+};
+
+export default function InboxPage() {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selected, setSelected] = useState<Conversation | null>(null);
+  const [query, setQuery] = useState("");
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await apiClient.get("/conversations");
+        // In mock mode, apiClient points to /api but we intercept via mocks in demo flows.
+        const list = (res.data?.data || []) as Conversation[];
+        setConversations(list);
+        if (list.length && !selected) setSelected(list[0]);
+      } catch (e) {
+        logger.error("load conversations failed", e);
+      }
+    }
+    load();
+  }, []);
+
+  const filtered = useMemo(() => {
+    return conversations.filter((c) =>
+      `${c.name} ${c.lastMessage}`.toLowerCase().includes(query.toLowerCase())
+    );
+  }, [conversations, query]);
+
+  const sendMessage = async () => {
+    if (!message.trim() || !selected) return;
+    logger.info("send", { to: selected.id, message });
+    setMessage("");
+  };
+
+  return (
+    <div className="grid grid-cols-12 gap-4 p-4">
+      <Card className="col-span-4 overflow-hidden">
+        <CardHeader className="border-b">
+          <CardTitle className="flex items-center justify-between">
+            <span>Inbox</span>
+            <div className="flex items-center gap-2">
+              <Select>
+                <SelectTrigger className="w-[120px]"><SelectValue placeholder="All" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="unread">Unread</SelectItem>
+                  <SelectItem value="priority">Priority</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search" className="pl-8" />
+              </div>
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <ScrollArea className="h-[calc(100vh-240px)]">
+            {filtered.map((c) => (
+              <motion.button
+                key={c.id}
+                onClick={() => setSelected(c)}
+                className={`flex w-full items-center gap-3 p-3 text-left hover:bg-accent ${selected?.id === c.id ? "bg-accent" : ""}`}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+              >
+                <Avatar>
+                  <AvatarFallback>{c.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <div className="font-medium">{c.name}</div>
+                    {c.unread > 0 && (
+                      <Badge variant="secondary">{c.unread}</Badge>
+                    )}
+                  </div>
+                  <div className="text-sm text-muted-foreground truncate">{c.lastMessage}</div>
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {c.tags.map((t) => (
+                      <Badge key={t} variant="outline" className="text-xs">{t}</Badge>
+                    ))}
+                  </div>
+                </div>
+                {c.priority === "high" && <Star className="h-4 w-4 text-yellow-500" />}
+              </motion.button>
+            ))}
+          </ScrollArea>
+        </CardContent>
+      </Card>
+
+      <Card className="col-span-8 overflow-hidden">
+        <CardHeader className="border-b">
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Avatar>
+                <AvatarFallback>{selected?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="font-semibold">{selected?.name || "Select a conversation"}</div>
+                <div className="text-xs text-muted-foreground">Customer profile and tags shown here</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button size="sm" variant="outline"><Filter className="mr-2 h-4 w-4" />Label</Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Assign labels</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <ScrollArea className="h-[calc(100vh-340px)] p-4">
+            {/* Message thread placeholder */}
+            <div className="space-y-4">
+              <div className="max-w-[70%] rounded-lg bg-muted p-3">Hi! Can you share your catalog?</div>
+              <div className="ml-auto max-w-[70%] rounded-lg bg-primary p-3 text-primary-foreground">Absolutely, sharing now!</div>
+            </div>
+          </ScrollArea>
+          <div className="border-t p-3">
+            <div className="flex items-end gap-2">
+              <Textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Write a message..." className="min-h-[60px]" />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline"><Sparkles className="mr-2 h-4 w-4" />AI Reply</Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Suggest a reply</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <Button onClick={sendMessage}><Send className="mr-2 h-4 w-4" />Send</Button>
+            </div>
+            <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+              <Paperclip className="h-4 w-4" /> Attachments supported (media, docs)
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
