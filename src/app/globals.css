@@ -84,9 +84,9 @@
    ============================================ */
 @layer base {
   :root {
-    /* Modern light theme with vibrant colors */
-    --background: 240 10% 98%;
-    --foreground: 222 47% 11%;
+    /* Light theme — Warm Coral (brand) + Teal (accent) with soft neutrals */
+    --background: 30 33% 96%; /* ~#FBF8F6 */
+    --foreground: 222 47% 11%; /* ink */
     
     /* Card styling with subtle elevation */
     --card: 0 0% 100%;
@@ -96,37 +96,37 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
     
-    /* Primary brand colors - Indigo/Purple gradient */
-    --primary: 263 70% 50%;
+    /* Primary brand color — Warm Coral */
+    --primary: 11 90% 56%; /* ~#FF6B57 */
     --primary-foreground: 0 0% 100%;
     
-    /* Secondary accent colors */
-    --secondary: 220 14% 96%;
+    /* Secondary surfaces — soft warm neutral */
+    --secondary: 30 20% 95%;
     --secondary-foreground: 222 47% 11%;
     
     /* Muted backgrounds and text */
-    --muted: 220 14% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 30 18% 92%;
+    --muted-foreground: 215 16% 40%;
     
-    /* Accent colors for highlights */
-    --accent: 220 14% 96%;
-    --accent-foreground: 222 47% 11%;
+    /* Accent color — Teal */
+    --accent: 173 60% 45%; /* ~#2DC6B2 */
+    --accent-foreground: 0 0% 100%;
     
-    /* Destructive/error states */
+    /* Destructive/error states (unchanged) */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
     
     /* Border and input colors */
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 263 70% 50%;
+    --border: 30 15% 88%;
+    --input: 30 15% 88%;
+    --ring: 173 60% 45%;
     
-    /* Chart colors - vibrant palette */
-    --chart-1: 263 70% 50%;
-    --chart-2: 173 80% 40%;
+    /* Chart colors - aligned to brand/accent */
+    --chart-1: 11 90% 56%;
+    --chart-2: 173 60% 45%;
     --chart-3: 43 96% 56%;
-    --chart-4: 27 87% 67%;
-    --chart-5: 339 90% 51%;
+    --chart-4: 27 87% 60%;
+    --chart-5: 339 80% 55%;
     
     /* Border radius for consistent rounded corners */
     --radius: 0.75rem;
@@ -134,7 +134,7 @@
   
   /* Dark theme with modern aesthetics */
   .dark {
-    /* Dark background with subtle gradient */
+    /* Dark theme tuned to coral/teal */
     --background: 222 47% 11%;
     --foreground: 210 40% 98%;
     
@@ -146,8 +146,8 @@
     --popover: 222 47% 15%;
     --popover-foreground: 210 40% 98%;
     
-    /* Primary colors for dark mode */
-    --primary: 263 70% 60%;
+    /* Primary color for dark mode — slightly brighter coral */
+    --primary: 11 85% 62%;
     --primary-foreground: 210 40% 98%;
     
     /* Dark secondary colors */
@@ -159,7 +159,7 @@
     --muted-foreground: 215 20% 65%;
     
     /* Dark accent colors */
-    --accent: 217 33% 17%;
+    --accent: 173 60% 45%;
     --accent-foreground: 210 40% 98%;
     
     /* Dark destructive states */
@@ -169,14 +169,14 @@
     /* Dark borders and inputs */
     --border: 217 33% 17%;
     --input: 217 33% 17%;
-    --ring: 263 70% 60%;
+    --ring: 173 60% 45%;
     
     /* Dark mode chart colors */
-    --chart-1: 263 70% 60%;
-    --chart-2: 173 80% 45%;
+    --chart-1: 11 85% 62%;
+    --chart-2: 173 60% 50%;
     --chart-3: 43 96% 60%;
-    --chart-4: 27 87% 70%;
-    --chart-5: 339 90% 55%;
+    --chart-4: 27 87% 65%;
+    --chart-5: 339 80% 60%;
   }
 }
 
