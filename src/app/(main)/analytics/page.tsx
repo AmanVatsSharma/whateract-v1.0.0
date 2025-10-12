@@ -16,6 +16,8 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { Calendar as CalendarIcon, ChevronDown, Filter, Download, Share2, Maximize2, BarChart, LineChart, PieChart, TrendingUp, Users, MessageSquare, Zap, Send, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { toast } from 'sonner'
+import { downloadText } from '@/lib/download'
 import { BarChart as RechartsBarChart, Bar, LineChart as RechartsLineChart, Line, AreaChart, Area, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ScatterChart, Scatter } from 'recharts'
 import { Checkbox } from '@/components/ui/checkbox'
 
@@ -110,6 +112,20 @@ export default function Analytics() {
                     <Button variant="outline" className="bg-gray-800 border-gray-700 text-white" onClick={() => setIsCustomReportModalOpen(true)}>
                         <BarChart className="mr-2 h-4 w-4" />
                         Custom Report
+                    </Button>
+                    <Button variant="outline" className="bg-gray-800 border-gray-700 text-white" onClick={async () => {
+                        try {
+                            const res = await fetch('/api/analytics/export');
+                            if (!res.ok) throw new Error('Export failed');
+                            const text = await res.text();
+                            downloadText('analytics.csv', text);
+                            toast.success('Exported analytics.csv');
+                        } catch (e) {
+                            toast.error('Export failed');
+                        }
+                    }}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Export CSV
                     </Button>
                 </div>
             </div>
