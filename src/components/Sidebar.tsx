@@ -31,10 +31,12 @@ import {
     Moon,
     Sun,
 } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 const sidebarItems = [
     { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-    { name: 'Campaigns', icon: MessageSquare, href: '/campaigns', badge: '3' },
+    { name: 'Inbox', icon: MessageSquare, href: '/inbox', badge: '2' },
+    { name: 'Campaigns', icon: Zap, href: '/campaigns', badge: '3' },
     { name: 'Audience', icon: Users, href: '/audience' },
     { name: 'Analytics', icon: BarChart, href: '/analytics' },
     { name: 'Templates', icon: FileText, href: '/message-templates' },
@@ -49,7 +51,7 @@ export default function Sidebar() {
     const [isCollapsed, setIsCollapsed] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
     const [isDarkMode, setIsDarkMode] = useState(false)
-    // const router = useRouter()
+    const pathname = usePathname()
 
     const toggleSidebar = () => setIsCollapsed(!isCollapsed)
     const toggleDarkMode = () => setIsDarkMode(!isDarkMode)
@@ -163,7 +165,8 @@ export default function Sidebar() {
                                             <Link
                                                 href={item.href}
                                                 className={cn(
-                                                    "flex items-center space-x-2 rounded-lg px-3 py-2 transition-all hover:bg-gray-800 text-gray-400"
+                                                    "flex items-center space-x-2 rounded-lg px-3 py-2 transition-all hover:bg-gray-800",
+                                                    pathname?.startsWith(item.href) ? "bg-gray-800 text-purple-400" : "text-gray-400"
                                                 )}
                                             >
                                                 <item.icon className="h-5 w-5" />

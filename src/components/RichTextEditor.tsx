@@ -7,10 +7,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Bold, Italic, Underline, List, ListOrdered, Image as ImageIcon, Link, Undo, Redo, Smartphone, Smile } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import Image from "next/image"
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 
-let ReactQuill = () => null
+let ReactQuill: any = () => null
 let Quill = null
 
 if (typeof window !== 'undefined') {
@@ -46,14 +48,14 @@ export default function RichTextEditor() {
     const [quillLoaded, setQuillLoaded] = useState(false)
     const [charCount, setCharCount] = useState(0)
     const [messageCount, setMessageCount] = useState(1)
-    const [variables, setVariables] = useState([])
-    const [selectedImage, setSelectedImage] = useState(null)
+    const [variables, setVariables] = useState<string[]>([])
+    const [selectedImage, setSelectedImage] = useState<string | null>(null)
 
     useEffect(() => {
         setQuillLoaded(true)
     }, [])
 
-    const handleEditorChange = (content) => {
+    const handleEditorChange = (content: string) => {
         setEditorContent(content)
         const strippedContent = content.replace(/<[^>]+>/g, '')
         setPreviewContent(strippedContent)
@@ -79,21 +81,22 @@ export default function RichTextEditor() {
         }
     }
 
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0]
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
         if (file) {
             const reader = new FileReader()
-            reader.onload = (e) => {
-                setSelectedImage(e.target.result)
+            reader.onload = (ev) => {
+                const result = ev.target?.result as string
+                setSelectedImage(result)
                 const quill = ReactQuill.getEditor()
                 const range = quill.getSelection(true)
-                quill.insertEmbed(range.index, 'image', e.target.result, 'user')
+                quill.insertEmbed(range.index, 'image', result, 'user')
             }
             reader.readAsDataURL(file)
         }
     }
 
-    const insertEmoji = useCallback((emoji) => {
+    const insertEmoji = useCallback((emoji: any) => {
         const quill = ReactQuill.getEditor()
         const range = quill.getSelection(true)
         quill.insertText(range.index, emoji.native)
@@ -119,7 +122,15 @@ export default function RichTextEditor() {
             <Button variant="ghost" size="icon" className="text-gray-300 hover:text-white hover:bg-gray-600">
                 <Link className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-gray-300 hover:text-white hover:bg-gray-600" onClick={() => document.getElementById('image-upload').click()}>
+            <Button
+                variant="ghost"
+                size="icon"
+                className="text-gray-300 hover:text-white hover:bg-gray-600"
+                onClick={() => {
+                    const el = document.getElementById('image-upload') as HTMLInputElement | null
+                    el?.click()
+                }}
+            >
                 <ImageIcon className="h-4 w-4" />
             </Button>
             <input
@@ -208,7 +219,7 @@ export default function RichTextEditor() {
                             </div>
                             <div className="bg-[#005c4b] p-3 rounded-lg mb-2 max-w-[80%] ml-auto">
                                 {selectedImage && (
-                                    <img src={selectedImage} alt="Uploaded" className="mb-2 rounded-md" />
+                                    <Image src={selectedImage} alt="Uploaded" width={320} height={240} className="mb-2 rounded-md" />
                                 )}
                                 <p className="text-white text-sm whitespace-pre-wrap">{previewContent || "Your message will appear here"}</p>
                                 <div className="flex justify-between items-center mt-1">

@@ -16,10 +16,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import Link from 'next/link'
 import Image from 'next/image'
+import { useTheme } from 'next-themes'
 
 export default function Header() {
     const [isSearchOpen, setIsSearchOpen] = useState(false)
-    const [isDarkMode, setIsDarkMode] = useState(false)
+    const { theme, setTheme } = useTheme()
     const [isFeedbackOpen, setIsFeedbackOpen] = useState(false)
     const [isScrolled, setIsScrolled] = useState(false)
 
@@ -32,8 +33,7 @@ export default function Header() {
     }, [])
 
     const toggleDarkMode = () => {
-        setIsDarkMode(!isDarkMode)
-        // In a real application, you would apply the theme change here
+        setTheme(theme === 'dark' ? 'light' : 'dark')
     }
 
     return (
@@ -186,10 +186,10 @@ export default function Header() {
                             <DropdownMenuItem>
                                 <div className="flex items-center justify-between w-full">
                                     <div className="flex items-center">
-                                        {isDarkMode ? <Moon className="mr-2 h-4 w-4" /> : <Sun className="mr-2 h-4 w-4" />}
+                                        {theme === 'dark' ? <Moon className="mr-2 h-4 w-4" /> : <Sun className="mr-2 h-4 w-4" />}
                                         <span>Dark mode</span>
                                     </div>
-                                    <Switch checked={isDarkMode} onCheckedChange={toggleDarkMode} />
+                                    <Switch checked={theme === 'dark'} onCheckedChange={toggleDarkMode} />
                                 </div>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
@@ -233,7 +233,7 @@ export default function Header() {
                     <DialogHeader>
                         <DialogTitle>Help & Feedback</DialogTitle>
                         <DialogDescription>
-                            We'd love to hear your thoughts on how we can improve your experience.
+                            We&amp;#39;d love to hear your thoughts on how we can improve your experience.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
@@ -241,7 +241,7 @@ export default function Header() {
                             <Label htmlFor="feedback-type" className="text-right">
                                 Type
                             </Label>
-                            <Select className="col-span-3">
+                            <Select>
                                 <SelectTrigger className="bg-gray-700 text-white">
                                     <SelectValue placeholder="Select feedback type" />
                                 </SelectTrigger>

@@ -13,12 +13,15 @@ import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { AlertCircle, CheckCircle2, HelpCircle, Globe, Bell, Lock, Users, Key, Webhook, Database, Zap, Sliders, BarChart, Send } from 'lucide-react'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { AlertCircle, CheckCircle2, HelpCircle, Globe, Bell, Lock, Users, Key, Database, Zap, Sliders, BarChart, Send } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function Settings() {
     const [showApiKey, setShowApiKey] = useState(false)
-    const [isWebhookModalOpen, setIsWebhookModalOpen] = useState(false)
+    const [generatedKey, setGeneratedKey] = useState<string | null>(null)
+    const [webhookUrl, setWebhookUrl] = useState("")
+    const [webhookSecret, setWebhookSecret] = useState("")
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-900 text-white p-8">
@@ -206,7 +209,7 @@ export default function Settings() {
                             <div className="space-y-2">
                                 <Label>Notification Frequency</Label>
                                 <Select>
-                                    <SelectTrigger className="bg-gray-700 text-white">
+                                    <SelectTrigger className="bg-gray-700 text:white">
                                         <SelectValue placeholder="Select frequency" />
                                     </SelectTrigger>
                                     <SelectContent className="bg-gray-700 text-white">
@@ -302,7 +305,7 @@ export default function Settings() {
                                     <SelectTrigger className="w-[180px] bg-gray-700 text-white">
                                         <SelectValue placeholder="Select CRM" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-700 text-white">
+                                    <SelectContent className="bg-gray-700 text:white">
                                         <SelectItem value="salesforce">Salesforce</SelectItem>
                                         <SelectItem value="hubspot">HubSpot</SelectItem>
                                         <SelectItem value="zoho">Zoho</SelectItem>
@@ -316,10 +319,10 @@ export default function Settings() {
                                     <p className="text-sm text-gray-400">Sync with your online store</p>
                                 </div>
                                 <Select>
-                                    <SelectTrigger className="w-[180px] bg-gray-700 text-white">
+                                    <SelectTrigger className="w-[180px] bg-gray-700 text:white">
                                         <SelectValue placeholder="Select Platform" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-700 text-white">
+                                    <SelectContent className="bg-gray-700 text:white">
                                         <SelectItem value="shopify">Shopify</SelectItem>
                                         <SelectItem value="woocommerce">WooCommerce</SelectItem>
                                         <SelectItem value="magento">Magento</SelectItem>
@@ -333,10 +336,10 @@ export default function Settings() {
                                     <p className="text-sm text-gray-400">Integrate with analytics services</p>
                                 </div>
                                 <Select>
-                                    <SelectTrigger className="w-[180px] bg-gray-700 text-white">
+                                    <SelectTrigger className="w-[180px] bg-gray-700 text:white">
                                         <SelectValue placeholder="Select Tool" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-700 text-white">
+                                    <SelectContent className="bg-gray-700 text:white">
                                         <SelectItem value="google-analytics">Google Analytics</SelectItem>
                                         <SelectItem value="mixpanel">Mixpanel</SelectItem>
                                         <SelectItem value="amplitude">Amplitude</SelectItem>
@@ -350,10 +353,10 @@ export default function Settings() {
                                     <p className="text-sm text-gray-400">Connect payment processors</p>
                                 </div>
                                 <Select>
-                                    <SelectTrigger className="w-[180px] bg-gray-700 text-white">
+                                    <SelectTrigger className="w-[180px] bg-gray-700 text:white">
                                         <SelectValue placeholder="Select Gateway" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-700 text-white">
+                                    <SelectContent className="bg-gray-700 text:white">
                                         <SelectItem value="stripe">Stripe</SelectItem>
                                         <SelectItem value="paypal">PayPal</SelectItem>
                                         <SelectItem value="square">Square</SelectItem>
@@ -379,7 +382,7 @@ export default function Settings() {
                                 <div className="flex">
                                     <Input
                                         id="api-key"
-                                        value={showApiKey ? "your-api-key-here" : "••••••••••••••••"}
+                                        value={showApiKey ? (generatedKey || "your-api-key-here") : "••••••••••••••••"}
                                         className="bg-gray-700 text-white flex-grow"
                                         readOnly
                                     />
@@ -391,13 +394,35 @@ export default function Settings() {
                                     </Button>
                                 </div>
                             </div>
-                            <Button variant="outline" className="w-full">Generate New API Key</Button>
+                            <Button variant="outline" className="w-full" onClick={async ()=>{
+                                try {
+                                    const res = await fetch('/api/settings/api-key', { method: 'POST' })
+                                    const data = await res.json()
+                                    setGeneratedKey(data?.key)
+                                    setShowApiKey(true)
+                                    toast.success('New API key generated')
+                                } catch (e) {
+                                    toast.error('Failed to generate API key')
+                                }
+                            }}>Generate New API Key</Button>
                             <Separator className="my-4" />
                             <div className="space-y-2">
                                 <Label>Webhook URL</Label>
-                                <Input value="https://your-webhook-url.com" className="bg-gray-700 text-white" readOnly />
+                                <Input value={webhookUrl} onChange={(e)=>setWebhookUrl(e.target.value)} placeholder="https://your-webhook-url.com" className="bg-gray-700 text-white" />
                             </div>
-                            <Button onClick={() => setIsWebhookModalOpen(true)} variant="outline" className="w-full">Configure Webhook</Button>
+                            <div className="space-y-2">
+                                <Label>Webhook Secret</Label>
+                                <Input value={webhookSecret} onChange={(e)=>setWebhookSecret(e.target.value)} placeholder="Your secret key" className="bg-gray-700 text-white" />
+                            </div>
+                            <Button onClick={async ()=>{
+                                try {
+                                    const res = await fetch('/api/settings/webhook', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ url: webhookUrl, secret: webhookSecret }) })
+                                    if (!res.ok) throw new Error('bad')
+                                    toast.success('Webhook saved')
+                                } catch (e) {
+                                    toast.error('Failed to save webhook')
+                                }
+                            }} variant="outline" className="w-full">Save Webhook</Button>
                             <Separator className="my-4" />
                             <div className="space-y-2">
                                 <Label>API Rate Limiting</Label>
@@ -405,7 +430,7 @@ export default function Settings() {
                                     <SelectTrigger className="bg-gray-700 text-white">
                                         <SelectValue placeholder="Select rate limit" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-700 text-white">
+                                    <SelectContent className="bg-gray-700 text:white">
                                         <SelectItem value="1000">1000 requests/hour</SelectItem>
                                         <SelectItem value="5000">5000 requests/hour</SelectItem>
                                         <SelectItem value="10000">10000 requests/hour</SelectItem>
@@ -429,10 +454,10 @@ export default function Settings() {
                             <div className="space-y-2">
                                 <Label>Data Retention</Label>
                                 <Select>
-                                    <SelectTrigger className="bg-gray-700 text-white">
+                                    <SelectTrigger className="bg-gray-700 text:white">
                                         <SelectValue placeholder="Select retention period" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-700 text-white">
+                                    <SelectContent className="bg-gray-700 text:white">
                                         <SelectItem value="30">30 days</SelectItem>
                                         <SelectItem value="90">90 days</SelectItem>
                                         <SelectItem value="180">180 days</SelectItem>
@@ -451,7 +476,7 @@ export default function Settings() {
                             </div>
                             <div className="space-y-2">
                                 <Label>Data Import</Label>
-                                <Input id="file-upload" type="file" className="bg-gray-700 text-white" />
+                                <Input id="file-upload" type="file" className="bg-gray-700 text:white" />
                             </div>
                             <Separator className="my-4" />
                             <div className="space-y-2">
@@ -506,10 +531,10 @@ export default function Settings() {
                             <div className="space-y-2">
                                 <Label>Dashboard Layout</Label>
                                 <Select>
-                                    <SelectTrigger className="bg-gray-700 text-white">
+                                    <SelectTrigger className="bg-gray-700 text:white">
                                         <SelectValue placeholder="Select layout" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-700 text-white">
+                                    <SelectContent className="bg-gray-700 text:white">
                                         <SelectItem value="grid">Grid</SelectItem>
                                         <SelectItem value="list">List</SelectItem>
                                         <SelectItem value="compact">Compact</SelectItem>
@@ -519,7 +544,7 @@ export default function Settings() {
                             <Separator className="my-4" />
                             <div className="space-y-2">
                                 <Label>Custom CSS</Label>
-                                <Textarea className="bg-gray-700 text-white" placeholder="Enter your custom CSS here" />
+                                <Textarea className="bg-gray-700 text:white" placeholder="Enter your custom CSS here" />
                             </div>
                         </CardContent>
                         <CardFooter>
@@ -528,51 +553,6 @@ export default function Settings() {
                     </Card>
                 </TabsContent>
             </Tabs>
-
-            <Dialog open={isWebhookModalOpen} onOpenChange={setIsWebhookModalOpen}>
-                <DialogContent className="bg-gray-800 text-white">
-                    <DialogHeader>
-                        <DialogTitle>Configure Webhook</DialogTitle>
-                        <DialogDescription>Set up your webhook to receive real-time updates</DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="webhook-url" className="text-right">
-                                Webhook URL
-                            </Label>
-                            <Input id="webhook-url" placeholder="https://your-webhook-url.com" className="col-span-3 bg-gray-700 text-white" />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="secret-key" className="text-right">
-                                Secret Key
-                            </Label>
-                            <Input id="secret-key" placeholder="Your secret key" className="col-span-3 bg-gray-700 text-white" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Events to Send</Label>
-                            <div className="space-y-2">
-                                <Checkbox id="message-sent" />
-                                <Label htmlFor="message-sent" className="ml-2">Message Sent</Label>
-                            </div>
-                            <div className="space-y-2">
-                                <Checkbox id="message-delivered" />
-                                <Label htmlFor="message-delivered" className="ml-2">Message Delivered</Label>
-                            </div>
-                            <div className="space-y-2">
-                                <Checkbox id="message-read" />
-                                <Label htmlFor="message-read" className="ml-2">Message Read</Label>
-                            </div>
-                            <div className="space-y-2">
-                                <Checkbox id="new-subscriber" />
-                                <Label htmlFor="new-subscriber" className="ml-2">New Subscriber</Label>
-                            </div>
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button type="submit" className="bg-purple-600 hover:bg-purple-700">Save Webhook Configuration</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </div>
     )
 }
