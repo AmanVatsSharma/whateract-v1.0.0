@@ -19,7 +19,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Plus, Settings, Play, Pause, Edit, Trash, ArrowRight, Clock, Users, MessageSquare, BarChart2, Zap, Send, Filter, ChevronDown } from 'lucide-react'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import ReactFlow, { Background, Controls } from 'reactflow'
+import ReactFlow, { Background, Controls, addEdge, applyEdgeChanges, applyNodeChanges } from 'reactflow'
 import 'reactflow/dist/style.css'
 
 const automationRules = [
