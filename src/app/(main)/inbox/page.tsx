@@ -13,7 +13,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Paperclip, Send, Sparkles, Star, Filter, Search } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Paperclip, Send, Sparkles, Star, Filter, Search, Clock, X, UserPlus } from "lucide-react";
 
 const logger = createLogger("inbox");
 
@@ -31,6 +33,16 @@ export default function InboxPage() {
   const [selected, setSelected] = useState<Conversation | null>(null);
   const [query, setQuery] = useState("");
   const [message, setMessage] = useState("");
+  const [summary, setSummary] = useState("");
+  const [isSummarizing, setIsSummarizing] = useState(false);
+  const [labelsByConv, setLabelsByConv] = useState<Record<string, string[]>>({});
+  const [assigneeByConv, setAssigneeByConv] = useState<Record<string, string>>({});
+  const [notesByConv, setNotesByConv] = useState<Record<string, string>>({});
+  const [statusByConv, setStatusByConv] = useState<Record<string, "open" | "snoozed" | "closed">>({});
+
+  // Available options (UI-only). Replace with backend data when wired.
+  const availableAgents = ["You", "Aisha", "Rahul", "Priya"];
+  const availableLabels = ["VIP", "Return", "New", "Support", "Lead"];
 
   useEffect(() => {
     async function load() {
@@ -78,9 +90,46 @@ export default function InboxPage() {
     }
   };
 
+  const summarizeThread = async () => {
+    if (!selected) return;
+    try {
+      setIsSummarizing(true);
+      const res = await apiClient.post("/ai/summarize", {
+        conversationId: selected.id,
+      });
+      const s: string = res.data?.summary || "";
+      setSummary(s);
+      if (s) toast.success("Summary generated");
+    } catch (e) {
+      logger.error("summarize failed", e);
+      toast.error("Summarization failed");
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
+
+  const toggleLabel = (convId: string, label: string) => {
+    setLabelsByConv((prev) => {
+      const cur = new Set(prev[convId] || []);
+      if (cur.has(label)) cur.delete(label); else cur.add(label);
+      return { ...prev, [convId]: Array.from(cur) };
+    });
+  };
+
+  const setAssignee = (convId: string, assignee: string) => {
+    setAssigneeByConv((prev) => ({ ...prev, [convId]: assignee }));
+    toast.success(`Assigned to ${assignee}`);
+  };
+
+  const setStatus = (convId: string, status: "open" | "snoozed" | "closed") => {
+    setStatusByConv((prev) => ({ ...prev, [convId]: status }));
+    toast.message(`Thread ${status}`);
+  };
+
   return (
     <div className="grid grid-cols-12 gap-4 p-4">
-      <Card className="col-span-4 overflow-hidden">
+      {/* Conversations list */}
+      <Card className="col-span-3 overflow-hidden">
         <CardHeader className="border-b">
           <CardTitle className="flex items-center justify-between">
             <span>Inbox</span>
@@ -134,7 +183,8 @@ export default function InboxPage() {
         </CardContent>
       </Card>
 
-      <Card className="col-span-8 overflow-hidden">
+      {/* Thread */}
+      <Card className="col-span-6 overflow-hidden">
         <CardHeader className="border-b">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -143,7 +193,7 @@ export default function InboxPage() {
               </Avatar>
               <div>
                 <div className="font-semibold">{selected?.name || "Select a conversation"}</div>
-                <div className="text-xs text-muted-foreground">Customer profile and tags shown here</div>
+                <div className="text-xs text-muted-foreground">{statusByConv[selected?.id || ""] || "open"}</div>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -155,6 +205,21 @@ export default function InboxPage() {
                   <TooltipContent>Assign labels</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
+              <Button size="sm" variant="outline" onClick={summarizeThread} disabled={!selected || isSummarizing}>
+                <Sparkles className="mr-2 h-4 w-4" />{isSummarizing ? "Summarizing..." : "AI Summarize"}
+              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button size="sm" variant="outline"><Clock className="mr-2 h-4 w-4" />Snooze</Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56">
+                  <div className="space-y-2">
+                    <Button variant="ghost" onClick={() => selected && setStatus(selected.id, "snoozed")}>For 1 hour</Button>
+                    <Button variant="ghost" onClick={() => selected && setStatus(selected.id, "snoozed")}>Until tomorrow</Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+              <Button size="sm" variant="destructive" onClick={() => selected && setStatus(selected.id, "closed")}><X className="mr-2 h-4 w-4" />Close</Button>
             </div>
           </CardTitle>
         </CardHeader>
@@ -185,6 +250,66 @@ export default function InboxPage() {
               <Paperclip className="h-4 w-4" /> Attachments supported (media, docs)
             </div>
           </div>
+        </CardContent>
+      </Card>
+      
+      {/* Profile / Assignment / Labels / Notes */}
+      <Card className="col-span-3 overflow-hidden">
+        <CardHeader className="border-b">
+          <CardTitle>Details</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4 p-4">
+          <div className="space-y-2">
+            <div className="text-sm font-medium">Assignee</div>
+            <Select onValueChange={(v) => selected && setAssignee(selected.id, v)} value={selected ? assigneeByConv[selected.id] || "" : undefined}>
+              <SelectTrigger><SelectValue placeholder="Unassigned" /></SelectTrigger>
+              <SelectContent>
+                {availableAgents.map((a) => (
+                  <SelectItem key={a} value={a}>{a}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-sm font-medium">Labels</div>
+            <div className="space-y-2">
+              {availableLabels.map((l) => {
+                const checked = selected ? (labelsByConv[selected.id] || []).includes(l) : false;
+                return (
+                  <label key={l} className="flex items-center gap-2 text-sm">
+                    <Checkbox checked={checked} onCheckedChange={() => selected && toggleLabel(selected.id, l)} />
+                    {l}
+                  </label>
+                );
+              })}
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {(selected ? labelsByConv[selected.id] || [] : []).map((t) => (
+                <Badge key={t} variant="outline" className="text-xs">{t}</Badge>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-sm font-medium">Internal Notes</div>
+            <Textarea
+              value={selected ? (notesByConv[selected.id] || "") : ""}
+              onChange={(e) => selected && setNotesByConv((p) => ({ ...p, [selected.id]: e.target.value }))}
+              placeholder="Add notes for your team..."
+              className="min-h-[120px]"
+            />
+            <Button variant="outline" size="sm">Save Note</Button>
+          </div>
+
+          {summary && (
+            <div className="space-y-2">
+              <div className="text-sm font-medium">AI Summary</div>
+              <div className="rounded-md border p-3 text-sm whitespace-pre-wrap text-muted-foreground">
+                {summary}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
