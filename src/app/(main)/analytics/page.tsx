@@ -69,16 +69,16 @@ export default function Analytics() {
     const [isCustomReportModalOpen, setIsCustomReportModalOpen] = useState(false)
 
     return (
-        <div className="flex flex-col min-h-screen bg-gray-900 text-white p-8">
+        <div className="flex flex-col min-h-screen bg-background text-foreground p-8">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-purple-400">Analytics</h1>
+                <h1 className="text-3xl font-bold text-primary">Analytics</h1>
                 <div className="flex items-center space-x-4">
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button
                                 variant={"outline"}
                                 className={cn(
-                                    "w-[240px] justify-start text-left font-normal bg-gray-800 border-gray-700 text-white",
+                                    "w-[240px] justify-start text-left font-normal bg-card border-border text-foreground",
                                     !date && "text-muted-foreground"
                                 )}
                             >
@@ -86,36 +86,36 @@ export default function Analytics() {
                                 {date?.from ? format(date.from, "PPP") : <span>Pick a date range</span>}
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 bg-gray-800 border-gray-700">
+                        <PopoverContent className="w-auto p-0 bg-card border-border">
                             <Calendar
                                 mode="range"
                                 selected={date as any}
                                 onSelect={setDate as any}
                                 initialFocus
-                                className="bg-gray-800 text-white"
+                                className="bg-card"
                             />
                         </PopoverContent>
                     </Popover>
                     <Select>
-                        <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700 text-white">
+                        <SelectTrigger className="w-[180px] bg-card border-border text-foreground">
                             <SelectValue placeholder="Filter by campaign" />
                         </SelectTrigger>
-                        <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                        <SelectContent className="bg-card border-border text-foreground">
                             <SelectItem value="all">All Campaigns</SelectItem>
                             <SelectItem value="campaign-a">Campaign A</SelectItem>
                             <SelectItem value="campaign-b">Campaign B</SelectItem>
                             <SelectItem value="campaign-c">Campaign C</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Button variant="outline" className="bg-gray-800 border-gray-700 text-white">
+                    <Button variant="outline" className="bg-card border-border text-foreground">
                         <Filter className="mr-2 h-4 w-4" />
                         More Filters
                     </Button>
-                    <Button variant="outline" className="bg-gray-800 border-gray-700 text-white" onClick={() => setIsCustomReportModalOpen(true)}>
+                    <Button variant="outline" className="bg-card border-border text-foreground" onClick={() => setIsCustomReportModalOpen(true)}>
                         <BarChart className="mr-2 h-4 w-4" />
                         Custom Report
                     </Button>
-                    <Button variant="outline" className="bg-gray-800 border-gray-700 text-white" onClick={async () => {
+                    <Button variant="outline" className="bg-card border-border text-foreground" onClick={async () => {
                         try {
                             const res = await fetch('/api/analytics/export');
                             if (!res.ok) throw new Error('Export failed');
@@ -133,62 +133,62 @@ export default function Analytics() {
             </div>
 
             <Tabs defaultValue="overview" className="space-y-4">
-                <TabsList className="bg-gray-800">
-                    <TabsTrigger value="overview" className="data-[state=active]:bg-purple-600">Overview</TabsTrigger>
-                    <TabsTrigger value="campaigns" className="data-[state=active]:bg-purple-600">Campaigns</TabsTrigger>
-                    <TabsTrigger value="audience" className="data-[state=active]:bg-purple-600">Audience</TabsTrigger>
-                    <TabsTrigger value="messages" className="data-[state=active]:bg-purple-600">Messages</TabsTrigger>
-                    <TabsTrigger value="predictive" className="data-[state=active]:bg-purple-600">Predictive Analytics</TabsTrigger>
+                <TabsList className="bg-secondary">
+                    <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Overview</TabsTrigger>
+                    <TabsTrigger value="campaigns" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Campaigns</TabsTrigger>
+                    <TabsTrigger value="audience" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Audience</TabsTrigger>
+                    <TabsTrigger value="messages" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Messages</TabsTrigger>
+                    <TabsTrigger value="predictive" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Predictive Analytics</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        <Card className="bg-gray-800 border-gray-700">
+                        <Card className="bg-card border-border">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-gray-300">Total Sent</CardTitle>
-                                <Send className="h-4 w-4 text-purple-400" />
+                                <CardTitle className="text-sm font-medium text-muted-foreground">Total Sent</CardTitle>
+                                <Send className="h-4 w-4 text-primary" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-white">5,300</div>
+                                <div className="text-2xl font-bold text-foreground">5,300</div>
                                 <p className="text-xs text-green-500 flex items-center">
                                     <ArrowUpRight className="h-4 w-4 mr-1" />
                                     12% from last month
                                 </p>
                             </CardContent>
                         </Card>
-                        <Card className="bg-gray-800 border-gray-700">
+                        <Card className="bg-card border-border">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-gray-300">Delivery Rate</CardTitle>
-                                <TrendingUp className="h-4 w-4 text-purple-400" />
+                                <CardTitle className="text-sm font-medium text-muted-foreground">Delivery Rate</CardTitle>
+                                <TrendingUp className="h-4 w-4 text-primary" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-white">98.2%</div>
+                                <div className="text-2xl font-bold text-foreground">98.2%</div>
                                 <p className="text-xs text-green-500 flex items-center">
                                     <ArrowUpRight className="h-4 w-4 mr-1" />
                                     0.5% from last month
                                 </p>
                             </CardContent>
                         </Card>
-                        <Card className="bg-gray-800 border-gray-700">
+                        <Card className="bg-card border-border">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-gray-300">Open Rate</CardTitle>
-                                <MessageSquare className="h-4 w-4 text-purple-400" />
+                                <CardTitle className="text-sm font-medium text-muted-foreground">Open Rate</CardTitle>
+                                <MessageSquare className="h-4 w-4 text-primary" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-white">75.8%</div>
+                                <div className="text-2xl font-bold text-foreground">75.8%</div>
                                 <p className="text-xs text-red-500 flex items-center">
                                     <ArrowDownRight className="h-4 w-4 mr-1" />
                                     2.3% from last month
                                 </p>
                             </CardContent>
                         </Card>
-                        <Card className="bg-gray-800 border-gray-700">
+                        <Card className="bg-card border-border">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-gray-300">Response Rate</CardTitle>
-                                <Users className="h-4 w-4 text-purple-400" />
+                                <CardTitle className="text-sm font-medium text-muted-foreground">Response Rate</CardTitle>
+                                <Users className="h-4 w-4 text-primary" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-white">22.6%</div>
+                                <div className="text-2xl font-bold text-foreground">22.6%</div>
                                 <p className="text-xs text-green-500 flex items-center">
                                     <ArrowUpRight className="h-4 w-4 mr-1" />
                                     3.1% from last month
@@ -196,10 +196,10 @@ export default function Analytics() {
                             </CardContent>
                         </Card>
                     </div>
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card className="bg-card border-border">
                         <CardHeader>
-                            <CardTitle className="text-purple-400">Campaign Performance Overview</CardTitle>
-                            <CardDescription className="text-gray-400">Comparison of key metrics across campaigns</CardDescription>
+                            <CardTitle className="text-primary">Campaign Performance Overview</CardTitle>
+                            <CardDescription className="text-muted-foreground">Comparison of key metrics across campaigns</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <ResponsiveContainer width="100%" height={400}>
@@ -220,10 +220,10 @@ export default function Analytics() {
                 </TabsContent>
 
                 <TabsContent value="campaigns" className="space-y-4">
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card className="bg-card border-border">
                         <CardHeader>
-                            <CardTitle className="text-purple-400">Campaign Conversion Rates</CardTitle>
-                            <CardDescription className="text-gray-400">Conversion rates for each campaign</CardDescription>
+                            <CardTitle className="text-primary">Campaign Conversion Rates</CardTitle>
+                            <CardDescription className="text-muted-foreground">Conversion rates for each campaign</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <ResponsiveContainer width="100%" height={400}>
@@ -238,10 +238,10 @@ export default function Analytics() {
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card className="bg-card border-border">
                         <CardHeader>
-                            <CardTitle className="text-purple-400">Campaign Comparison</CardTitle>
-                            <CardDescription className="text-gray-400">Side-by-side comparison of campaign metrics</CardDescription>
+                            <CardTitle className="text-primary">Campaign Comparison</CardTitle>
+                            <CardDescription className="text-muted-foreground">Side-by-side comparison of campaign metrics</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <Table>
@@ -273,10 +273,10 @@ export default function Analytics() {
                 </TabsContent>
 
                 <TabsContent value="audience" className="space-y-4">
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card className="bg-card border-border">
                         <CardHeader>
-                            <CardTitle className="text-purple-400">Audience Engagement Trends</CardTitle>
-                            <CardDescription className="text-gray-400">New subscribers, active users, and churn over time</CardDescription>
+                            <CardTitle className="text-primary">Audience Engagement Trends</CardTitle>
+                            <CardDescription className="text-muted-foreground">New subscribers, active users, and churn over time</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <ResponsiveContainer width="100%" height={400}>
@@ -293,10 +293,10 @@ export default function Analytics() {
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card className="bg-card border-border">
                         <CardHeader>
-                            <CardTitle className="text-purple-400">Cohort Analysis</CardTitle>
-                            <CardDescription className="text-gray-400">Retention rates for different cohorts over time</CardDescription>
+                            <CardTitle className="text-primary">Cohort Analysis</CardTitle>
+                            <CardDescription className="text-muted-foreground">Retention rates for different cohorts over time</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <ResponsiveContainer width="100%" height={400}>
@@ -319,10 +319,10 @@ export default function Analytics() {
                 </TabsContent>
 
                 <TabsContent value="messages" className="space-y-4">
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card className="bg-card border-border">
                         <CardHeader>
-                            <CardTitle className="text-purple-400">Message Type Distribution</CardTitle>
-                            <CardDescription className="text-gray-400">Breakdown of messages by category</CardDescription>
+                            <CardTitle className="text-primary">Message Type Distribution</CardTitle>
+                            <CardDescription className="text-muted-foreground">Breakdown of messages by category</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <ResponsiveContainer width="100%" height={400}>
@@ -347,10 +347,10 @@ export default function Analytics() {
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card className="bg-card border-border">
                         <CardHeader>
-                            <CardTitle className="text-purple-400">Message Engagement Analysis</CardTitle>
-                            <CardDescription className="text-gray-400">Correlation between message length and engagement</CardDescription>
+                            <CardTitle className="text-primary">Message Engagement Analysis</CardTitle>
+                            <CardDescription className="text-muted-foreground">Correlation between message length and engagement</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <ResponsiveContainer width="100%" height={400}>
@@ -373,10 +373,10 @@ export default function Analytics() {
                 </TabsContent>
 
                 <TabsContent value="predictive" className="space-y-4">
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card className="bg-card border-border">
                         <CardHeader>
-                            <CardTitle className="text-purple-400">Predictive Subscriber Growth</CardTitle>
-                            <CardDescription className="text-gray-400">Forecasted subscriber growth for the next 3 months</CardDescription>
+                            <CardTitle className="text-primary">Predictive Subscriber Growth</CardTitle>
+                            <CardDescription className="text-muted-foreground">Forecasted subscriber growth for the next 3 months</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <ResponsiveContainer width="100%" height={400}>
@@ -392,10 +392,10 @@ export default function Analytics() {
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card className="bg-card border-border">
                         <CardHeader>
-                            <CardTitle className="text-purple-400">Churn Risk Analysis</CardTitle>
-                            <CardDescription className="text-gray-400">Subscribers at risk of churning in the next 30 days</CardDescription>
+                            <CardTitle className="text-primary">Churn Risk Analysis</CardTitle>
+                            <CardDescription className="text-muted-foreground">Subscribers at risk of churning in the next 30 days</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <Table>
@@ -434,7 +434,7 @@ export default function Analytics() {
             </Tabs>
 
             <Dialog open={isCustomReportModalOpen} onOpenChange={setIsCustomReportModalOpen}>
-                <DialogContent className="bg-gray-800 text-white">
+                <DialogContent className="bg-card text-foreground">
                     <DialogHeader>
                         <DialogTitle>Generate Custom Report</DialogTitle>
                         <DialogDescription>Select metrics and date range for your custom report.</DialogDescription>
@@ -464,10 +464,10 @@ export default function Analytics() {
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="date-range" className="text-right">Date Range</Label>
                             <Select>
-                                <SelectTrigger className="col-span-3 bg-gray-700 text-white">
+                                <SelectTrigger className="col-span-3 bg-muted text-foreground">
                                     <SelectValue placeholder="Select date range" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-gray-700 text-white">
+                                <SelectContent className="bg-card text-foreground">
                                     <SelectItem value="7d">Last 7 days</SelectItem>
                                     <SelectItem value="30d">Last 30 days</SelectItem>
                                     <SelectItem value="90d">Last 90 days</SelectItem>
@@ -478,10 +478,10 @@ export default function Analytics() {
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="format" className="text-right">Format</Label>
                             <Select>
-                                <SelectTrigger className="col-span-3 bg-gray-700 text-white">
+                                <SelectTrigger className="col-span-3 bg-muted text-foreground">
                                     <SelectValue placeholder="Select format" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-gray-700 text-white">
+                                <SelectContent className="bg-card text-foreground">
                                     <SelectItem value="pdf">PDF</SelectItem>
                                     <SelectItem value="csv">CSV</SelectItem>
                                     <SelectItem value="xlsx">Excel</SelectItem>
@@ -490,7 +490,7 @@ export default function Analytics() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="submit" className="bg-purple-600 hover:bg-purple-700">Generate Report</Button>
+                        <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground">Generate Report</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
