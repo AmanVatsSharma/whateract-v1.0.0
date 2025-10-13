@@ -108,42 +108,42 @@ export default function AdvancedCampaignManagementPro() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen pt-[90px] bg-gray-900 text-white">
+    <div className="flex flex-col lg:flex-row min-h-screen pt-[90px] bg-background text-foreground">
       {/* Main Content */}
       <main className="flex-1 p-4 lg:p-6 overflow-auto">
         <div className="mb-6 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-purple-400">Campaign Central</h1>
-            <p className="text-gray-400">Supercharge your WhatsApp marketing efforts</p>
+            <h1 className="text-3xl font-bold text-primary">Campaign Central</h1>
+            <p className="text-muted-foreground">Supercharge your WhatsApp marketing efforts</p>
           </div>
-          <Button onClick={() => { setIsCreating(true); setStep(1) }} className="bg-purple-600 hover:bg-purple-700">
+          <Button onClick={() => { setIsCreating(true); setStep(1) }} className="bg-primary hover:bg-primary/90 text-primary-foreground">
             <Plus className="mr-2 h-4 w-4" /> New Campaign
           </Button>
         </div>
 
         <Tabs defaultValue="campaigns" className="space-y-4">
-          <TabsList className="bg-gray-800">
-            <TabsTrigger value="campaigns" className="data-[state=active]:bg-purple-600">Campaigns</TabsTrigger>
-            <TabsTrigger value="analytics" className="data-[state=active]:bg-purple-600">Analytics</TabsTrigger>
-            <TabsTrigger value="audience" className="data-[state=active]:bg-purple-600">Audience</TabsTrigger>
-            <TabsTrigger value="templates" className="data-[state=active]:bg-purple-600">Templates</TabsTrigger>
-            <TabsTrigger value="automations" className="data-[state=active]:bg-purple-600">Automations</TabsTrigger>
+          <TabsList className="bg-secondary">
+            <TabsTrigger value="campaigns" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Campaigns</TabsTrigger>
+            <TabsTrigger value="analytics" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Analytics</TabsTrigger>
+            <TabsTrigger value="audience" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Audience</TabsTrigger>
+            <TabsTrigger value="templates" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Templates</TabsTrigger>
+            <TabsTrigger value="automations" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Automations</TabsTrigger>
           </TabsList>
 
           <TabsContent value="campaigns" className="space-y-4">
             <div className="flex justify-between items-center">
               <div className="flex items-center space-x-2">
-                <Input placeholder="Search campaigns..." className="w-64 bg-gray-800 border-gray-700 text-white" />
-                <Button variant="outline" size="icon" className="border-gray-700 text-gray-300 hover:text-white hover:bg-gray-700">
+                <Input placeholder="Search campaigns..." className="w-64 bg-card border-border text-foreground" />
+                <Button variant="outline" size="icon" className="border-border text-muted-foreground hover:text-foreground hover:bg-secondary">
                   <Search className="h-4 w-4" />
                 </Button>
               </div>
               <div className="flex space-x-2">
                 <Select>
-                  <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700 text-white">
+                  <SelectTrigger className="w-[180px] bg-card border-border text-foreground">
                     <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                  <SelectContent className="bg-card border-border text-foreground">
                     <SelectItem value="all">All Campaigns</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
                     <SelectItem value="scheduled">Scheduled</SelectItem>
@@ -151,49 +151,49 @@ export default function AdvancedCampaignManagementPro() {
                     <SelectItem value="draft">Draft</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="outline" className="border-gray-700 text-gray-300 hover:text-white hover:bg-gray-700">
+                <Button variant="outline" className="border-border text-muted-foreground hover:text-foreground hover:bg-secondary">
                   <Filter className="mr-2 h-4 w-4" />
                   More Filters
                 </Button>
               </div>
             </div>
 
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-purple-400">Active Campaigns</CardTitle>
-                <CardDescription className="text-gray-400">Real-time overview of your running campaigns</CardDescription>
+                <CardTitle className="text-primary">Active Campaigns</CardTitle>
+                <CardDescription className="text-muted-foreground">Real-time overview of your running campaigns</CardDescription>
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[400px]">
                   <Table>
                     <TableHeader>
-                      <TableRow className="border-gray-700">
-                        <TableHead className="text-gray-300">Name</TableHead>
-                        <TableHead className="text-gray-300">Status</TableHead>
-                        <TableHead className="text-gray-300">Sent</TableHead>
-                        <TableHead className="text-gray-300">Delivered</TableHead>
-                        <TableHead className="text-gray-300">Read</TableHead>
-                        <TableHead className="text-gray-300">Responded</TableHead>
-                        <TableHead className="text-gray-300">Conversion</TableHead>
-                        <TableHead className="text-gray-300">ROI</TableHead>
-                        <TableHead className="text-gray-300">Actions</TableHead>
+                      <TableRow className="border-border">
+                        <TableHead className="text-foreground">Name</TableHead>
+                        <TableHead className="text-foreground">Status</TableHead>
+                        <TableHead className="text-foreground">Sent</TableHead>
+                        <TableHead className="text-foreground">Delivered</TableHead>
+                        <TableHead className="text-foreground">Read</TableHead>
+                        <TableHead className="text-foreground">Responded</TableHead>
+                        <TableHead className="text-foreground">Conversion</TableHead>
+                        <TableHead className="text-foreground">ROI</TableHead>
+                        <TableHead className="text-foreground">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {campaignData.map((campaign) => (
-                        <TableRow key={campaign.id} className="border-gray-700">
-                          <TableCell className="font-medium text-white">{campaign.name}</TableCell>
+                        <TableRow key={campaign.id} className="border-border">
+                          <TableCell className="font-medium text-foreground">{campaign.name}</TableCell>
                           <TableCell>
                             <Badge variant={campaign.status === 'Active' ? 'default' : 'secondary'} className="bg-green-600 text-white">
                               {campaign.status}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-gray-300">{campaign.sent.toLocaleString()}</TableCell>
-                          <TableCell className="text-gray-300">{campaign.delivered.toLocaleString()}</TableCell>
-                          <TableCell className="text-gray-300">{campaign.read.toLocaleString()}</TableCell>
-                          <TableCell className="text-gray-300">{campaign.responded.toLocaleString()}</TableCell>
-                          <TableCell className="text-gray-300">{campaign.conversionRate}%</TableCell>
-                          <TableCell className="text-gray-300">{campaign.roi}%</TableCell>
+                          <TableCell className="text-muted-foreground">{campaign.sent.toLocaleString()}</TableCell>
+                          <TableCell className="text-muted-foreground">{campaign.delivered.toLocaleString()}</TableCell>
+                          <TableCell className="text-muted-foreground">{campaign.read.toLocaleString()}</TableCell>
+                          <TableCell className="text-muted-foreground">{campaign.responded.toLocaleString()}</TableCell>
+                          <TableCell className="text-muted-foreground">{campaign.conversionRate}%</TableCell>
+                          <TableCell className="text-muted-foreground">{campaign.roi}%</TableCell>
                           <TableCell>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
@@ -201,22 +201,22 @@ export default function AdvancedCampaignManagementPro() {
                                   <MoreVertical className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="bg-gray-800 border-gray-700 text-white">
+                              <DropdownMenuContent align="end" className="bg-card border-border text-foreground">
                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem className="hover:bg-gray-700">
+                                <DropdownMenuItem className="hover:bg-secondary">
                                   <Eye className="mr-2 h-4 w-4" />
                                   View Details
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="hover:bg-gray-700">
+                                <DropdownMenuItem className="hover:bg-secondary">
                                   <Edit className="mr-2 h-4 w-4" />
                                   Edit Campaign
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="hover:bg-gray-700">
+                                <DropdownMenuItem className="hover:bg-secondary">
                                   <Copy className="mr-2 h-4 w-4" />
                                   Duplicate
                                 </DropdownMenuItem>
-                                <DropdownMenuSeparator className="bg-gray-700" />
-                                <DropdownMenuItem className="hover:bg-gray-700 text-red-500">
+                                <DropdownMenuSeparator className="bg-border" />
+                                <DropdownMenuItem className="hover:bg-secondary text-destructive">
                                   <Trash className="mr-2 h-4 w-4" />
                                   Delete
                                 </DropdownMenuItem>
@@ -232,47 +232,47 @@ export default function AdvancedCampaignManagementPro() {
             </Card>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Card className="bg-gray-800 border-gray-700">
+              <Card className="bg-card border-border">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Total Sent</CardTitle>
-                  <Send className="h-4 w-4 text-purple-400" />
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Sent</CardTitle>
+                  <Send className="h-4 w-4 text-primary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">54,231</div>
-                  <p className="text-xs text-gray-400">+20.1% from last month</p>
+                  <div className="text-2xl font-bold text-foreground">54,231</div>
+                  <p className="text-xs text-muted-foreground">+20.1% from last month</p>
                   <Progress value={75} className="mt-2" />
                 </CardContent>
               </Card>
-              <Card className="bg-gray-800 border-gray-700">
+              <Card className="bg-card border-border">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Avg. Open Rate</CardTitle>
-                  <Eye className="h-4 w-4 text-purple-400" />
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Avg. Open Rate</CardTitle>
+                  <Eye className="h-4 w-4 text-primary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">32.5%</div>
-                  <p className="text-xs text-gray-400">+4.3% from last month</p>
+                  <div className="text-2xl font-bold text-foreground">32.5%</div>
+                  <p className="text-xs text-muted-foreground">+4.3% from last month</p>
                   <Progress value={32.5} className="mt-2" />
                 </CardContent>
               </Card>
-              <Card className="bg-gray-800 border-gray-700">
+              <Card className="bg-card border-border">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Avg. Response Rate</CardTitle>
-                  <MessageSquare className="h-4 w-4 text-purple-400" />
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Avg. Response Rate</CardTitle>
+                  <MessageSquare className="h-4 w-4 text-primary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">18.2%</div>
-                  <p className="text-xs text-gray-400">+2.7% from last month</p>
+                  <div className="text-2xl font-bold text-foreground">18.2%</div>
+                  <p className="text-xs text-muted-foreground">+2.7% from last month</p>
                   <Progress value={18.2} className="mt-2" />
                 </CardContent>
               </Card>
-              <Card className="bg-gray-800 border-gray-700">
+              <Card className="bg-card border-border">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Avg. ROI</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-purple-400" />
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Avg. ROI</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-primary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">215%</div>
-                  <p className="text-xs text-gray-400">+15.3% from last month</p>
+                  <div className="text-2xl font-bold text-foreground">215%</div>
+                  <p className="text-xs text-muted-foreground">+15.3% from last month</p>
                   <Progress value={75} className="mt-2" />
                 </CardContent>
               </Card>
@@ -375,16 +375,16 @@ export default function AdvancedCampaignManagementPro() {
 
         {/* Create Campaign Dialog - 3-step wizard with AI */}
         <Dialog open={isCreating} onOpenChange={setIsCreating}>
-          <DialogContent className="sm:max-w-[725px] bg-gray-800 text-white">
+          <DialogContent className="sm:max-w-[725px] bg-card text-foreground">
             <DialogHeader>
-              <DialogTitle className="text-purple-400">Create New Campaign</DialogTitle>
-              <DialogDescription className="text-gray-400">
+              <DialogTitle className="text-primary">Create New Campaign</DialogTitle>
+              <DialogDescription className="text-muted-foreground">
                 Set up your new WhatsApp marketing campaign
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-400">Step {step} of 3</div>
+                <div className="text-sm text-muted-foreground">Step {step} of 3</div>
                 <div className="space-x-2">
                   <Button variant={step===1?"default":"outline"} size="sm" onClick={()=>setStep(1)}>Details</Button>
                   <Button variant={step===2?"default":"outline"} size="sm" onClick={()=>setStep(2)}>Message</Button>
@@ -395,20 +395,20 @@ export default function AdvancedCampaignManagementPro() {
               {step === 1 && (
                 <>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="campaign-name" className="text-right text-gray-300">
+                    <Label htmlFor="campaign-name" className="text-right text-foreground">
                       Name
                     </Label>
-                    <Input id="campaign-name" placeholder="Enter campaign name" className="col-span-3 bg-gray-700 border-gray-600 text-white" />
+                    <Input id="campaign-name" placeholder="Enter campaign name" className="col-span-3 bg-muted border-border text-foreground" />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="campaign-type" className="text-right text-gray-300">
+                    <Label htmlFor="campaign-type" className="text-right text-foreground">
                       Type
                     </Label>
                     <Select>
-                      <SelectTrigger id="campaign-type" className="col-span-3 bg-gray-700 border-gray-600 text-white">
+                      <SelectTrigger id="campaign-type" className="col-span-3 bg-muted border-border text-foreground">
                         <SelectValue placeholder="Select campaign type" />
                       </SelectTrigger>
-                      <SelectContent className="bg-gray-700 border-gray-600 text-white">
+                      <SelectContent className="bg-card border-border text-foreground">
                         <SelectItem value="promotional">Promotional</SelectItem>
                         <SelectItem value="informational">Informational</SelectItem>
                         <SelectItem value="survey">Survey</SelectItem>
@@ -417,14 +417,14 @@ export default function AdvancedCampaignManagementPro() {
                     </Select>
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="target-audience" className="text-right text-gray-300">
+                    <Label htmlFor="target-audience" className="text-right text-foreground">
                       Target Audience
                     </Label>
                     <Select>
-                      <SelectTrigger id="target-audience" className="col-span-3 bg-gray-700 border-gray-600 text-white">
+                      <SelectTrigger id="target-audience" className="col-span-3 bg-muted border-border text-foreground">
                         <SelectValue placeholder="Select target audience" />
                       </SelectTrigger>
-                      <SelectContent className="bg-gray-700 border-gray-600 text-white">
+                      <SelectContent className="bg-card border-border text-foreground">
                         <SelectItem value="all">All Subscribers</SelectItem>
                         <SelectItem value="active">Active Users</SelectItem>
                         <SelectItem value="inactive">Inactive Users</SelectItem>
@@ -438,14 +438,14 @@ export default function AdvancedCampaignManagementPro() {
               {step === 2 && (
                 <>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="campaign-template" className="text-right text-gray-300">
+                    <Label htmlFor="campaign-template" className="text-right text-foreground">
                       Template
                     </Label>
                     <Select onValueChange={handleTemplateSelect}>
-                      <SelectTrigger id="campaign-template" className="col-span-3 bg-gray-700 border-gray-600 text-white">
+                      <SelectTrigger id="campaign-template" className="col-span-3 bg-muted border-border text-foreground">
                         <SelectValue placeholder="Select a template" />
                       </SelectTrigger>
-                      <SelectContent className="bg-gray-700 border-gray-600 text-white">
+                      <SelectContent className="bg-card border-border text-foreground">
                         {templates.map((template) => (
                           <SelectItem key={template.id} value={template.id.toString()}>{template.name}</SelectItem>
                         ))}
@@ -453,21 +453,21 @@ export default function AdvancedCampaignManagementPro() {
                     </Select>
                   </div>
                   <div className="grid grid-cols-4 items-start gap-4">
-                    <Label htmlFor="campaign-message" className="text-right text-gray-300">
+                    <Label htmlFor="campaign-message" className="text-right text-foreground">
                       Message
                     </Label>
                     <div className="col-span-3 space-y-2">
                       <Textarea
                         id="campaign-message"
                         placeholder="Enter your campaign message"
-                        className="bg-gray-700 border-gray-600 text-white"
+                        className="bg-muted border-border text-foreground"
                         value={campaignMessage}
                         onChange={(e: any) => setCampaignMessage(e.target.value)}
                       />
                       <div className="flex items-center gap-2">
                         <Select value={aiTone} onValueChange={setAiTone}>
-                          <SelectTrigger className="w-[160px] bg-gray-700 border-gray-600 text-white"><SelectValue placeholder="Tone" /></SelectTrigger>
-                          <SelectContent className="bg-gray-700 border-gray-600 text-white">
+                          <SelectTrigger className="w-[160px] bg-muted border-border text-foreground"><SelectValue placeholder="Tone" /></SelectTrigger>
+                          <SelectContent className="bg-card border-border text-foreground">
                             <SelectItem value="friendly">Friendly</SelectItem>
                             <SelectItem value="professional">Professional</SelectItem>
                             <SelectItem value="concise">Concise</SelectItem>
@@ -486,7 +486,7 @@ export default function AdvancedCampaignManagementPro() {
               {step === 3 && (
                 <>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right text-gray-300">Schedule</Label>
+                    <Label className="text-right text-foreground">Schedule</Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -500,19 +500,19 @@ export default function AdvancedCampaignManagementPro() {
                           {date ? format(date, "PPP") : <span>Pick a date</span>}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 bg-gray-700 border-gray-600">
+                      <PopoverContent className="w-auto p-0 bg-card border-border">
                         <Calendar
                           mode="single"
                           selected={date}
                           onSelect={setDate}
                           initialFocus
-                          className="bg-gray-700 text-white"
+                          className="bg-card"
                         />
                       </PopoverContent>
                     </Popover>
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="a-b-testing" className="text-right text-gray-300">
+                    <Label htmlFor="a-b-testing" className="text-right text-foreground">
                       A/B Testing
                     </Label>
                     <Switch id="a-b-testing" />
@@ -521,12 +521,12 @@ export default function AdvancedCampaignManagementPro() {
               )}
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCreating(false)} className="border-gray-600 text-gray-300 hover:bg-gray-700">Cancel</Button>
+              <Button variant="outline" onClick={() => setIsCreating(false)} className="border-border text-muted-foreground hover:bg-secondary">Cancel</Button>
               {step > 1 && <Button variant="outline" onClick={() => setStep(step-1)} className="border-gray-600 text-gray-300 hover:bg-gray-700">Back</Button>}
               {step < 3 ? (
-                <Button onClick={() => setStep(step+1)} className="bg-purple-600 hover:bg-purple-700">Next</Button>
+                <Button onClick={() => setStep(step+1)} className="bg-primary hover:bg-primary/90 text-primary-foreground">Next</Button>
               ) : (
-                <Button type="submit" className="bg-purple-600 hover:bg-purple-700">Create Campaign</Button>
+                <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground">Create Campaign</Button>
               )}
             </DialogFooter>
           </DialogContent>

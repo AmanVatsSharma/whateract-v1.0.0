@@ -62,7 +62,7 @@ export default function AudienceManagement() {
     const [date, setDate] = useState<Date | undefined>(new Date())
 
     return (
-        <div className="flex flex-col lg:flex-row min-h-screen bg-gray-900 text-white">
+        <div className="flex flex-col lg:flex-row min-h-screen bg-background text-foreground">
             {/* Sidebar */}
             {/* <aside className="w-full lg:w-64 bg-gray-800 p-4 lg:p-6 border-r border-gray-700">
                 <h2 className="text-2xl font-bold mb-6 text-purple-400">WhatsApp Pro Max</h2>
@@ -98,35 +98,35 @@ export default function AudienceManagement() {
             <main className="flex-1 p-4 lg:p-6 overflow-auto">
                 <div className="mb-6 flex justify-between items-center">
                     <div>
-                        <h1 className="text-3xl font-bold text-purple-400">Audience Management</h1>
-                        <p className="text-gray-400">Manage and analyze your WhatsApp contacts and segments</p>
+                        <h1 className="text-3xl font-bold text-primary">Audience Management</h1>
+                        <p className="text-muted-foreground">Manage and analyze your WhatsApp contacts and segments</p>
                     </div>
-                    <Button onClick={() => setIsAddingContact(true)} className="bg-purple-600 hover:bg-purple-700">
+                    <Button onClick={() => setIsAddingContact(true)} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                         <UserPlus className="mr-2 h-4 w-4" /> Add Contact
                     </Button>
                 </div>
 
                 <Tabs defaultValue="contacts" className="space-y-4">
-                    <TabsList className="bg-gray-800">
-                        <TabsTrigger value="contacts" className="data-[state=active]:bg-purple-600">Contacts</TabsTrigger>
-                        <TabsTrigger value="segments" className="data-[state=active]:bg-purple-600">Segments</TabsTrigger>
-                        <TabsTrigger value="analytics" className="data-[state=active]:bg-purple-600">Analytics</TabsTrigger>
+                    <TabsList className="bg-secondary">
+                        <TabsTrigger value="contacts" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Contacts</TabsTrigger>
+                        <TabsTrigger value="segments" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Segments</TabsTrigger>
+                        <TabsTrigger value="analytics" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Analytics</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="contacts" className="space-y-4">
                         <div className="flex justify-between items-center">
                             <div className="flex items-center space-x-2">
-                                <Input placeholder="Search contacts..." className="w-64 bg-gray-800 border-gray-700 text-white" />
-                                <Button variant="outline" size="icon" className="border-gray-700 text-gray-300 hover:text-white hover:bg-gray-700">
+                                <Input placeholder="Search contacts..." className="w-64 bg-card border-border text-foreground" />
+                                <Button variant="outline" size="icon" className="border-border text-muted-foreground hover:text-foreground hover:bg-secondary">
                                     <Search className="h-4 w-4" />
                                 </Button>
                             </div>
                             <div className="flex space-x-2">
                                 <Select>
-                                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700 text-white">
+                                    <SelectTrigger className="w-[180px] bg-card border-border text-foreground">
                                         <SelectValue placeholder="Filter by tag" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                                    <SelectContent className="bg-card border-border text-foreground">
                                         <SelectItem value="all">All Contacts</SelectItem>
                                         <SelectItem value="vip">VIP</SelectItem>
                                         <SelectItem value="frequent">Frequent Buyer</SelectItem>
@@ -134,34 +134,34 @@ export default function AudienceManagement() {
                                         <SelectItem value="inactive">Inactive</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <Button variant="outline" className="border-gray-700 text-gray-300 hover:text-white hover:bg-gray-700">
+                                <Button variant="outline" className="border-border text-muted-foreground hover:text-foreground hover:bg-secondary">
                                     <Filter className="mr-2 h-4 w-4" />
                                     More Filters
                                 </Button>
                             </div>
                         </div>
 
-                        <Card className="bg-gray-800 border-gray-700">
+                        <Card className="bg-card border-border">
                             <CardHeader>
-                                <CardTitle className="text-purple-400">Contact List</CardTitle>
-                                <CardDescription className="text-gray-400">Manage your WhatsApp contacts</CardDescription>
+                                <CardTitle className="text-primary">Contact List</CardTitle>
+                                <CardDescription className="text-muted-foreground">Manage your WhatsApp contacts</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <ScrollArea className="h-[400px]">
                                     <Table>
                                         <TableHeader>
-                                            <TableRow className="border-gray-700">
-                                                <TableHead className="text-gray-300">Name</TableHead>
-                                                <TableHead className="text-gray-300">Phone</TableHead>
-                                                <TableHead className="text-gray-300">Tags</TableHead>
-                                                <TableHead className="text-gray-300">Last Interaction</TableHead>
-                                                <TableHead className="text-gray-300">Actions</TableHead>
+                                            <TableRow className="border-border">
+                                                <TableHead className="text-foreground">Name</TableHead>
+                                                <TableHead className="text-foreground">Phone</TableHead>
+                                                <TableHead className="text-foreground">Tags</TableHead>
+                                                <TableHead className="text-foreground">Last Interaction</TableHead>
+                                                <TableHead className="text-foreground">Actions</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {contacts.map((contact) => (
-                                                <TableRow key={contact.id} className="border-gray-700">
-                                                    <TableCell className="font-medium text-white">
+                                                <TableRow key={contact.id} className="border-border">
+                                                    <TableCell className="font-medium text-foreground">
                                                         <div className="flex items-center space-x-2">
                                                             <Avatar className="h-8 w-8">
                                                                 <AvatarImage src={`/placeholder.svg?height=32&width=32`} alt={contact.name} />
@@ -170,17 +170,17 @@ export default function AudienceManagement() {
                                                             <span>{contact.name}</span>
                                                         </div>
                                                     </TableCell>
-                                                    <TableCell className="text-gray-300">{contact.phone}</TableCell>
+                                                    <TableCell className="text-muted-foreground">{contact.phone}</TableCell>
                                                     <TableCell>
                                                         <div className="flex flex-wrap gap-1">
                                                             {contact.tags.map((tag, index) => (
-                                                                <Badge key={index} variant="outline" className="bg-gray-700 text-gray-300">
+                                                                <Badge key={index} variant="outline" className="bg-secondary text-foreground">
                                                                     {tag}
                                                                 </Badge>
                                                             ))}
                                                         </div>
                                                     </TableCell>
-                                                    <TableCell className="text-gray-300">{contact.lastInteraction}</TableCell>
+                                                    <TableCell className="text-muted-foreground">{contact.lastInteraction}</TableCell>
                                                     <TableCell>
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
@@ -188,22 +188,22 @@ export default function AudienceManagement() {
                                                                     <MoreVertical className="h-4 w-4" />
                                                                 </Button>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent align="end" className="bg-gray-800 border-gray-700 text-white">
+                                                            <DropdownMenuContent align="end" className="bg-card border-border text-foreground">
                                                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                                <DropdownMenuItem className="hover:bg-gray-700">
+                                                                <DropdownMenuItem className="hover:bg-secondary">
                                                                     <Edit className="mr-2 h-4 w-4" />
                                                                     Edit Contact
                                                                 </DropdownMenuItem>
-                                                                <DropdownMenuItem className="hover:bg-gray-700">
+                                                                <DropdownMenuItem className="hover:bg-secondary">
                                                                     <Tags className="mr-2 h-4 w-4" />
                                                                     Manage Tags
                                                                 </DropdownMenuItem>
-                                                                <DropdownMenuItem className="hover:bg-gray-700">
+                                                                <DropdownMenuItem className="hover:bg-secondary">
                                                                     <UserCheck className="mr-2 h-4 w-4" />
                                                                     Add to Segment
                                                                 </DropdownMenuItem>
-                                                                <DropdownMenuSeparator className="bg-gray-700" />
-                                                                <DropdownMenuItem className="hover:bg-gray-700 text-red-500">
+                                                                <DropdownMenuSeparator className="bg-border" />
+                                                                <DropdownMenuItem className="hover:bg-secondary text-destructive">
                                                                     <UserX className="mr-2 h-4 w-4" />
                                                                     Remove Contact
                                                                 </DropdownMenuItem>
@@ -221,34 +221,34 @@ export default function AudienceManagement() {
 
                     <TabsContent value="segments" className="space-y-4">
                         <div className="flex justify-between items-center">
-                            <Input placeholder="Search segments..." className="w-64 bg-gray-800 border-gray-700 text-white" />
-                            <Button onClick={() => setIsCreatingSegment(true)} className="bg-purple-600 hover:bg-purple-700">
+                            <Input placeholder="Search segments..." className="w-64 bg-card border-border text-foreground" />
+                            <Button onClick={() => setIsCreatingSegment(true)} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                                 <Plus className="mr-2 h-4 w-4" /> Create Segment
                             </Button>
                         </div>
 
-                        <Card className="bg-gray-800 border-gray-700">
+                        <Card className="bg-card border-border">
                             <CardHeader>
-                                <CardTitle className="text-purple-400">Audience Segments</CardTitle>
-                                <CardDescription className="text-gray-400">Manage your custom audience segments</CardDescription>
+                                <CardTitle className="text-primary">Audience Segments</CardTitle>
+                                <CardDescription className="text-muted-foreground">Manage your custom audience segments</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <ScrollArea className="h-[400px]">
                                     <div className="space-y-4">
                                         {segments.map((segment) => (
-                                            <div key={segment.id} className="p-4 border border-gray-700 rounded-lg">
+                                            <div key={segment.id} className="p-4 border border-border rounded-lg">
                                                 <div className="flex justify-between items-start">
                                                     <div>
-                                                        <h3 className="text-lg font-semibold text-white">{segment.name}</h3>
-                                                        <p className="text-sm text-gray-400">{segment.criteria}</p>
+                                                        <h3 className="text-lg font-semibold text-foreground">{segment.name}</h3>
+                                                        <p className="text-sm text-muted-foreground">{segment.criteria}</p>
                                                     </div>
                                                     <Badge>{segment.count} contacts</Badge>
                                                 </div>
                                                 <div className="mt-4 flex justify-end space-x-2">
-                                                    <Button variant="outline" size="sm" className="border-gray-700 text-gray-300 hover:bg-gray-700">
+                                                    <Button variant="outline" size="sm" className="border-border text-muted-foreground hover:bg-secondary">
                                                         Edit
                                                     </Button>
-                                                    <Button variant="outline" size="sm" className="border-gray-700 text-gray-300 hover:bg-gray-700">
+                                                    <Button variant="outline" size="sm" className="border-border text-muted-foreground hover:bg-secondary">
                                                         View Contacts
                                                     </Button>
                                                 </div>
@@ -262,47 +262,47 @@ export default function AudienceManagement() {
 
                     <TabsContent value="analytics" className="space-y-4">
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="bg-card border-border">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-gray-300">Total Contacts</CardTitle>
-                                    <Users className="h-4 w-4 text-purple-400" />
+                                    <CardTitle className="text-sm font-medium text-muted-foreground">Total Contacts</CardTitle>
+                                    <Users className="h-4 w-4 text-primary" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-white">10,482</div>
-                                    <p className="text-xs text-gray-400">+2.5% from last month</p>
+                                    <div className="text-2xl font-bold text-foreground">10,482</div>
+                                    <p className="text-xs text-muted-foreground">+2.5% from last month</p>
                                     <Progress value={75} className="mt-2" />
                                 </CardContent>
                             </Card>
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="bg-card border-border">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-gray-300">Active Segments</CardTitle>
-                                    <Target className="h-4 w-4 text-purple-400" />
+                                    <CardTitle className="text-sm font-medium text-muted-foreground">Active Segments</CardTitle>
+                                    <Target className="h-4 w-4 text-primary" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-white">24</div>
-                                    <p className="text-xs text-gray-400">+4 new segments this month</p>
+                                    <div className="text-2xl font-bold text-foreground">24</div>
+                                    <p className="text-xs text-muted-foreground">+4 new segments this month</p>
                                     <Progress value={60} className="mt-2" />
                                 </CardContent>
                             </Card>
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="bg-card border-border">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-gray-300">Engagement Rate</CardTitle>
-                                    <div className="h-4 w-4 text-purple-400" />
+                                    <CardTitle className="text-sm font-medium text-muted-foreground">Engagement Rate</CardTitle>
+                                    <div className="h-4 w-4 text-primary" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-white">68.7%</div>
-                                    <p className="text-xs text-gray-400">+5.4% from last month</p>
+                                    <div className="text-2xl font-bold text-foreground">68.7%</div>
+                                    <p className="text-xs text-muted-foreground">+5.4% from last month</p>
                                     <Progress value={68.7} className="mt-2" />
                                 </CardContent>
                             </Card>
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="bg-card border-border">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-gray-300">Avg. Response Time</CardTitle>
-                                    <BellRing className="h-4 w-4 text-purple-400" />
+                                    <CardTitle className="text-sm font-medium text-muted-foreground">Avg. Response Time</CardTitle>
+                                    <BellRing className="h-4 w-4 text-primary" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-white">3.2h</div>
-                                    <p className="text-xs text-gray-400">-0.5h from last month</p>
+                                    <div className="text-2xl font-bold text-foreground">3.2h</div>
+                                    <p className="text-xs text-muted-foreground">-0.5h from last month</p>
                                     <Progress value={80} className="mt-2" />
                                 </CardContent>
                             </Card>
@@ -362,71 +362,71 @@ export default function AudienceManagement() {
 
                 {/* Add Contact Dialog */}
                 <Dialog open={isAddingContact} onOpenChange={setIsAddingContact}>
-                    <DialogContent className="sm:max-w-[425px] bg-gray-800 text-white">
+                    <DialogContent className="sm:max-w-[425px] bg-card text-foreground">
                         <DialogHeader>
-                            <DialogTitle className="text-purple-400">Add New Contact</DialogTitle>
-                            <DialogDescription className="text-gray-400">
+                            <DialogTitle className="text-primary">Add New Contact</DialogTitle>
+                            <DialogDescription className="text-muted-foreground">
                                 Enter the details of the new contact to add to your list.
                             </DialogDescription>
                         </DialogHeader>
                         <div className="grid gap-4 py-4">
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="name" className="text-right text-gray-300">
+                                <Label htmlFor="name" className="text-right text-foreground">
                                     Name
                                 </Label>
-                                <Input id="name" placeholder="John Doe" className="col-span-3 bg-gray-700 border-gray-600 text-white" />
+                                <Input id="name" placeholder="John Doe" className="col-span-3 bg-muted border-border text-foreground" />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="phone" className="text-right text-gray-300">
+                                <Label htmlFor="phone" className="text-right text-foreground">
                                     Phone
                                 </Label>
-                                <Input id="phone" placeholder="+1234567890" className="col-span-3 bg-gray-700 border-gray-600 text-white" />
+                                <Input id="phone" placeholder="+1234567890" className="col-span-3 bg-muted border-border text-foreground" />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="tags" className="text-right text-gray-300">
+                                <Label htmlFor="tags" className="text-right text-foreground">
                                     Tags
                                 </Label>
-                                <Input id="tags" placeholder="VIP, New Customer" className="col-span-3 bg-gray-700 border-gray-600 text-white" />
+                                <Input id="tags" placeholder="VIP, New Customer" className="col-span-3 bg-muted border-border text-foreground" />
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsAddingContact(false)} className="border-gray-600 text-gray-300 hover:bg-gray-700">Cancel</Button>
-                            <Button className="bg-purple-600 hover:bg-purple-700">Add Contact</Button>
+                            <Button variant="outline" onClick={() => setIsAddingContact(false)} className="border-border text-muted-foreground hover:bg-secondary">Cancel</Button>
+                            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">Add Contact</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
 
                 {/* Create Segment Dialog */}
                 <Dialog open={isCreatingSegment} onOpenChange={setIsCreatingSegment}>
-                    <DialogContent className="sm:max-w-[625px] bg-gray-800 text-white">
+                    <DialogContent className="sm:max-w-[625px] bg-card text-foreground">
                         <DialogHeader>
-                            <DialogTitle className="text-purple-400">Create New Segment</DialogTitle>
-                            <DialogDescription className="text-gray-400">
+                            <DialogTitle className="text-primary">Create New Segment</DialogTitle>
+                            <DialogDescription className="text-muted-foreground">
                                 Define the criteria for your new audience segment.
                             </DialogDescription>
                         </DialogHeader>
                         <div className="grid gap-4 py-4">
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="segment-name" className="text-right text-gray-300">
+                                <Label htmlFor="segment-name" className="text-right text-foreground">
                                     Segment Name
                                 </Label>
-                                <Input id="segment-name" placeholder="e.g., High Value Customers" className="col-span-3 bg-gray-700 border-gray-600 text-white" />
+                                <Input id="segment-name" placeholder="e.g., High Value Customers" className="col-span-3 bg-muted border-border text-foreground" />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="segment-description" className="text-right text-gray-300">
+                                <Label htmlFor="segment-description" className="text-right text-foreground">
                                     Description
                                 </Label>
-                                <Input id="segment-description" placeholder="Briefly describe this segment" className="col-span-3 bg-gray-700 border-gray-600 text-white" />
+                                <Input id="segment-description" placeholder="Briefly describe this segment" className="col-span-3 bg-muted border-border text-foreground" />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label className="text-right text-gray-300">Criteria</Label>
+                                <Label className="text-right text-foreground">Criteria</Label>
                                 <div className="col-span-3 space-y-2">
                                     <div className="flex items-center space-x-2">
                                         <Select>
-                                            <SelectTrigger className="w-[180px] bg-gray-700 border-gray-600 text-white">
+                                            <SelectTrigger className="w-[180px] bg-muted border-border text-foreground">
                                                 <SelectValue placeholder="Select criteria" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-gray-700 border-gray-600 text-white">
+                                            <SelectContent className="bg-card border-border text-foreground">
                                                 <SelectItem value="tags">Tags</SelectItem>
                                                 <SelectItem value="last_interaction">Last Interaction</SelectItem>
                                                 <SelectItem value="total_spent">Total Spent</SelectItem>
@@ -434,19 +434,19 @@ export default function AudienceManagement() {
                                             </SelectContent>
                                         </Select>
                                         <Select>
-                                            <SelectTrigger className="w-[180px] bg-gray-700 border-gray-600 text-white">
+                                            <SelectTrigger className="w-[180px] bg-muted border-border text-foreground">
                                                 <SelectValue placeholder="Condition" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-gray-700 border-gray-600 text-white">
+                                            <SelectContent className="bg-card border-border text-foreground">
                                                 <SelectItem value="equals">Equals</SelectItem>
                                                 <SelectItem value="contains">Contains</SelectItem>
                                                 <SelectItem value="greater_than">Greater Than</SelectItem>
                                                 <SelectItem value="less_than">Less Than</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        <Input className="bg-gray-700 border-gray-600 text-white" placeholder="Value" />
+                                        <Input className="bg-muted border-border text-foreground" placeholder="Value" />
                                     </div>
-                                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                                    <Button variant="outline" size="sm" className="border-border text-muted-foreground hover:bg-secondary">
                                         <Plus className="mr-2 h-4 w-4" />
                                         Add Condition
                                     </Button>
@@ -454,8 +454,8 @@ export default function AudienceManagement() {
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsCreatingSegment(false)} className="border-gray-600 text-gray-300 hover:bg-gray-700">Cancel</Button>
-                            <Button className="bg-purple-600 hover:bg-purple-700">Create Segment</Button>
+                            <Button variant="outline" onClick={() => setIsCreatingSegment(false)} className="border-border text-muted-foreground hover:bg-secondary">Cancel</Button>
+                            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">Create Segment</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

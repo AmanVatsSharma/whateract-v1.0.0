@@ -55,21 +55,21 @@ export default function Automation() {
     }
 
     return (
-        <div className="flex flex-col min-h-screen bg-gray-900 text-white p-8">
+        <div className="flex flex-col min-h-screen bg-background text-foreground p-8">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-purple-400">Automation</h1>
+                <h1 className="text-3xl font-bold text-primary">Automation</h1>
                 <div className="flex space-x-2">
-                    <Button onClick={() => setIsCreating(true)} className="bg-purple-600 hover:bg-purple-700">
+                    <Button onClick={() => setIsCreating(true)} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                         <Plus className="mr-2 h-4 w-4" /> Create Automation
                     </Button>
-                    <Button variant="outline" className="bg-gray-800 border-gray-700 text-white">
+                    <Button variant="outline" className="bg-card border-border text-foreground">
                         <Filter className="mr-2 h-4 w-4" /> Filter
                     </Button>
                     <Select>
-                        <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700 text-white">
+                        <SelectTrigger className="w-[180px] bg-card border-border text-foreground">
                             <SelectValue placeholder="Sort by" />
                         </SelectTrigger>
-                        <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                        <SelectContent className="bg-card border-border text-foreground">
                             <SelectItem value="name">Name</SelectItem>
                             <SelectItem value="status">Status</SelectItem>
                             <SelectItem value="performance">Performance</SelectItem>
@@ -79,10 +79,10 @@ export default function Automation() {
             </div>
 
             <Tabs defaultValue="active" className="space-y-4">
-                <TabsList className="bg-gray-800">
-                    <TabsTrigger value="active" className="data-[state=active]:bg-purple-600">Active</TabsTrigger>
-                    <TabsTrigger value="paused" className="data-[state=active]:bg-purple-600">Paused</TabsTrigger>
-                    <TabsTrigger value="all" className="data-[state=active]:bg-purple-600">All</TabsTrigger>
+                <TabsList className="bg-secondary">
+                    <TabsTrigger value="active" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Active</TabsTrigger>
+                    <TabsTrigger value="paused" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Paused</TabsTrigger>
+                    <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">All</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="active" className="space-y-4">
@@ -93,18 +93,18 @@ export default function Automation() {
                                     {automationRules.filter(rule => rule.status === "Active").map((rule, index) => (
                                         <Draggable key={rule.id} draggableId={rule.id.toString()} index={index}>
                                             {(provided) => (
-                                                <Card className="bg-gray-800 border-gray-700 mb-4" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                                <Card className="bg-card border-border mb-4" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
                                                     <CardHeader className="flex flex-row items-center justify-between">
                                                         <div>
-                                                            <CardTitle className="text-purple-400">{rule.name}</CardTitle>
-                                                            <CardDescription className="text-gray-400">Trigger: {rule.trigger}</CardDescription>
+                                                            <CardTitle className="text-primary">{rule.name}</CardTitle>
+                                                            <CardDescription className="text-muted-foreground">Trigger: {rule.trigger}</CardDescription>
                                                         </div>
                                                         <Badge variant="secondary" className="bg-green-600 text-white">{rule.status}</Badge>
                                                     </CardHeader>
                                                     <CardContent>
                                                         <div className="space-y-2">
                                                             <Label>Actions:</Label>
-                                                            <ul className="list-disc list-inside text-gray-300">
+                                                            <ul className="list-disc list-inside text-muted-foreground">
                                                                 {rule.actions.map((action, index) => (
                                                                     <li key={index}>{action}</li>
                                                                 ))}
@@ -112,7 +112,7 @@ export default function Automation() {
                                                         </div>
                                                         <div className="mt-4">
                                                             <Label>Performance:</Label>
-                                                            <div className="flex justify-between text-sm text-gray-400 mt-2">
+                                                            <div className="flex justify-between text-sm text-muted-foreground mt-2">
                                                                 <span>Sent: {rule.performance.sent}</span>
                                                                 <span>Opened: {rule.performance.opened}</span>
                                                                 <span>Clicked: {rule.performance.clicked}</span>
@@ -162,30 +162,30 @@ export default function Automation() {
             </Tabs>
 
             <Dialog open={isCreating} onOpenChange={setIsCreating}>
-                <DialogContent className="bg-gray-800 text-white max-w-4xl">
+                <DialogContent className="bg-card text-foreground max-w-4xl">
                     <DialogHeader>
                         <DialogTitle>Create New Automation</DialogTitle>
                         <DialogDescription>Set up a new automated workflow for your WhatsApp marketing.</DialogDescription>
                     </DialogHeader>
                     <Tabs defaultValue="basic" className="mt-4">
-                        <TabsList className="bg-gray-700">
-                            <TabsTrigger value="basic" className="data-[state=active]:bg-purple-600">Basic Setup</TabsTrigger>
-                            <TabsTrigger value="advanced" className="data-[state=active]:bg-purple-600">Advanced Configuration</TabsTrigger>
-                            <TabsTrigger value="visual" className="data-[state=active]:bg-purple-600">Visual Workflow</TabsTrigger>
+                        <TabsList className="bg-secondary">
+                            <TabsTrigger value="basic" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Basic Setup</TabsTrigger>
+                            <TabsTrigger value="advanced" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Advanced Configuration</TabsTrigger>
+                            <TabsTrigger value="visual" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Visual Workflow</TabsTrigger>
                         </TabsList>
                         <TabsContent value="basic" className="mt-4">
                             <div className="grid gap-4 py-4">
                                 <div className="grid grid-cols-4 items-center gap-4">
                                     <Label htmlFor="name" className="text-right">Name</Label>
-                                    <Input id="name" placeholder="Automation name" className="col-span-3 bg-gray-700 text-white" />
+                                    <Input id="name" placeholder="Automation name" className="col-span-3 bg-muted text-foreground" />
                                 </div>
                                 <div className="grid grid-cols-4 items-center gap-4">
                                     <Label htmlFor="trigger" className="text-right">Trigger</Label>
                                     <Select>
-                                        <SelectTrigger className="col-span-3 bg-gray-700 text-white">
+                                        <SelectTrigger className="col-span-3 bg-muted text-foreground">
                                             <SelectValue placeholder="Select a trigger" />
                                         </SelectTrigger>
-                                        <SelectContent className="bg-gray-700 text-white">
+                                        <SelectContent className="bg-card text-foreground">
                                             <SelectItem value="new-subscriber">New Subscriber</SelectItem>
                                             <SelectItem value="purchase">Purchase Completed</SelectItem>
                                             <SelectItem value="abandoned-cart">Abandoned Cart</SelectItem>
@@ -195,10 +195,10 @@ export default function Automation() {
                                 <div className="grid grid-cols-4 items-center gap-4">
                                     <Label htmlFor="action" className="text-right">Action</Label>
                                     <Select>
-                                        <SelectTrigger className="col-span-3 bg-gray-700 text-white">
+                                        <SelectTrigger className="col-span-3 bg-muted text-foreground">
                                             <SelectValue placeholder="Select an action" />
                                         </SelectTrigger>
-                                        <SelectContent className="bg-gray-700 text-white">
+                                        <SelectContent className="bg-card text-foreground">
                                             <SelectItem value="send-message">Send Message</SelectItem>
                                             <SelectItem value="update-tag">Update Tag</SelectItem>
                                             <SelectItem value="add-to-list">Add to List</SelectItem>
@@ -207,7 +207,7 @@ export default function Automation() {
                                 </div>
                                 <div className="grid grid-cols-4 items-center gap-4">
                                     <Label htmlFor="message" className="text-right">Message</Label>
-                                    <Textarea id="message" placeholder="Enter your message" className="col-span-3 bg-gray-700 text-white" />
+                                    <Textarea id="message" placeholder="Enter your message" className="col-span-3 bg-muted text-foreground" />
                                 </div>
                             </div>
                         </TabsContent>
@@ -216,12 +216,12 @@ export default function Automation() {
                                 <div className="grid grid-cols-4 items-center gap-4">
                                     <Label htmlFor="delay" className="text-right">Delay</Label>
                                     <div className="col-span-3 flex items-center space-x-2">
-                                        <Input id="delay" type="number" className="bg-gray-700 text-white w-20" />
+                                        <Input id="delay" type="number" className="bg-muted text-foreground w-20" />
                                         <Select>
-                                            <SelectTrigger className="bg-gray-700 text-white w-32">
+                                            <SelectTrigger className="bg-muted text-foreground w-32">
                                                 <SelectValue placeholder="Unit" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-gray-700 text-white">
+                                            <SelectContent className="bg-card text-foreground">
                                                 <SelectItem value="minutes">Minutes</SelectItem>
                                                 <SelectItem value="hours">Hours</SelectItem>
                                                 <SelectItem value="days">Days</SelectItem>
@@ -234,28 +234,28 @@ export default function Automation() {
                                     <div className="col-span-3 space-y-2">
                                         <div className="flex items-center space-x-2">
                                             <Select>
-                                                <SelectTrigger className="bg-gray-700 text-white w-40">
+                                                <SelectTrigger className="bg-muted text-foreground w-40">
                                                     <SelectValue placeholder="Select field" />
                                                 </SelectTrigger>
-                                                <SelectContent className="bg-gray-700 text-white">
+                                                <SelectContent className="bg-card text-foreground">
                                                     <SelectItem value="tag">Tag</SelectItem>
                                                     <SelectItem value="custom-field">Custom Field</SelectItem>
                                                     <SelectItem value="engagement">Engagement</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                             <Select>
-                                                <SelectTrigger className="bg-gray-700 text-white w-40">
+                                                <SelectTrigger className="bg-muted text-foreground w-40">
                                                     <SelectValue placeholder="Condition" />
                                                 </SelectTrigger>
-                                                <SelectContent className="bg-gray-700 text-white">
+                                                <SelectContent className="bg-card text-foreground">
                                                     <SelectItem value="equals">Equals</SelectItem>
                                                     <SelectItem value="not-equals">Not Equals</SelectItem>
                                                     <SelectItem value="contains">Contains</SelectItem>
                                                 </SelectContent>
                                             </Select>
-                                            <Input className="bg-gray-700 text-white" placeholder="Value" />
+                                            <Input className="bg-muted text-foreground" placeholder="Value" />
                                         </div>
-                                        <Button variant="outline" size="sm">
+                                        <Button variant="outline" size="sm" className="border-border text-muted-foreground hover:bg-secondary">
                                             <Plus className="h-4 w-4 mr-2" /> Add Condition
                                         </Button>
                                     </div>
@@ -263,10 +263,10 @@ export default function Automation() {
                                 <div className="grid grid-cols-4 items-center gap-4">
                                     <Label htmlFor="segmentation" className="text-right">Segmentation</Label>
                                     <Select>
-                                        <SelectTrigger className="col-span-3 bg-gray-700 text-white">
+                                        <SelectTrigger className="col-span-3 bg-muted text-foreground">
                                             <SelectValue placeholder="Select segment" />
                                         </SelectTrigger>
-                                        <SelectContent className="bg-gray-700 text-white">
+                                        <SelectContent className="bg-card text-foreground">
                                             <SelectItem value="all">All Subscribers</SelectItem>
                                             <SelectItem value="active">Active Subscribers</SelectItem>
                                             <SelectItem value="inactive">Inactive Subscribers</SelectItem>
@@ -291,26 +291,26 @@ export default function Automation() {
                         </TabsContent>
                     </Tabs>
                     <DialogFooter>
-                        <Button type="submit" className="bg-purple-600 hover:bg-purple-700">Create Automation</Button>
+                        <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground">Create Automation</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
 
             <Dialog open={selectedAutomation !== null} onOpenChange={() => setSelectedAutomation(null)}>
-                <DialogContent className="bg-gray-800 text-white">
+                <DialogContent className="bg-card text-foreground">
                     <DialogHeader>
                         <DialogTitle>Edit Automation: {selectedAutomation?.name}</DialogTitle>
                         <DialogDescription>Modify the settings for this automation workflow.</DialogDescription>
                     </DialogHeader>
                     {/* Add form fields for editing automation, similar to the create form */}
                     <DialogFooter>
-                        <Button type="submit" className="bg-purple-600 hover:bg-purple-700">Save Changes</Button>
+                        <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground">Save Changes</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
 
             <Dialog open={isABTestingModalOpen} onOpenChange={setIsABTestingModalOpen}>
-                <DialogContent className="bg-gray-800 text-white">
+                <DialogContent className="bg-card text-foreground">
                     <DialogHeader>
                         <DialogTitle>A/B Testing</DialogTitle>
                         <DialogDescription>Set up an A/B test for your automation</DialogDescription>
@@ -318,15 +318,15 @@ export default function Automation() {
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="test-name" className="text-right">Test Name</Label>
-                            <Input id="test-name" placeholder="A/B Test Name" className="col-span-3 bg-gray-700 text-white" />
+                            <Input id="test-name" placeholder="A/B Test Name" className="col-span-3 bg-muted text-foreground" />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="variant-a" className="text-right">Variant A</Label>
-                            <Textarea id="variant-a" placeholder="Enter message for Variant A" className="col-span-3 bg-gray-700 text-white" />
+                            <Textarea id="variant-a" placeholder="Enter message for Variant A" className="col-span-3 bg-muted text-foreground" />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="variant-b" className="text-right">Variant B</Label>
-                            <Textarea id="variant-b" placeholder="Enter message for Variant B" className="col-span-3 bg-gray-700 text-white" />
+                            <Textarea id="variant-b" placeholder="Enter message for Variant B" className="col-span-3 bg-muted text-foreground" />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="test-size" className="text-right">Test Size</Label>
@@ -338,10 +338,10 @@ export default function Automation() {
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="success-metric" className="text-right">Success Metric</Label>
                             <Select>
-                                <SelectTrigger className="col-span-3 bg-gray-700 text-white">
+                                <SelectTrigger className="col-span-3 bg-muted text-foreground">
                                     <SelectValue placeholder="Select success metric" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-gray-700 text-white">
+                                <SelectContent className="bg-card text-foreground">
                                     <SelectItem value="open-rate">Open Rate</SelectItem>
                                     <SelectItem value="click-rate">Click Rate</SelectItem>
                                     <SelectItem value="conversion-rate">Conversion Rate</SelectItem>
@@ -350,13 +350,13 @@ export default function Automation() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="submit" className="bg-purple-600 hover:bg-purple-700">Start A/B Test</Button>
+                        <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground">Start A/B Test</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
 
             <Dialog open={isPerformanceModalOpen} onOpenChange={setIsPerformanceModalOpen}>
-                <DialogContent className="bg-gray-800 text-white max-w-4xl">
+                <DialogContent className="bg-card text-foreground max-w-4xl">
                     <DialogHeader>
                         <DialogTitle>Automation Performance</DialogTitle>
                         <DialogDescription>Detailed analytics for your automation workflow</DialogDescription>
@@ -376,31 +376,31 @@ export default function Automation() {
                         </ResponsiveContainer>
                     </div>
                     <div className="mt-4 grid grid-cols-3 gap-4">
-                        <Card className="bg-gray-700">
+                        <Card className="bg-muted">
                             <CardHeader>
                                 <CardTitle className="text-lg">Conversion Rate</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">24.5%</div>
-                                <p className="text-sm text-gray-400">+2.5% from last week</p>
+                                <p className="text-sm text-muted-foreground">+2.5% from last week</p>
                             </CardContent>
                         </Card>
-                        <Card className="bg-gray-700">
+                        <Card className="bg-muted">
                             <CardHeader>
                                 <CardTitle className="text-lg">Avg. Response Time</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">1.5 hours</div>
-                                <p className="text-sm text-gray-400">-30 min from last week</p>
+                                <p className="text-sm text-muted-foreground">-30 min from last week</p>
                             </CardContent>
                         </Card>
-                        <Card className="bg-gray-700">
+                        <Card className="bg-muted">
                             <CardHeader>
                                 <CardTitle className="text-lg">Engagement Score</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">8.7/10</div>
-                                <p className="text-sm text-gray-400">+0.3 from last week</p>
+                                <p className="text-sm text-muted-foreground">+0.3 from last week</p>
                             </CardContent>
                         </Card>
                     </div>
