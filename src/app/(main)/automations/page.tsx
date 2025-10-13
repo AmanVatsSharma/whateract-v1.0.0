@@ -55,21 +55,21 @@ export default function Automation() {
     }
 
     return (
-        <div className="flex flex-col min-h-screen bg-gray-900 text-white p-8">
+        <div className="flex flex-col min-h-screen bg-background text-foreground p-8">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-purple-400">Automation</h1>
+                <h1 className="text-3xl font-bold text-primary">Automation</h1>
                 <div className="flex space-x-2">
-                    <Button onClick={() => setIsCreating(true)} className="bg-purple-600 hover:bg-purple-700">
+                    <Button onClick={() => setIsCreating(true)} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                         <Plus className="mr-2 h-4 w-4" /> Create Automation
                     </Button>
-                    <Button variant="outline" className="bg-gray-800 border-gray-700 text-white">
+                    <Button variant="outline" className="bg-card border-border text-foreground">
                         <Filter className="mr-2 h-4 w-4" /> Filter
                     </Button>
                     <Select>
-                        <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700 text-white">
+                        <SelectTrigger className="w-[180px] bg-card border-border text-foreground">
                             <SelectValue placeholder="Sort by" />
                         </SelectTrigger>
-                        <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                        <SelectContent className="bg-card border-border text-foreground">
                             <SelectItem value="name">Name</SelectItem>
                             <SelectItem value="status">Status</SelectItem>
                             <SelectItem value="performance">Performance</SelectItem>
@@ -79,10 +79,10 @@ export default function Automation() {
             </div>
 
             <Tabs defaultValue="active" className="space-y-4">
-                <TabsList className="bg-gray-800">
-                    <TabsTrigger value="active" className="data-[state=active]:bg-purple-600">Active</TabsTrigger>
-                    <TabsTrigger value="paused" className="data-[state=active]:bg-purple-600">Paused</TabsTrigger>
-                    <TabsTrigger value="all" className="data-[state=active]:bg-purple-600">All</TabsTrigger>
+                <TabsList className="bg-secondary">
+                    <TabsTrigger value="active" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Active</TabsTrigger>
+                    <TabsTrigger value="paused" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Paused</TabsTrigger>
+                    <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">All</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="active" className="space-y-4">
@@ -93,18 +93,18 @@ export default function Automation() {
                                     {automationRules.filter(rule => rule.status === "Active").map((rule, index) => (
                                         <Draggable key={rule.id} draggableId={rule.id.toString()} index={index}>
                                             {(provided) => (
-                                                <Card className="bg-gray-800 border-gray-700 mb-4" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                                <Card className="bg-card border-border mb-4" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
                                                     <CardHeader className="flex flex-row items-center justify-between">
                                                         <div>
-                                                            <CardTitle className="text-purple-400">{rule.name}</CardTitle>
-                                                            <CardDescription className="text-gray-400">Trigger: {rule.trigger}</CardDescription>
+                                                            <CardTitle className="text-primary">{rule.name}</CardTitle>
+                                                            <CardDescription className="text-muted-foreground">Trigger: {rule.trigger}</CardDescription>
                                                         </div>
                                                         <Badge variant="secondary" className="bg-green-600 text-white">{rule.status}</Badge>
                                                     </CardHeader>
                                                     <CardContent>
                                                         <div className="space-y-2">
                                                             <Label>Actions:</Label>
-                                                            <ul className="list-disc list-inside text-gray-300">
+                                                            <ul className="list-disc list-inside text-muted-foreground">
                                                                 {rule.actions.map((action, index) => (
                                                                     <li key={index}>{action}</li>
                                                                 ))}
@@ -112,7 +112,7 @@ export default function Automation() {
                                                         </div>
                                                         <div className="mt-4">
                                                             <Label>Performance:</Label>
-                                                            <div className="flex justify-between text-sm text-gray-400 mt-2">
+                                                            <div className="flex justify-between text-sm text-muted-foreground mt-2">
                                                                 <span>Sent: {rule.performance.sent}</span>
                                                                 <span>Opened: {rule.performance.opened}</span>
                                                                 <span>Clicked: {rule.performance.clicked}</span>
