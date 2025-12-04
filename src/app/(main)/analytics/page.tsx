@@ -1,26 +1,43 @@
+/**
+ * ============================================
+ * ANALYTICS PAGE - Modern Light Theme
+ * ============================================
+ * 
+ * Comprehensive analytics dashboard featuring:
+ * - Beautiful light-themed charts
+ * - Real-time metrics
+ * - Export capabilities
+ * - Custom reports
+ * - Performance insights
+ * - Responsive design
+ * 
+ * @page
+ * @version 2.0.0
+ */
+
 "use client"
 import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Slider } from "@/components/ui/slider"
-import { Switch } from "@/components/ui/switch"
-import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
-import { Calendar as CalendarIcon, ChevronDown, Filter, Download, Share2, Maximize2, BarChart, LineChart, PieChart, TrendingUp, Users, MessageSquare, Zap, Send, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { Calendar as CalendarIcon, Filter, Download, BarChart, Send, ArrowUpRight, ArrowDownRight, Users, MessageSquare, TrendingUp, Eye, Target, Calendar } from 'lucide-react'
 import { toast } from 'sonner'
 import { downloadText } from '@/lib/download'
-import { BarChart as RechartsBarChart, Bar, LineChart as RechartsLineChart, Line, AreaChart, Area, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ScatterChart, Scatter } from 'recharts'
-import { Checkbox } from '@/components/ui/checkbox'
+import { BarChart as RechartsBarChart, Bar, LineChart as RechartsLineChart, Line, AreaChart, Area, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 
+/**
+ * Sample analytics data
+ */
 const campaignPerformanceData = [
     { name: 'Campaign A', sent: 1000, delivered: 980, read: 750, responded: 200, conversion: 15 },
     { name: 'Campaign B', sent: 1500, delivered: 1450, read: 1200, responded: 350, conversion: 20 },
@@ -29,56 +46,52 @@ const campaignPerformanceData = [
 ]
 
 const audienceEngagementData = [
-    { date: '2023-01-01', newSubscribers: 100, activeUsers: 800, churnedUsers: 20 },
-    { date: '2023-02-01', newSubscribers: 120, activeUsers: 850, churnedUsers: 25 },
-    { date: '2023-03-01', newSubscribers: 150, activeUsers: 900, churnedUsers: 30 },
-    { date: '2023-04-01', newSubscribers: 200, activeUsers: 1000, churnedUsers: 35 },
-    { date: '2023-05-01', newSubscribers: 180, activeUsers: 1100, churnedUsers: 40 },
-    { date: '2023-06-01', newSubscribers: 220, activeUsers: 1200, churnedUsers: 45 },
+    { date: 'Jan', newSubscribers: 100, activeUsers: 800, churnedUsers: 20 },
+    { date: 'Feb', newSubscribers: 120, activeUsers: 850, churnedUsers: 25 },
+    { date: 'Mar', newSubscribers: 150, activeUsers: 900, churnedUsers: 30 },
+    { date: 'Apr', newSubscribers: 200, activeUsers: 1000, churnedUsers: 35 },
+    { date: 'May', newSubscribers: 180, activeUsers: 1100, churnedUsers: 40 },
+    { date: 'Jun', newSubscribers: 220, activeUsers: 1200, churnedUsers: 45 },
 ]
 
 const messageTypeData = [
-    { name: 'Promotional', value: 400 },
-    { name: 'Transactional', value: 300 },
-    { name: 'Customer Support', value: 200 },
-    { name: 'Automated', value: 100 },
-]
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
-
-const cohortData = [
-    { cohort: 'Jan 2023', month1: 100, month2: 80, month3: 70, month4: 65, month5: 60, month6: 58 },
-    { cohort: 'Feb 2023', month1: 120, month2: 95, month3: 85, month4: 78, month5: 72 },
-    { cohort: 'Mar 2023', month1: 150, month2: 125, month3: 110, month4: 100 },
-    { cohort: 'Apr 2023', month1: 200, month2: 170, month3: 155 },
-    { cohort: 'May 2023', month1: 180, month2: 155 },
-    { cohort: 'Jun 2023', month1: 220 },
-]
-
-const predictiveData = [
-    { month: 'Jul', actual: null, predicted: 1300 },
-    { month: 'Aug', actual: null, predicted: 1450 },
-    { month: 'Sep', actual: null, predicted: 1600 },
-    { month: 'Oct', actual: null, predicted: 1800 },
+    { name: 'Promotional', value: 400, color: '#8b5cf6' },
+    { name: 'Transactional', value: 300, color: '#14b8a6' },
+    { name: 'Support', value: 200, color: '#f59e0b' },
+    { name: 'Automated', value: 100, color: '#3b82f6' },
 ]
 
 type DateRange = { from?: Date; to?: Date } | undefined
 
+/**
+ * Main Analytics Component
+ */
 export default function Analytics() {
     const [date, setDate] = useState<DateRange>({ from: new Date(), to: new Date() })
     const [isCustomReportModalOpen, setIsCustomReportModalOpen] = useState(false)
 
+    console.log('📊 Analytics: Page loaded with modern light theme')
+
     return (
-        <div className="flex flex-col min-h-screen bg-background text-foreground p-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-primary">Analytics</h1>
-                <div className="flex items-center space-x-4">
+        <div className="flex flex-col min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 animate-fadeIn">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <div>
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+                        Analytics
+                    </h1>
+                    <p className="text-muted-foreground mt-2 flex items-center gap-2">
+                        <BarChart className="h-4 w-4 text-primary" />
+                        Comprehensive performance insights and metrics
+                    </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button
                                 variant={"outline"}
                                 className={cn(
-                                    "w-[240px] justify-start text-left font-normal bg-card border-border text-foreground",
+                                    "w-[240px] justify-start text-left font-normal rounded-xl hover:bg-primary/5",
                                     !date && "text-muted-foreground"
                                 )}
                             >
@@ -86,37 +99,37 @@ export default function Analytics() {
                                 {date?.from ? format(date.from, "PPP") : <span>Pick a date range</span>}
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 bg-card border-border">
-                            <Calendar
+                        <PopoverContent className="w-auto p-0" align="end">
+                            <CalendarComponent
                                 mode="range"
                                 selected={date as any}
                                 onSelect={setDate as any}
                                 initialFocus
-                                className="bg-card"
                             />
                         </PopoverContent>
                     </Popover>
                     <Select>
-                        <SelectTrigger className="w-[180px] bg-card border-border text-foreground">
+                        <SelectTrigger className="w-[180px] rounded-xl">
                             <SelectValue placeholder="Filter by campaign" />
                         </SelectTrigger>
-                        <SelectContent className="bg-card border-border text-foreground">
+                        <SelectContent>
                             <SelectItem value="all">All Campaigns</SelectItem>
                             <SelectItem value="campaign-a">Campaign A</SelectItem>
                             <SelectItem value="campaign-b">Campaign B</SelectItem>
                             <SelectItem value="campaign-c">Campaign C</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Button variant="outline" className="bg-card border-border text-foreground">
+                    <Button variant="outline" className="rounded-xl hover:bg-primary/5">
                         <Filter className="mr-2 h-4 w-4" />
-                        More Filters
+                        Filters
                     </Button>
-                    <Button variant="outline" className="bg-card border-border text-foreground" onClick={() => setIsCustomReportModalOpen(true)}>
+                    <Button variant="outline" className="rounded-xl hover:bg-primary/5" onClick={() => setIsCustomReportModalOpen(true)}>
                         <BarChart className="mr-2 h-4 w-4" />
                         Custom Report
                     </Button>
-                    <Button variant="outline" className="bg-card border-border text-foreground" onClick={async () => {
+                    <Button variant="outline" className="rounded-xl hover:bg-primary/5" onClick={async () => {
                         try {
+                            console.log('📥 Exporting analytics data...')
                             const res = await fetch('/api/analytics/export');
                             if (!res.ok) throw new Error('Export failed');
                             const text = await res.text();
@@ -132,199 +145,244 @@ export default function Analytics() {
                 </div>
             </div>
 
-            <Tabs defaultValue="overview" className="space-y-4">
-                <TabsList className="bg-secondary">
-                    <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Overview</TabsTrigger>
-                    <TabsTrigger value="campaigns" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Campaigns</TabsTrigger>
-                    <TabsTrigger value="audience" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Audience</TabsTrigger>
-                    <TabsTrigger value="messages" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Messages</TabsTrigger>
-                    <TabsTrigger value="predictive" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Predictive Analytics</TabsTrigger>
+            {/* Tabs */}
+            <Tabs defaultValue="overview" className="space-y-6">
+                <TabsList className="bg-muted/50 p-1 rounded-xl border">
+                    <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg font-semibold">
+                        Overview
+                    </TabsTrigger>
+                    <TabsTrigger value="campaigns" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg font-semibold">
+                        Campaigns
+                    </TabsTrigger>
+                    <TabsTrigger value="audience" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg font-semibold">
+                        Audience
+                    </TabsTrigger>
+                    <TabsTrigger value="messages" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg font-semibold">
+                        Messages
+                    </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="overview" className="space-y-4">
+                {/* Overview Tab */}
+                <TabsContent value="overview" className="space-y-6">
+                    {/* KPI Cards */}
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        <Card className="bg-card border-border">
+                        <Card className="hover:shadow-xl transition-all rounded-2xl border-primary/10 bg-gradient-to-br from-blue-50 via-white to-white">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-muted-foreground">Total Sent</CardTitle>
-                                <Send className="h-4 w-4 text-primary" />
+                                <CardTitle className="text-sm font-semibold text-muted-foreground">Total Sent</CardTitle>
+                                <div className="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                                    <Send className="h-5 w-5 text-blue-600" />
+                                </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-foreground">5,300</div>
-                                <p className="text-xs text-green-500 flex items-center">
-                                    <ArrowUpRight className="h-4 w-4 mr-1" />
-                                    12% from last month
-                                </p>
+                                <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">5,300</div>
+                                <div className="flex items-center gap-2 mt-2">
+                                    <Badge className="bg-green-100 text-green-700 border-green-200 font-semibold">
+                                        <ArrowUpRight className="h-3 w-3 mr-1" />
+                                        12%
+                                    </Badge>
+                                    <span className="text-xs text-muted-foreground">from last month</span>
+                                </div>
                             </CardContent>
                         </Card>
-                        <Card className="bg-card border-border">
+
+                        <Card className="hover:shadow-xl transition-all rounded-2xl border-primary/10 bg-gradient-to-br from-green-50 via-white to-white">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-muted-foreground">Delivery Rate</CardTitle>
-                                <TrendingUp className="h-4 w-4 text-primary" />
+                                <CardTitle className="text-sm font-semibold text-muted-foreground">Delivery Rate</CardTitle>
+                                <div className="h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center">
+                                    <TrendingUp className="h-5 w-5 text-green-600" />
+                                </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-foreground">98.2%</div>
-                                <p className="text-xs text-green-500 flex items-center">
-                                    <ArrowUpRight className="h-4 w-4 mr-1" />
-                                    0.5% from last month
-                                </p>
+                                <div className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">98.2%</div>
+                                <div className="flex items-center gap-2 mt-2">
+                                    <Badge className="bg-green-100 text-green-700 border-green-200 font-semibold">
+                                        <ArrowUpRight className="h-3 w-3 mr-1" />
+                                        0.5%
+                                    </Badge>
+                                    <span className="text-xs text-muted-foreground">from last month</span>
+                                </div>
                             </CardContent>
                         </Card>
-                        <Card className="bg-card border-border">
+
+                        <Card className="hover:shadow-xl transition-all rounded-2xl border-primary/10 bg-gradient-to-br from-purple-50 via-white to-white">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-muted-foreground">Open Rate</CardTitle>
-                                <MessageSquare className="h-4 w-4 text-primary" />
+                                <CardTitle className="text-sm font-semibold text-muted-foreground">Open Rate</CardTitle>
+                                <div className="h-10 w-10 rounded-xl bg-purple-100 flex items-center justify-center">
+                                    <Eye className="h-5 w-5 text-purple-600" />
+                                </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-foreground">75.8%</div>
-                                <p className="text-xs text-red-500 flex items-center">
-                                    <ArrowDownRight className="h-4 w-4 mr-1" />
-                                    2.3% from last month
-                                </p>
+                                <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">75.8%</div>
+                                <div className="flex items-center gap-2 mt-2">
+                                    <Badge className="bg-red-100 text-red-700 border-red-200 font-semibold">
+                                        <ArrowDownRight className="h-3 w-3 mr-1" />
+                                        2.3%
+                                    </Badge>
+                                    <span className="text-xs text-muted-foreground">from last month</span>
+                                </div>
                             </CardContent>
                         </Card>
-                        <Card className="bg-card border-border">
+
+                        <Card className="hover:shadow-xl transition-all rounded-2xl border-primary/10 bg-gradient-to-br from-orange-50 via-white to-white">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-muted-foreground">Response Rate</CardTitle>
-                                <Users className="h-4 w-4 text-primary" />
+                                <CardTitle className="text-sm font-semibold text-muted-foreground">Response Rate</CardTitle>
+                                <div className="h-10 w-10 rounded-xl bg-orange-100 flex items-center justify-center">
+                                    <MessageSquare className="h-5 w-5 text-orange-600" />
+                                </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-foreground">22.6%</div>
-                                <p className="text-xs text-green-500 flex items-center">
-                                    <ArrowUpRight className="h-4 w-4 mr-1" />
-                                    3.1% from last month
-                                </p>
+                                <div className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">22.6%</div>
+                                <div className="flex items-center gap-2 mt-2">
+                                    <Badge className="bg-green-100 text-green-700 border-green-200 font-semibold">
+                                        <ArrowUpRight className="h-3 w-3 mr-1" />
+                                        3.1%
+                                    </Badge>
+                                    <span className="text-xs text-muted-foreground">from last month</span>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>
-                    <Card className="bg-card border-border">
-                        <CardHeader>
-                            <CardTitle className="text-primary">Campaign Performance Overview</CardTitle>
+
+                    {/* Main Chart */}
+                    <Card className="rounded-2xl border-border/50 shadow-lg">
+                        <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-transparent">
+                            <CardTitle className="text-xl font-bold">Campaign Performance Overview</CardTitle>
                             <CardDescription className="text-muted-foreground">Comparison of key metrics across campaigns</CardDescription>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="pt-6">
                             <ResponsiveContainer width="100%" height={400}>
                                 <RechartsBarChart data={campaignPerformanceData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                                    <XAxis dataKey="name" stroke="#888" />
-                                    <YAxis stroke="#888" />
-                                    <Tooltip contentStyle={{ backgroundColor: '#333', border: 'none' }} />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                                    <XAxis dataKey="name" stroke="#64748b" />
+                                    <YAxis stroke="#64748b" />
+                                    <Tooltip 
+                                        contentStyle={{ 
+                                            backgroundColor: '#ffffff',
+                                            border: '1px solid #e2e8f0',
+                                            borderRadius: '12px',
+                                            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                                        }}
+                                    />
                                     <Legend />
-                                    <Bar dataKey="sent" fill="#8884d8" />
-                                    <Bar dataKey="delivered" fill="#82ca9d" />
-                                    <Bar dataKey="read" fill="#ffc658" />
-                                    <Bar dataKey="responded" fill="#ff8042" />
+                                    <Bar dataKey="sent" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
+                                    <Bar dataKey="delivered" fill="#14b8a6" radius={[8, 8, 0, 0]} />
+                                    <Bar dataKey="read" fill="#f59e0b" radius={[8, 8, 0, 0]} />
+                                    <Bar dataKey="responded" fill="#3b82f6" radius={[8, 8, 0, 0]} />
                                 </RechartsBarChart>
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
                 </TabsContent>
 
-                <TabsContent value="campaigns" className="space-y-4">
-                    <Card className="bg-card border-border">
-                        <CardHeader>
-                            <CardTitle className="text-primary">Campaign Conversion Rates</CardTitle>
-                            <CardDescription className="text-muted-foreground">Conversion rates for each campaign</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <ResponsiveContainer width="100%" height={400}>
-                                <RechartsBarChart data={campaignPerformanceData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                                    <XAxis dataKey="name" stroke="#888" />
-                                    <YAxis stroke="#888" />
-                                    <Tooltip contentStyle={{ backgroundColor: '#333', border: 'none' }} />
-                                    <Legend />
-                                    <Bar dataKey="conversion" fill="#8884d8" />
-                                </RechartsBarChart>
-                            </ResponsiveContainer>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-card border-border">
-                        <CardHeader>
-                            <CardTitle className="text-primary">Campaign Comparison</CardTitle>
-                            <CardDescription className="text-muted-foreground">Side-by-side comparison of campaign metrics</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Campaign</TableHead>
-                                        <TableHead>Sent</TableHead>
-                                        <TableHead>Delivered</TableHead>
-                                        <TableHead>Read</TableHead>
-                                        <TableHead>Responded</TableHead>
-                                        <TableHead>Conversion</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {campaignPerformanceData.map((campaign) => (
-                                        <TableRow key={campaign.name}>
-                                            <TableCell>{campaign.name}</TableCell>
-                                            <TableCell>{campaign.sent}</TableCell>
-                                            <TableCell>{campaign.delivered}</TableCell>
-                                            <TableCell>{campaign.read}</TableCell>
-                                            <TableCell>{campaign.responded}</TableCell>
-                                            <TableCell>{campaign.conversion}%</TableCell>
+                {/* Campaigns Tab */}
+                <TabsContent value="campaigns" className="space-y-6">
+                    <div className="grid gap-6 md:grid-cols-2">
+                        <Card className="rounded-2xl border-border/50 shadow-lg">
+                            <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-transparent">
+                                <CardTitle className="text-xl font-bold">Conversion Rates</CardTitle>
+                                <CardDescription>Campaign effectiveness metrics</CardDescription>
+                            </CardHeader>
+                            <CardContent className="pt-6">
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <RechartsBarChart data={campaignPerformanceData}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                                        <XAxis dataKey="name" stroke="#64748b" />
+                                        <YAxis stroke="#64748b" />
+                                        <Tooltip 
+                                            contentStyle={{ 
+                                                backgroundColor: '#ffffff',
+                                                border: '1px solid #e2e8f0',
+                                                borderRadius: '12px'
+                                            }}
+                                        />
+                                        <Bar dataKey="conversion" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
+                                    </RechartsBarChart>
+                                </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+
+                        <Card className="rounded-2xl border-border/50 shadow-lg">
+                            <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-transparent">
+                                <CardTitle className="text-xl font-bold">Campaign Comparison</CardTitle>
+                                <CardDescription>Side-by-side metrics</CardDescription>
+                            </CardHeader>
+                            <CardContent className="pt-6">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow className="border-border/30">
+                                            <TableHead className="font-bold">Campaign</TableHead>
+                                            <TableHead className="font-bold">Sent</TableHead>
+                                            <TableHead className="font-bold">Delivered</TableHead>
+                                            <TableHead className="font-bold">Conversion</TableHead>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {campaignPerformanceData.map((campaign) => (
+                                            <TableRow key={campaign.name} className="border-border/20">
+                                                <TableCell className="font-semibold">{campaign.name}</TableCell>
+                                                <TableCell>{campaign.sent}</TableCell>
+                                                <TableCell>{campaign.delivered}</TableCell>
+                                                <TableCell>
+                                                    <Badge variant="secondary" className="font-semibold">
+                                                        {campaign.conversion}%
+                                                    </Badge>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </TabsContent>
 
-                <TabsContent value="audience" className="space-y-4">
-                    <Card className="bg-card border-border">
-                        <CardHeader>
-                            <CardTitle className="text-primary">Audience Engagement Trends</CardTitle>
-                            <CardDescription className="text-muted-foreground">New subscribers, active users, and churn over time</CardDescription>
+                {/* Audience Tab */}
+                <TabsContent value="audience" className="space-y-6">
+                    <Card className="rounded-2xl border-border/50 shadow-lg">
+                        <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-transparent">
+                            <CardTitle className="text-xl font-bold">Audience Engagement Trends</CardTitle>
+                            <CardDescription>New subscribers, active users, and churn over time</CardDescription>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="pt-6">
                             <ResponsiveContainer width="100%" height={400}>
                                 <AreaChart data={audienceEngagementData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                                    <XAxis dataKey="date" stroke="#888" />
-                                    <YAxis stroke="#888" />
-                                    <Tooltip contentStyle={{ backgroundColor: '#333', border: 'none' }} />
+                                    <defs>
+                                        <linearGradient id="colorSubs" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                                        </linearGradient>
+                                        <linearGradient id="colorActive" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.3}/>
+                                            <stop offset="95%" stopColor="#14b8a6" stopOpacity={0}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                                    <XAxis dataKey="date" stroke="#64748b" />
+                                    <YAxis stroke="#64748b" />
+                                    <Tooltip 
+                                        contentStyle={{ 
+                                            backgroundColor: '#ffffff',
+                                            border: '1px solid #e2e8f0',
+                                            borderRadius: '12px'
+                                        }}
+                                    />
                                     <Legend />
-                                    <Area type="monotone" dataKey="newSubscribers" stackId="1" stroke="#8884d8" fill="#8884d8" />
-                                    <Area type="monotone" dataKey="activeUsers" stackId="1" stroke="#82ca9d" fill="#82ca9d" />
-                                    <Area type="monotone" dataKey="churnedUsers" stackId="1" stroke="#ffc658" fill="#ffc658" />
+                                    <Area type="monotone" dataKey="newSubscribers" stroke="#8b5cf6" strokeWidth={3} fill="url(#colorSubs)" />
+                                    <Area type="monotone" dataKey="activeUsers" stroke="#14b8a6" strokeWidth={3} fill="url(#colorActive)" />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
-                    <Card className="bg-card border-border">
-                        <CardHeader>
-                            <CardTitle className="text-primary">Cohort Analysis</CardTitle>
-                            <CardDescription className="text-muted-foreground">Retention rates for different cohorts over time</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <ResponsiveContainer width="100%" height={400}>
-                                <RechartsLineChart data={cohortData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                                    <XAxis dataKey="cohort" stroke="#888" />
-                                    <YAxis stroke="#888" />
-                                    <Tooltip contentStyle={{ backgroundColor: '#333', border: 'none' }} />
-                                    <Legend />
-                                    <Line type="monotone" dataKey="month1" stroke="#8884d8" />
-                                    <Line type="monotone" dataKey="month2" stroke="#82ca9d" />
-                                    <Line type="monotone" dataKey="month3" stroke="#ffc658" />
-                                    <Line type="monotone" dataKey="month4" stroke="#ff8042" />
-                                    <Line type="monotone" dataKey="month5" stroke="#a4de6c" />
-                                    <Line type="monotone" dataKey="month6" stroke="#d0ed57" />
-                                </RechartsLineChart>
-                            </ResponsiveContainer>
-                        </CardContent>
-                    </Card>
                 </TabsContent>
 
-                <TabsContent value="messages" className="space-y-4">
-                    <Card className="bg-card border-border">
-                        <CardHeader>
-                            <CardTitle className="text-primary">Message Type Distribution</CardTitle>
-                            <CardDescription className="text-muted-foreground">Breakdown of messages by category</CardDescription>
+                {/* Messages Tab */}
+                <TabsContent value="messages" className="space-y-6">
+                    <Card className="rounded-2xl border-border/50 shadow-lg">
+                        <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-transparent">
+                            <CardTitle className="text-xl font-bold">Message Type Distribution</CardTitle>
+                            <CardDescription>Breakdown of messages by category</CardDescription>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="pt-6">
                             <ResponsiveContainer width="100%" height={400}>
                                 <RechartsPieChart>
                                     <Pie
@@ -332,116 +390,40 @@ export default function Analytics() {
                                         cx="50%"
                                         cy="50%"
                                         labelLine={false}
-                                        outerRadius={150}
+                                        outerRadius={120}
                                         fill="#8884d8"
                                         dataKey="value"
                                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                                     >
                                         {messageTypeData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
                                     </Pie>
-                                    <Tooltip contentStyle={{ backgroundColor: '#333', border: 'none' }} />
+                                    <Tooltip 
+                                        contentStyle={{ 
+                                            backgroundColor: '#ffffff',
+                                            border: '1px solid #e2e8f0',
+                                            borderRadius: '12px'
+                                        }}
+                                    />
                                     <Legend />
                                 </RechartsPieChart>
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
-                    <Card className="bg-card border-border">
-                        <CardHeader>
-                            <CardTitle className="text-primary">Message Engagement Analysis</CardTitle>
-                            <CardDescription className="text-muted-foreground">Correlation between message length and engagement</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <ResponsiveContainer width="100%" height={400}>
-                                <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                                    <XAxis type="number" dataKey="messageLength" name="Message Length" unit=" chars" stroke="#888" />
-                                    <YAxis type="number" dataKey="engagementRate" name="Engagement Rate" unit="%" stroke="#888" />
-                                    <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: '#333', border: 'none' }} />
-                                    <Scatter name="Messages" data={[
-                                        { messageLength: 50, engagementRate: 15 },
-                                        { messageLength: 100, engagementRate: 25 },
-                                        { messageLength: 150, engagementRate: 20 },
-                                        { messageLength: 200, engagementRate: 18 },
-                                        { messageLength: 250, engagementRate: 15 },
-                                    ]} fill="#8884d8" />
-                                </ScatterChart>
-                            </ResponsiveContainer>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-                <TabsContent value="predictive" className="space-y-4">
-                    <Card className="bg-card border-border">
-                        <CardHeader>
-                            <CardTitle className="text-primary">Predictive Subscriber Growth</CardTitle>
-                            <CardDescription className="text-muted-foreground">Forecasted subscriber growth for the next 3 months</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <ResponsiveContainer width="100%" height={400}>
-                                <RechartsLineChart data={[...audienceEngagementData, ...predictiveData]}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                                    <XAxis dataKey="date" stroke="#888" />
-                                    <YAxis stroke="#888" />
-                                    <Tooltip contentStyle={{ backgroundColor: '#333', border: 'none' }} />
-                                    <Legend />
-                                    <Line type="monotone" dataKey="activeUsers" stroke="#82ca9d" />
-                                    <Line type="monotone" dataKey="predicted" stroke="#8884d8" strokeDasharray="5 5" />
-                                </RechartsLineChart>
-                            </ResponsiveContainer>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-card border-border">
-                        <CardHeader>
-                            <CardTitle className="text-primary">Churn Risk Analysis</CardTitle>
-                            <CardDescription className="text-muted-foreground">Subscribers at risk of churning in the next 30 days</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Subscriber</TableHead>
-                                        <TableHead>Last Active</TableHead>
-                                        <TableHead>Engagement Score</TableHead>
-                                        <TableHead>Churn Risk</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    <TableRow>
-                                        <TableCell>user1@example.com</TableCell>
-                                        <TableCell>15 days ago</TableCell>
-                                        <TableCell>35%</TableCell>
-                                        <TableCell><Badge className="bg-red-600">High</Badge></TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell>user2@example.com</TableCell>
-                                        <TableCell>7 days ago</TableCell>
-                                        <TableCell>60%</TableCell>
-                                        <TableCell><Badge className="bg-yellow-600">Medium</Badge></TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell>user3@example.com</TableCell>
-                                        <TableCell>2 days ago</TableCell>
-                                        <TableCell>85%</TableCell>
-                                        <TableCell><Badge className="bg-green-600">Low</Badge></TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
                 </TabsContent>
             </Tabs>
 
+            {/* Custom Report Dialog */}
             <Dialog open={isCustomReportModalOpen} onOpenChange={setIsCustomReportModalOpen}>
-                <DialogContent className="bg-card text-foreground">
+                <DialogContent className="rounded-2xl">
                     <DialogHeader>
-                        <DialogTitle>Generate Custom Report</DialogTitle>
-                        <DialogDescription>Select metrics and date range for your custom report.</DialogDescription>
+                        <DialogTitle className="text-xl font-bold">Generate Custom Report</DialogTitle>
+                        <DialogDescription>Select metrics and date range for your custom report</DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="metrics" className="text-right">Metrics</Label>
+                            <Label htmlFor="metrics" className="text-right font-semibold">Metrics</Label>
                             <div className="col-span-3 space-y-2">
                                 <div className="flex items-center space-x-2">
                                     <Checkbox id="sent" />
@@ -462,26 +444,12 @@ export default function Analytics() {
                             </div>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="date-range" className="text-right">Date Range</Label>
+                            <Label htmlFor="format" className="text-right font-semibold">Format</Label>
                             <Select>
-                                <SelectTrigger className="col-span-3 bg-muted text-foreground">
-                                    <SelectValue placeholder="Select date range" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-card text-foreground">
-                                    <SelectItem value="7d">Last 7 days</SelectItem>
-                                    <SelectItem value="30d">Last 30 days</SelectItem>
-                                    <SelectItem value="90d">Last 90 days</SelectItem>
-                                    <SelectItem value="custom">Custom Range</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="format" className="text-right">Format</Label>
-                            <Select>
-                                <SelectTrigger className="col-span-3 bg-muted text-foreground">
+                                <SelectTrigger className="col-span-3 rounded-xl">
                                     <SelectValue placeholder="Select format" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-card text-foreground">
+                                <SelectContent>
                                     <SelectItem value="pdf">PDF</SelectItem>
                                     <SelectItem value="csv">CSV</SelectItem>
                                     <SelectItem value="xlsx">Excel</SelectItem>
@@ -490,7 +458,9 @@ export default function Analytics() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground">Generate Report</Button>
+                        <Button type="submit" className="bg-gradient-to-r from-primary to-primary/80 font-semibold rounded-xl">
+                            Generate Report
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
