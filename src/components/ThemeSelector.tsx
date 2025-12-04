@@ -3,10 +3,12 @@
  * THEME SELECTOR COMPONENT
  * ============================================
  * 
- * Beautiful theme selector with 3 options:
+ * Beautiful theme selector with 5 options:
  * - ☀️ Light - Professional, clean, modern
  * - 🌙 Dark - Elegant, high-contrast
  * - 🌊 Ocean - Beautiful blue/teal aesthetic
+ * - 🌅 Sunset - Warm orange/pink vibes
+ * - 🌲 Forest - Natural green aesthetic
  * 
  * Features:
  * - Visual preview of each theme
@@ -15,14 +17,14 @@
  * - Accessible keyboard navigation
  * 
  * @component
- * @version 2.0.0
+ * @version 3.0.0
  */
 
 "use client"
 
 import React from 'react'
 import { useTheme } from 'next-themes'
-import { Sun, Moon, Waves, Check } from 'lucide-react'
+import { Sun, Moon, Waves, Sunset as SunsetIcon, TreePine, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -60,6 +62,26 @@ const themes = [
     border: 'border-cyan-600',
     activeBg: 'bg-cyan-950',
   },
+  {
+    name: 'sunset',
+    label: 'Sunset',
+    icon: SunsetIcon,
+    description: 'Warm & Energetic',
+    preview: 'bg-gradient-to-br from-orange-600 to-pink-600',
+    color: 'text-orange-400',
+    border: 'border-orange-600',
+    activeBg: 'bg-orange-950',
+  },
+  {
+    name: 'forest',
+    label: 'Forest',
+    icon: TreePine,
+    description: 'Natural & Refreshing',
+    preview: 'bg-gradient-to-br from-green-700 to-emerald-700',
+    color: 'text-green-400',
+    border: 'border-green-600',
+    activeBg: 'bg-green-950',
+  },
 ]
 
 interface ThemeSelectorProps {
@@ -93,7 +115,7 @@ export function ThemeSelector({ variant = 'default' }: ThemeSelectorProps) {
 
   if (variant === 'compact') {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 flex-wrap max-w-[240px]">
         {themes.map((t) => {
           const Icon = t.icon
           const isActive = theme === t.name
@@ -105,7 +127,7 @@ export function ThemeSelector({ variant = 'default' }: ThemeSelectorProps) {
               size="sm"
               onClick={() => handleThemeChange(t.name)}
               className={cn(
-                "relative h-9 w-9 rounded-lg transition-all duration-200",
+                "relative h-9 w-9 rounded-lg transition-all duration-200 shrink-0",
                 isActive 
                   ? "bg-primary/10 text-primary ring-2 ring-primary/20" 
                   : "hover:bg-muted"

@@ -246,6 +246,100 @@
 }
 
 /* ============================================
+   SUNSET THEME - Warm Orange/Pink Aesthetic
+   Energetic, warm, and inspiring
+   ============================================ */
+.sunset {
+  /* Sunset Background - Warm Gradient */
+  --color-background: #7c2d12;
+  --color-foreground: #fff7ed;
+  
+  /* Sunset Cards */
+  --color-card: #9a3412;
+  --color-card-foreground: #fff7ed;
+  
+  /* Sunset Popover */
+  --color-popover: #9a3412;
+  --color-popover-foreground: #fff7ed;
+  
+  /* Sunset Primary - Vibrant Orange */
+  --color-primary: #fb923c;
+  --color-primary-foreground: #431407;
+  
+  /* Sunset Secondary */
+  --color-secondary: #c2410c;
+  --color-secondary-foreground: #fff7ed;
+  
+  /* Sunset Muted */
+  --color-muted: #b45309;
+  --color-muted-foreground: #fed7aa;
+  
+  /* Sunset Accent - Rose/Pink */
+  --color-accent: #f472b6;
+  --color-accent-foreground: #fff1f2;
+  
+  /* Sunset Destructive */
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #fff1f2;
+  
+  /* Sunset Borders */
+  --color-border: #c2410c;
+  --color-input: #c2410c;
+  --color-ring: #fb923c;
+  
+  /* Sunset Shadows */
+  --shadow-glass: 0 8px 32px 0 rgba(251, 146, 60, 0.25);
+  --shadow-primary: 0 10px 40px rgba(251, 146, 60, 0.4);
+}
+
+/* ============================================
+   FOREST THEME - Green Nature Aesthetic
+   Calming, natural, and refreshing
+   ============================================ */
+.forest {
+  /* Forest Background - Deep Green */
+  --color-background: #14532d;
+  --color-foreground: #f0fdf4;
+  
+  /* Forest Cards */
+  --color-card: #166534;
+  --color-card-foreground: #f0fdf4;
+  
+  /* Forest Popover */
+  --color-popover: #166534;
+  --color-popover-foreground: #f0fdf4;
+  
+  /* Forest Primary - Vibrant Emerald */
+  --color-primary: #10b981;
+  --color-primary-foreground: #022c22;
+  
+  /* Forest Secondary */
+  --color-secondary: #15803d;
+  --color-secondary-foreground: #f0fdf4;
+  
+  /* Forest Muted */
+  --color-muted: #16a34a;
+  --color-muted-foreground: #bbf7d0;
+  
+  /* Forest Accent - Lime */
+  --color-accent: #84cc16;
+  --color-accent-foreground: #1a2e05;
+  
+  /* Forest Destructive */
+  --color-destructive: #f87171;
+  --color-destructive-foreground: #fff1f2;
+  
+  /* Forest Borders */
+  --color-border: #15803d;
+  --color-input: #15803d;
+  --color-ring: #10b981;
+  
+  /* Forest Shadows */
+  --shadow-glass: 0 8px 32px 0 rgba(16, 185, 129, 0.25);
+  --shadow-primary: 0 10px 40px rgba(16, 185, 129, 0.4);
+}
+
+/* ============================================
    BASE LAYER - Foundation Styles
    ============================================ */
 @layer base {
@@ -271,6 +365,16 @@
   /* Ocean theme body */
   .ocean body {
     @apply bg-gradient-to-br from-sky-900 via-cyan-900 to-teal-900;
+  }
+  
+  /* Sunset theme body */
+  .sunset body {
+    @apply bg-gradient-to-br from-orange-900 via-red-900 to-pink-900;
+  }
+  
+  /* Forest theme body */
+  .forest body {
+    @apply bg-gradient-to-br from-green-950 via-emerald-900 to-teal-950;
   }
   
   /* Smooth Scrolling */
@@ -337,6 +441,20 @@
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(6, 182, 212, 0.2);
+  }
+  
+  .sunset .glass-effect {
+    background: rgba(154, 52, 18, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(251, 146, 60, 0.2);
+  }
+  
+  .forest .glass-effect {
+    background: rgba(22, 101, 52, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(16, 185, 129, 0.2);
   }
   
   /* Gradient Text */
