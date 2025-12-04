@@ -72,8 +72,6 @@ import {
     LogOut, 
     User, 
     HelpCircle, 
-    Moon, 
-    Sun, 
     Plus, 
     Zap,
     MessageSquare,
@@ -82,6 +80,7 @@ import {
     Crown,
     Sparkles
 } from 'lucide-react'
+import { CompactThemeSelector } from '@/components/ThemeSelector'
 
 /**
  * Sample notification data
@@ -162,14 +161,7 @@ export default function Header() {
         console.log('🎭 Current theme:', theme)
     }, [theme])
 
-    /**
-     * Toggle theme
-     */
-    const toggleDarkMode = () => {
-        const newTheme = theme === 'dark' ? 'light' : 'dark'
-        console.log('🌓 Header: Switching theme', { from: theme, to: newTheme })
-        setTheme(newTheme)
-    }
+    // Theme switching is now handled by CompactThemeSelector component
 
     /**
      * Handle feedback submission
@@ -435,17 +427,10 @@ export default function Header() {
                                     <Sparkles className="ml-auto h-4 w-4" />
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={(e) => e.preventDefault()}>
-                                    <div className="flex items-center justify-between w-full">
-                                        <div className="flex items-center">
-                                            {theme === 'dark' ? (
-                                                <Moon className="mr-2 h-4 w-4" />
-                                            ) : (
-                                                <Sun className="mr-2 h-4 w-4" />
-                                            )}
-                                            <span>Dark mode</span>
-                                        </div>
-                                        <Switch checked={theme === 'dark'} onCheckedChange={toggleDarkMode} />
+                                <DropdownMenuItem onClick={(e) => e.preventDefault()} className="focus:bg-transparent">
+                                    <div className="w-full py-2">
+                                        <p className="text-sm font-semibold mb-2 text-muted-foreground">Theme</p>
+                                        <CompactThemeSelector />
                                     </div>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />

@@ -199,6 +199,53 @@
 }
 
 /* ============================================
+   OCEAN THEME - Beautiful Blue/Teal Aesthetic
+   Stunning third theme with oceanic vibes
+   ============================================ */
+.ocean {
+  /* Ocean Background - Deep Blue Gradient */
+  --color-background: #0c4a6e;
+  --color-foreground: #f0f9ff;
+  
+  /* Ocean Cards - Lighter Blue */
+  --color-card: #075985;
+  --color-card-foreground: #f0f9ff;
+  
+  /* Ocean Popover */
+  --color-popover: #075985;
+  --color-popover-foreground: #f0f9ff;
+  
+  /* Ocean Primary - Bright Cyan */
+  --color-primary: #06b6d4;
+  --color-primary-foreground: #083344;
+  
+  /* Ocean Secondary */
+  --color-secondary: #0e7490;
+  --color-secondary-foreground: #f0f9ff;
+  
+  /* Ocean Muted */
+  --color-muted: #164e63;
+  --color-muted-foreground: #7dd3fc;
+  
+  /* Ocean Accent - Vibrant Teal */
+  --color-accent: #14b8a6;
+  --color-accent-foreground: #f0fdfa;
+  
+  /* Ocean Destructive */
+  --color-destructive: #f87171;
+  --color-destructive-foreground: #fff1f2;
+  
+  /* Ocean Borders */
+  --color-border: #0e7490;
+  --color-input: #0e7490;
+  --color-ring: #06b6d4;
+  
+  /* Ocean Shadows */
+  --shadow-glass: 0 8px 32px 0 rgba(6, 182, 212, 0.25);
+  --shadow-primary: 0 10px 40px rgba(6, 182, 212, 0.4);
+}
+
+/* ============================================
    BASE LAYER - Foundation Styles
    ============================================ */
 @layer base {
@@ -219,6 +266,11 @@
   /* Dark mode body */
   .dark body {
     @apply bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950/30;
+  }
+  
+  /* Ocean theme body */
+  .ocean body {
+    @apply bg-gradient-to-br from-sky-900 via-cyan-900 to-teal-900;
   }
   
   /* Smooth Scrolling */
@@ -278,6 +330,13 @@
   .dark .glass-effect {
     background: rgba(30, 41, 59, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .ocean .glass-effect {
+    background: rgba(7, 89, 133, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(6, 182, 212, 0.2);
   }
   
   /* Gradient Text */

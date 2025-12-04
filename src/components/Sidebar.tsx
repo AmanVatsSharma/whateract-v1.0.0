@@ -54,11 +54,10 @@ import {
     Search,
     Star,
     LogOut,
-    Moon,
-    Sun,
     X,
     Crown,
 } from 'lucide-react'
+import { ThemeSelector } from '@/components/ThemeSelector'
 
 /**
  * Navigation Items Configuration
@@ -172,14 +171,7 @@ export default function Sidebar() {
         setIsCollapsed(!isCollapsed)
     }
 
-    /**
-     * Toggle theme between light and dark
-     */
-    const toggleDarkMode = () => {
-        const newTheme = theme === 'dark' ? 'light' : 'dark'
-        console.log('🌓 Sidebar: Switching theme', { from: theme, to: newTheme })
-        setTheme(newTheme)
-    }
+    // Theme switching is now handled by ThemeSelector component
 
     /**
      * Close mobile sidebar
@@ -355,17 +347,12 @@ export default function Sidebar() {
                         Upgrade to Pro
                     </Button>
                     
-                    <Button 
-                        variant="ghost" 
-                        className="w-full justify-start gap-2 hover:bg-primary/5" 
-                        onClick={toggleDarkMode}
-                    >
-                        {mounted && theme === 'dark' ? (
-                            <><Sun className="h-4 w-4" /> Light Mode</>
-                        ) : (
-                            <><Moon className="h-4 w-4" /> Dark Mode</>
-                        )}
-                    </Button>
+                    <div className="my-2 h-px bg-border" />
+                    
+                    {/* Theme Selector - Light, Dark, Ocean */}
+                    <div className="px-2 py-2">
+                        <ThemeSelector variant="default" />
+                    </div>
                     
                     <div className="my-2 h-px bg-border" />
                     
