@@ -1,3 +1,21 @@
+/**
+ * ============================================
+ * INBOX PAGE - Modern Light Theme
+ * ============================================
+ * 
+ * Professional messaging interface featuring:
+ * - Clean light design aesthetic
+ * - Real-time conversations
+ * - AI-powered features
+ * - Label management
+ * - Team collaboration
+ * - Responsive layout
+ * - Modern messaging UI
+ * 
+ * @page
+ * @version 2.0.0
+ */
+
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
@@ -16,8 +34,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Paperclip, Send, Sparkles, Star, Filter, Search, Clock, X, UserPlus } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const logger = createLogger("inbox");
+
+console.log('💬 Inbox: Page loaded with modern light theme');
 
 type Conversation = {
   id: string;
@@ -127,15 +148,15 @@ export default function InboxPage() {
   };
 
   return (
-    <div className="grid grid-cols-12 gap-4 p-4">
+    <div className="grid grid-cols-12 gap-4 p-4 sm:p-6 animate-fadeIn">
       {/* Conversations list */}
-      <Card className="col-span-3 overflow-hidden">
-        <CardHeader className="border-b">
-          <CardTitle className="flex items-center justify-between">
+      <Card className="col-span-12 lg:col-span-3 overflow-hidden rounded-2xl border-border/50 shadow-lg">
+        <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-transparent">
+          <CardTitle className="flex items-center justify-between text-xl font-bold">
             <span>Inbox</span>
             <div className="flex items-center gap-2">
               <Select>
-                <SelectTrigger className="w-[120px]"><SelectValue placeholder="All" /></SelectTrigger>
+                <SelectTrigger className="w-[120px] rounded-xl"><SelectValue placeholder="All" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
                   <SelectItem value="unread">Unread</SelectItem>
@@ -144,7 +165,7 @@ export default function InboxPage() {
               </Select>
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search" className="pl-8" />
+                <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search" className="pl-8 rounded-xl" />
               </div>
             </div>
           </CardTitle>
@@ -155,7 +176,11 @@ export default function InboxPage() {
               <motion.button
                 key={c.id}
                 onClick={() => setSelected(c)}
-                className={`flex w-full items-center gap-3 p-3 text-left hover:bg-accent ${selected?.id === c.id ? "bg-accent" : ""}`}
+                className={cn(
+                  "flex w-full items-center gap-3 p-3 text-left rounded-xl transition-all",
+                  "hover:bg-primary/5 hover:border-l-4 hover:border-primary",
+                  selected?.id === c.id ? "bg-primary/10 border-l-4 border-primary shadow-sm" : ""
+                )}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
               >
@@ -184,9 +209,9 @@ export default function InboxPage() {
       </Card>
 
       {/* Thread */}
-      <Card className="col-span-6 overflow-hidden">
-        <CardHeader className="border-b">
-          <CardTitle className="flex items-center justify-between">
+      <Card className="col-span-12 lg:col-span-6 overflow-hidden rounded-2xl border-border/50 shadow-lg">
+        <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-transparent">
+          <CardTitle className="flex items-center justify-between text-xl font-bold">
             <div className="flex items-center gap-3">
               <Avatar>
                 <AvatarFallback>{selected?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
@@ -200,26 +225,26 @@ export default function InboxPage() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button size="sm" variant="outline"><Filter className="mr-2 h-4 w-4" />Label</Button>
+                    <Button size="sm" variant="outline" className="rounded-xl hover:bg-primary/5"><Filter className="mr-2 h-4 w-4" />Label</Button>
                   </TooltipTrigger>
                   <TooltipContent>Assign labels</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <Button size="sm" variant="outline" onClick={summarizeThread} disabled={!selected || isSummarizing}>
-                <Sparkles className="mr-2 h-4 w-4" />{isSummarizing ? "Summarizing..." : "AI Summarize"}
+              <Button size="sm" variant="outline" onClick={summarizeThread} disabled={!selected || isSummarizing} className="rounded-xl hover:bg-primary/5 bg-gradient-to-r from-purple-50 to-transparent">
+                <Sparkles className="mr-2 h-4 w-4 text-purple-600" />{isSummarizing ? "Summarizing..." : "AI Summarize"}
               </Button>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button size="sm" variant="outline"><Clock className="mr-2 h-4 w-4" />Snooze</Button>
+                  <Button size="sm" variant="outline" className="rounded-xl hover:bg-primary/5"><Clock className="mr-2 h-4 w-4" />Snooze</Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-56">
                   <div className="space-y-2">
-                    <Button variant="ghost" onClick={() => selected && setStatus(selected.id, "snoozed")}>For 1 hour</Button>
-                    <Button variant="ghost" onClick={() => selected && setStatus(selected.id, "snoozed")}>Until tomorrow</Button>
+                    <Button variant="ghost" onClick={() => selected && setStatus(selected.id, "snoozed")} className="w-full justify-start">For 1 hour</Button>
+                    <Button variant="ghost" onClick={() => selected && setStatus(selected.id, "snoozed")} className="w-full justify-start">Until tomorrow</Button>
                   </div>
                 </PopoverContent>
               </Popover>
-              <Button size="sm" variant="destructive" onClick={() => selected && setStatus(selected.id, "closed")}><X className="mr-2 h-4 w-4" />Close</Button>
+              <Button size="sm" variant="destructive" onClick={() => selected && setStatus(selected.id, "closed")} className="rounded-xl"><X className="mr-2 h-4 w-4" />Close</Button>
             </div>
           </CardTitle>
         </CardHeader>
@@ -227,24 +252,28 @@ export default function InboxPage() {
           <ScrollArea className="h-[calc(100vh-340px)] p-4">
             {/* Message thread placeholder */}
             <div className="space-y-4">
-              <div className="max-w-[70%] rounded-lg bg-muted p-3">Hi! Can you share your catalog?</div>
-              <div className="ml-auto max-w-[70%] rounded-lg bg-primary p-3 text-primary-foreground">Absolutely, sharing now!</div>
+              <div className="max-w-[70%] rounded-2xl bg-muted/50 border p-4 shadow-sm">
+                Hi! Can you share your catalog?
+              </div>
+              <div className="ml-auto max-w-[70%] rounded-2xl bg-gradient-to-r from-primary to-primary/80 p-4 text-primary-foreground shadow-lg">
+                Absolutely, sharing now!
+              </div>
             </div>
           </ScrollArea>
-          <div className="border-t p-3">
+          <div className="border-t p-3 bg-gradient-to-t from-muted/20 to-transparent">
             <div className="flex items-end gap-2">
-              <Textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Write a message..." className="min-h-[60px]" />
+              <Textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Write a message..." className="min-h-[60px] rounded-xl" />
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline" onClick={suggestAiReply}>
-                      <Sparkles className="mr-2 h-4 w-4" />AI Reply
+                    <Button variant="outline" onClick={suggestAiReply} className="rounded-xl bg-gradient-to-r from-purple-50 to-transparent hover:bg-purple-100">
+                      <Sparkles className="mr-2 h-4 w-4 text-purple-600" />AI Reply
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Suggest a reply</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <Button onClick={sendMessage}><Send className="mr-2 h-4 w-4" />Send</Button>
+              <Button onClick={sendMessage} className="rounded-xl bg-gradient-to-r from-primary to-primary/80 font-semibold"><Send className="mr-2 h-4 w-4" />Send</Button>
             </div>
             <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
               <Paperclip className="h-4 w-4" /> Attachments supported (media, docs)
@@ -254,15 +283,15 @@ export default function InboxPage() {
       </Card>
       
       {/* Profile / Assignment / Labels / Notes */}
-      <Card className="col-span-3 overflow-hidden">
-        <CardHeader className="border-b">
-          <CardTitle>Details</CardTitle>
+      <Card className="col-span-12 lg:col-span-3 overflow-hidden rounded-2xl border-border/50 shadow-lg">
+        <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-transparent">
+          <CardTitle className="text-xl font-bold">Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 p-4">
           <div className="space-y-2">
-            <div className="text-sm font-medium">Assignee</div>
+            <div className="text-sm font-semibold">Assignee</div>
             <Select onValueChange={(v) => selected && setAssignee(selected.id, v)} value={selected ? assigneeByConv[selected.id] || "" : undefined}>
-              <SelectTrigger><SelectValue placeholder="Unassigned" /></SelectTrigger>
+              <SelectTrigger className="rounded-xl"><SelectValue placeholder="Unassigned" /></SelectTrigger>
               <SelectContent>
                 {availableAgents.map((a) => (
                   <SelectItem key={a} value={a}>{a}</SelectItem>
@@ -272,7 +301,7 @@ export default function InboxPage() {
           </div>
 
           <div className="space-y-2">
-            <div className="text-sm font-medium">Labels</div>
+            <div className="text-sm font-semibold">Labels</div>
             <div className="space-y-2">
               {availableLabels.map((l) => {
                 const checked = selected ? (labelsByConv[selected.id] || []).includes(l) : false;
@@ -292,20 +321,23 @@ export default function InboxPage() {
           </div>
 
           <div className="space-y-2">
-            <div className="text-sm font-medium">Internal Notes</div>
+            <div className="text-sm font-semibold">Internal Notes</div>
             <Textarea
               value={selected ? (notesByConv[selected.id] || "") : ""}
               onChange={(e) => selected && setNotesByConv((p) => ({ ...p, [selected.id]: e.target.value }))}
               placeholder="Add notes for your team..."
-              className="min-h-[120px]"
+              className="min-h-[120px] rounded-xl"
             />
-            <Button variant="outline" size="sm">Save Note</Button>
+            <Button variant="outline" size="sm" className="rounded-xl hover:bg-primary/5">Save Note</Button>
           </div>
 
           {summary && (
             <div className="space-y-2">
-              <div className="text-sm font-medium">AI Summary</div>
-              <div className="rounded-md border p-3 text-sm whitespace-pre-wrap text-muted-foreground">
+              <div className="text-sm font-semibold flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-purple-600" />
+                AI Summary
+              </div>
+              <div className="rounded-xl border bg-gradient-to-br from-purple-50 to-transparent p-4 text-sm whitespace-pre-wrap text-foreground shadow-sm">
                 {summary}
               </div>
             </div>
