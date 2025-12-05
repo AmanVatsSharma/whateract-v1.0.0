@@ -482,7 +482,7 @@ export default function Header() {
                     <DialogHeader>
                         <DialogTitle className="text-xl font-bold">Help & Feedback</DialogTitle>
                         <DialogDescription>
-                            We'd love to hear your thoughts on how we can improve your experience.
+                            We&apos;d love to hear your thoughts on how we can improve your experience.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">

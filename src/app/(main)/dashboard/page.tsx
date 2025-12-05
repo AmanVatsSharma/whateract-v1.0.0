@@ -188,7 +188,7 @@ export default function Dashboard() {
                     </h1>
                     <p className="text-muted-foreground mt-2 flex items-center gap-2">
                         <Sparkles className="h-4 w-4 text-primary" />
-                        Welcome back! Here's what's happening with your campaigns.
+                        Welcome back! Here&apos;s what&apos;s happening with your campaigns.
                     </p>
                 </div>
                 

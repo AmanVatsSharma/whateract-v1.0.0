@@ -21,7 +21,7 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   // Tailwind v4 uses CSS-based dark mode via @media (prefers-color-scheme)
   // or class-based via next-themes
-  darkMode: ["class"],
+  darkMode: "class",
   
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
