@@ -1,5 +1,8 @@
 "use client"
 import React, { useState } from 'react'
+import { DndContext, type DragEndEvent } from '@dnd-kit/core'
+import { SortableContext, useSortable, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -17,12 +20,11 @@ import { Calendar } from "@/components/ui/calendar"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Plus, Settings, Play, Pause, Edit, Trash, ArrowRight, Clock, Users, MessageSquare, BarChart2, Zap, Send, Filter, ChevronDown } from 'lucide-react'
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import ReactFlow, { Background, Controls, addEdge, applyEdgeChanges, applyNodeChanges } from 'reactflow'
 import 'reactflow/dist/style.css'
 
-const automationRules = [
+const defaultAutomationRules = [
     { id: 1, name: "Welcome Series", trigger: "New Subscriber", actions: ["Send Welcome Message", "Add to Onboarding List"], status: "Active", performance: { sent: 1000, opened: 800, clicked: 500 } },
     { id: 2, name: "Re-engagement", trigger: "Inactive for 30 days", actions: ["Send Discount Offer", "Update Segment"], status: "Paused", performance: { sent: 500, opened: 300, clicked: 150 } },
     { id: 3, name: "Order Confirmation", trigger: "Purchase Completed", actions: ["Send Order Details", "Trigger Feedback Request (Delay: 3 days)"], status: "Active", performance: { sent: 2000, opened: 1900, clicked: 1500 } },
@@ -40,18 +42,40 @@ const initialEdges = [
     { id: 'e2-3', source: '2', target: '3' },
 ]
 
-type AutomationRule = typeof automationRules[number]
+type AutomationRule = typeof defaultAutomationRules[number]
 
 export default function Automation() {
     const [isCreating, setIsCreating] = useState(false)
     const [selectedAutomation, setSelectedAutomation] = useState<AutomationRule | null>(null)
     const [isABTestingModalOpen, setIsABTestingModalOpen] = useState(false)
     const [isPerformanceModalOpen, setIsPerformanceModalOpen] = useState(false)
+    const [rules, setRules] = useState<AutomationRule[]>(defaultAutomationRules)
     const [nodes, setNodes] = useState(initialNodes)
     const [edges, setEdges] = useState(initialEdges)
+    const activeRules = rules.filter((rule) => rule.status === "Active")
 
-    const onDragEnd = (result: any) => {
-        // Implement drag and drop logic here
+    const onDragEnd = (event: DragEndEvent) => {
+        console.log('[AutomationPage] drag end payload', event)
+        const { active, over } = event
+        if (!over) {
+            console.warn('[AutomationPage] drag ended without a drop target', event)
+            return
+        }
+        if (active.id === over.id) {
+            console.log('[AutomationPage] drag ended without positional change')
+            return
+        }
+        setRules((prev) => {
+            const activeIndex = prev.findIndex((rule) => rule.id.toString() === active.id)
+            const overIndex = prev.findIndex((rule) => rule.id.toString() === over.id)
+            if (activeIndex === -1 || overIndex === -1) {
+                console.warn('[AutomationPage] unable to locate drag indexes', { activeIndex, overIndex })
+                return prev
+            }
+            const updated = arrayMove(prev, activeIndex, overIndex)
+            console.log('[AutomationPage] reordered automations', updated.map((rule) => rule.id))
+            return updated
+        })
     }
 
     return (
@@ -86,70 +110,22 @@ export default function Automation() {
                 </TabsList>
 
                 <TabsContent value="active" className="space-y-4">
-                    <DragDropContext onDragEnd={onDragEnd}>
-                        <Droppable droppableId="automations">
-                            {(provided) => (
-                                <div {...provided.droppableProps} ref={provided.innerRef}>
-                                    {automationRules.filter(rule => rule.status === "Active").map((rule, index) => (
-                                        <Draggable key={rule.id} draggableId={rule.id.toString()} index={index}>
-                                            {(provided) => (
-                                                <Card className="bg-card border-border mb-4" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                                    <CardHeader className="flex flex-row items-center justify-between">
-                                                        <div>
-                                                            <CardTitle className="text-primary">{rule.name}</CardTitle>
-                                                            <CardDescription className="text-muted-foreground">Trigger: {rule.trigger}</CardDescription>
-                                                        </div>
-                                                        <Badge variant="secondary" className="bg-green-600 text-white">{rule.status}</Badge>
-                                                    </CardHeader>
-                                                    <CardContent>
-                                                        <div className="space-y-2">
-                                                            <Label>Actions:</Label>
-                                                            <ul className="list-disc list-inside text-muted-foreground">
-                                                                {rule.actions.map((action, index) => (
-                                                                    <li key={index}>{action}</li>
-                                                                ))}
-                                                            </ul>
-                                                        </div>
-                                                        <div className="mt-4">
-                                                            <Label>Performance:</Label>
-                                                            <div className="flex justify-between text-sm text-muted-foreground mt-2">
-                                                                <span>Sent: {rule.performance.sent}</span>
-                                                                <span>Opened: {rule.performance.opened}</span>
-                                                                <span>Clicked: {rule.performance.clicked}</span>
-                                                            </div>
-                                                            <div className="mt-2">
-                                                                <Slider
-                                                                    defaultValue={[0, (rule.performance.opened / rule.performance.sent) * 100, (rule.performance.clicked / rule.performance.sent) * 100]}
-                                                                    max={100}
-                                                                    step={1}
-                                                                    className="w-full"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </CardContent>
-                                                    <CardFooter className="flex justify-between">
-                                                        <Button variant="outline" size="sm" onClick={() => setSelectedAutomation(rule)}>
-                                                            <Edit className="h-4 w-4 mr-2" /> Edit
-                                                        </Button>
-                                                        <Button variant="outline" size="sm" onClick={() => setIsABTestingModalOpen(true)}>
-                                                            <BarChart2 className="h-4 w-4 mr-2" /> A/B Test
-                                                        </Button>
-                                                        <Button variant="outline" size="sm" onClick={() => setIsPerformanceModalOpen(true)}>
-                                                            <BarChart2 className="h-4 w-4 mr-2" /> Analytics
-                                                        </Button>
-                                                        <Button variant="outline" size="sm">
-                                                            <Pause className="h-4 w-4 mr-2" /> Pause
-                                                        </Button>
-                                                    </CardFooter>
-                                                </Card>
-                                            )}
-                                        </Draggable>
-                                    ))}
-                                    {provided.placeholder}
-                                </div>
-                            )}
-                        </Droppable>
-                    </DragDropContext>
+                    <DndContext onDragEnd={onDragEnd}>
+                        <SortableContext
+                            items={activeRules.map((rule) => rule.id.toString())}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            {activeRules.map((rule) => (
+                                <SortableAutomationCard
+                                    key={rule.id}
+                                    rule={rule}
+                                    onSelectAutomation={setSelectedAutomation}
+                                    onOpenABTesting={() => setIsABTestingModalOpen(true)}
+                                    onOpenPerformance={() => setIsPerformanceModalOpen(true)}
+                                />
+                            ))}
+                        </SortableContext>
+                    </DndContext>
                 </TabsContent>
 
                 <TabsContent value="paused" className="space-y-4">
@@ -363,7 +339,7 @@ export default function Automation() {
                     </DialogHeader>
                     <div className="mt-4">
                         <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={automationRules}>
+                            <BarChart data={rules}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="name" />
                                 <YAxis />
@@ -406,6 +382,86 @@ export default function Automation() {
                     </div>
                 </DialogContent>
             </Dialog>
+        </div>
+    )
+}
+
+type SortableAutomationCardProps = {
+    rule: AutomationRule
+    onSelectAutomation: (rule: AutomationRule) => void
+    onOpenABTesting: () => void
+    onOpenPerformance: () => void
+}
+
+function SortableAutomationCard({
+    rule,
+    onSelectAutomation,
+    onOpenABTesting,
+    onOpenPerformance,
+}: SortableAutomationCardProps) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: rule.id.toString() })
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.85 : 1,
+    }
+    const safeSentTotal = Math.max(rule.performance.sent, 1)
+
+    return (
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+            <Card className="bg-card border-border mb-4">
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle className="text-primary">{rule.name}</CardTitle>
+                        <CardDescription className="text-muted-foreground">Trigger: {rule.trigger}</CardDescription>
+                    </div>
+                    <Badge variant="secondary" className="bg-green-600 text-white">{rule.status}</Badge>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-2">
+                        <Label>Actions:</Label>
+                        <ul className="list-disc list-inside text-muted-foreground">
+                            {rule.actions.map((action, index) => (
+                                <li key={index}>{action}</li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="mt-4">
+                        <Label>Performance:</Label>
+                        <div className="flex justify-between text-sm text-muted-foreground mt-2">
+                            <span>Sent: {rule.performance.sent}</span>
+                            <span>Opened: {rule.performance.opened}</span>
+                            <span>Clicked: {rule.performance.clicked}</span>
+                        </div>
+                        <div className="mt-2">
+                            <Slider
+                                defaultValue={[
+                                    0,
+                                    (rule.performance.opened / safeSentTotal) * 100,
+                                    (rule.performance.clicked / safeSentTotal) * 100
+                                ]}
+                                max={100}
+                                step={1}
+                                className="w-full"
+                            />
+                        </div>
+                    </div>
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                    <Button variant="outline" size="sm" onClick={() => onSelectAutomation(rule)}>
+                        <Edit className="h-4 w-4 mr-2" /> Edit
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={onOpenABTesting}>
+                        <BarChart2 className="h-4 w-4 mr-2" /> A/B Test
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={onOpenPerformance}>
+                        <BarChart2 className="h-4 w-4 mr-2" /> Analytics
+                    </Button>
+                    <Button variant="outline" size="sm">
+                        <Pause className="h-4 w-4 mr-2" /> Pause
+                    </Button>
+                </CardFooter>
+            </Card>
         </div>
     )
 }

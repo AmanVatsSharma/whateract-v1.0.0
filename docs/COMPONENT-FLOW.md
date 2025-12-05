@@ -558,5 +558,31 @@ return <Content data={data} />
 
 ---
 
-**Last Updated:** December 2024  
+## ♻️ Automations DnD Flow (Updated)
+
+The automations board now uses `@dnd-kit` to keep compatibility with React 18+ while providing deterministic ordering and verbose logging for each user gesture.
+
+```mermaid
+flowchart TD
+    Grab[User grabs automation card] --> Drag[DndContext emits drag move]
+    Drag --> Drop{Card dropped?}
+    Drop -- No --> LogWarn[console.warn: missing drop target] --> Idle[State unchanged]
+    Drop -- Yes --> Compare{Position changed?}
+    Compare -- No --> LogInfo[console.log: no position change] --> Idle
+    Compare -- Yes --> Reorder[arrayMove() creates new order]
+    Reorder --> LogOrder[console.log: ordered IDs]
+    LogOrder --> Persist[setRules() updates UI]
+```
+
+Implementation touch points:
+
+- `src/app/(main)/automations/page.tsx` instantiates `const activeRules = rules.filter(...)` and wires `DndContext` + `SortableContext`.
+- `SortableAutomationCard` wraps each card with `useSortable`, applies inline transform styling, and keeps controls (Edit, Analytics, Pause) intact.
+- `onDragEnd` guards every edge case, logs successes/warnings, and reorders via `arrayMove` to keep UI + future persistence layers in sync.
+
+Please keep this flow in mind when extending automations (e.g., persisting order, syncing with backend) so console diagnostics remain actionable.
+
+---
+
+**Last Updated:** December 2025  
 **Maintainer:** WhatsApp Marketing Team
