@@ -56,6 +56,7 @@ import {
     LogOut,
     X,
     Crown,
+    TrendingUp,
 } from 'lucide-react'
 import { ThemeSelector } from '@/components/ThemeSelector'
 
@@ -123,6 +124,12 @@ const sidebarItems = [
         badge: '5',
         badgeVariant: 'destructive' as const,
         description: 'System Notifications'
+    },
+    { 
+        name: 'Trading', 
+        icon: TrendingUp, 
+        href: '/trading',
+        description: 'Orders & Positions'
     },
     { 
         name: 'Settings', 
