@@ -1,4 +1,4 @@
-import { relayJsonResponse } from "@/services/backend/backend-proxy";
+import { relayJsonResponse } from "@/services/bff/backend-proxy";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
