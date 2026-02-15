@@ -51,6 +51,7 @@ import {
     FileText,
     Calendar,
     Bell,
+    Store,
     Search,
     Star,
     LogOut,
@@ -123,6 +124,18 @@ const sidebarItems = [
         badge: '5',
         badgeVariant: 'destructive' as const,
         description: 'System Notifications'
+    },
+    {
+        name: 'Shopify',
+        icon: Store,
+        href: '/shopify',
+        description: 'Store Connection & Sync'
+    },
+    {
+        name: 'Team',
+        icon: Users,
+        href: '/team',
+        description: 'Members & Invitations'
     },
     { 
         name: 'Settings', 
