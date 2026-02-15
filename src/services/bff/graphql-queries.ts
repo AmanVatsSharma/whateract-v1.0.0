@@ -26,6 +26,23 @@ export const TENANT_STATS_BFF_QUERY = `
       totalConversations
       messagesSent
       messagesInbound
+      totalCampaigns
+      campaignMessagesSent
+      campaignMessagesFailed
+      campaignReplyRate
+    }
+  }
+`;
+
+export const CAMPAIGN_KPIS_BFF_QUERY = `
+  query CampaignKpisBff {
+    campaignKpis {
+      campaignId
+      campaignName
+      outboundSent
+      outboundFailed
+      inboundReplies
+      replyRate
     }
   }
 `;

@@ -53,5 +53,22 @@ export interface TenantStatsResponse {
   totalConversations: number;
   messagesSent: number;
   messagesInbound: number;
+  totalCampaigns?: number;
+  campaignMessagesSent?: number;
+  campaignMessagesFailed?: number;
+  campaignReplyRate?: number;
+}
+
+export interface CampaignKpiItem {
+  campaignId: string;
+  campaignName: string;
+  outboundSent: number;
+  outboundFailed: number;
+  inboundReplies: number;
+  replyRate: number;
+}
+
+export interface CampaignKpisResponse {
+  data: CampaignKpiItem[];
 }
 

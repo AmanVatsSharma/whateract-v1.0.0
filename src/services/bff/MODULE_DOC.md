@@ -15,3 +15,5 @@
 - 2026-02-15: Renamed service namespace from `services/backend` to `services/bff`.
 - 2026-02-15: Centralized GraphQL documents used by campaign/analytics/auth/audience/template/automation routes.
 - 2026-02-15: Added shared auth cookie helpers and tenant header propagation fallback.
+- 2026-02-15: Enforced BFF-only frontend API boundary via client guardrails and boundary check script.
+- 2026-02-15: Added backend proxy timeout handling, generated request correlation IDs, and standardized relay failures.
