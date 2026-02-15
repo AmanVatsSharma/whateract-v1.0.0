@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { AlertCircle, CheckCircle2, HelpCircle, Globe, Bell, Lock, Users, Key, Database, Zap, Sliders, BarChart, Send } from 'lucide-react'
 import { toast } from 'sonner'
+import { rotateApiKey, validateWebhook } from '@/features/settings/services/settings.service'
 
 export default function Settings() {
     const [showApiKey, setShowApiKey] = useState(false)
@@ -396,9 +397,8 @@ export default function Settings() {
                             </div>
                             <Button variant="outline" className="w-full" onClick={async ()=>{
                                 try {
-                                    const res = await fetch('/api/settings/api-key', { method: 'POST' })
-                                    const data = await res.json()
-                                    setGeneratedKey(data?.key)
+                                    const key = await rotateApiKey()
+                                    setGeneratedKey(key)
                                     setShowApiKey(true)
                                     toast.success('New API key generated')
                                 } catch (e) {
@@ -416,8 +416,8 @@ export default function Settings() {
                             </div>
                             <Button onClick={async ()=>{
                                 try {
-                                    const res = await fetch('/api/settings/webhook', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ url: webhookUrl, secret: webhookSecret }) })
-                                    if (!res.ok) throw new Error('bad')
+                                    const res = await validateWebhook(webhookUrl, webhookSecret)
+                                    if (!res?.ok) throw new Error('bad')
                                     toast.success('Webhook saved')
                                 } catch (e) {
                                     toast.error('Failed to save webhook')

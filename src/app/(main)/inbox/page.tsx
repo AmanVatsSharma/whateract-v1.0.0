@@ -19,7 +19,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { apiClient } from "@/lib/api-client";
 import { createLogger } from "@/lib/logger";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
@@ -35,10 +34,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Paperclip, Send, Sparkles, Star, Filter, Search, Clock, X, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useConversations } from "@/features/inbox/hooks/use-conversations";
+import {
+  fetchAiReply,
+  summarizeConversation,
+} from "@/features/inbox/services/inbox.service";
+import { SectionLoader } from "@/components/shared/section-loader";
 
 const logger = createLogger("inbox");
-
-console.log('💬 Inbox: Page loaded with modern light theme');
 
 type Conversation = {
   id: string;
@@ -60,25 +63,30 @@ export default function InboxPage() {
   const [assigneeByConv, setAssigneeByConv] = useState<Record<string, string>>({});
   const [notesByConv, setNotesByConv] = useState<Record<string, string>>({});
   const [statusByConv, setStatusByConv] = useState<Record<string, "open" | "snoozed" | "closed">>({});
+  const { data: conversationsFromApi = [], isLoading } = useConversations();
 
   // Available options (UI-only). Replace with backend data when wired.
   const availableAgents = ["You", "Aisha", "Rahul", "Priya"];
   const availableLabels = ["VIP", "Return", "New", "Support", "Lead"];
 
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await apiClient.get("/conversations");
-        // In mock mode, apiClient points to /api but we intercept via mocks in demo flows.
-        const list = (res.data?.data || []) as Conversation[];
-        setConversations(list);
-        if (list.length && !selected) setSelected(list[0]);
-      } catch (e) {
-        logger.error("load conversations failed", e);
-      }
+    const list = conversationsFromApi.map((item) => ({
+      id: item.id,
+      name: item.contactId
+        ? `Contact ${item.contactId.slice(-4)}`
+        : `Conversation ${item.id.slice(0, 6)}`,
+      lastMessage: item.lastMessage || "No message yet",
+      unread: item.status === "OPEN" ? 1 : 0,
+      priority: item.tags.some((tag) => tag.toLowerCase() === "vip")
+        ? ("high" as const)
+        : ("low" as const),
+      tags: item.tags || [],
+    }));
+    setConversations(list);
+    if (list.length && !selected) {
+      setSelected(list[0]);
     }
-    load();
-  }, [selected]);
+  }, [conversationsFromApi, selected]);
 
   const filtered = useMemo(() => {
     return conversations.filter((c) =>
@@ -94,11 +102,10 @@ export default function InboxPage() {
 
   const suggestAiReply = async () => {
     try {
-      const res = await apiClient.post("/ai/reply", {
+      const suggestion = await fetchAiReply({
         text: message || selected?.lastMessage || "",
         conversationId: selected?.id,
       });
-      const suggestion: string = res.data?.suggestion || "";
       if (suggestion) {
         setMessage(suggestion);
         toast.success("AI suggestion ready");
@@ -115,10 +122,9 @@ export default function InboxPage() {
     if (!selected) return;
     try {
       setIsSummarizing(true);
-      const res = await apiClient.post("/ai/summarize", {
+      const s = await summarizeConversation({
         conversationId: selected.id,
       });
-      const s: string = res.data?.summary || "";
       setSummary(s);
       if (s) toast.success("Summary generated");
     } catch (e) {
@@ -149,6 +155,7 @@ export default function InboxPage() {
 
   return (
     <div className="grid grid-cols-12 gap-4 p-4 sm:p-6 animate-fadeIn">
+      {isLoading && <SectionLoader label="Loading conversations..." />}
       {/* Conversations list */}
       <Card className="col-span-12 lg:col-span-3 overflow-hidden rounded-2xl border-border/50 shadow-lg">
         <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-transparent">

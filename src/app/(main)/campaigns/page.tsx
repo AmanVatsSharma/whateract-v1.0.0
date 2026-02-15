@@ -34,11 +34,13 @@ import { Progress } from "@/components/ui/progress"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { Plus, Search, Settings, Trash, Zap, BarChart2, Send, Eye, MessageSquare, Filter, Copy, Edit, MoreVertical, Sparkles, TrendingUp, Users, Target, Calendar } from "lucide-react"
+import { useCampaigns } from "@/features/campaigns/hooks/use-campaigns"
+import { SectionLoader } from "@/components/shared/section-loader"
 
 /**
  * Campaign data with modern structure
  */
-const campaignData = [
+const defaultCampaignData = [
   { id: 1, name: "Summer Blowout", status: "Active", sent: 10000, delivered: 9500, read: 8000, responded: 1500, conversionRate: 15, roi: 250, date: "2024-06-15" },
   { id: 2, name: "New Product Teaser", status: "Scheduled", sent: 0, delivered: 0, read: 0, responded: 0, conversionRate: 0, roi: 0, date: "2024-07-01" },
   { id: 3, name: "Customer Loyalty Program", status: "Completed", sent: 5000, delivered: 4900, read: 4000, responded: 750, conversionRate: 15.3, roi: 180, date: "2024-05-20" },
@@ -77,11 +79,28 @@ export default function CampaignsPage() {
   const [isCreating, setIsCreating] = useState(false)
   const [step, setStep] = useState<number>(1)
   const [campaignMessage, setCampaignMessage] = useState<string>("")
+  const { data: campaignsFromApi, isLoading } = useCampaigns()
 
-  console.log('🎨 Campaigns: Page loaded with modern light theme')
+  const campaignRows = campaignsFromApi?.length
+    ? campaignsFromApi.map((campaign) => ({
+        id: campaign.id,
+        name: campaign.name,
+        status:
+          campaign.status.charAt(0) +
+          campaign.status.slice(1).toLowerCase(),
+        sent: 0,
+        delivered: 0,
+        read: 0,
+        responded: 0,
+        conversionRate: 0,
+        roi: 0,
+        date: campaign.scheduledAt || null,
+      }))
+    : defaultCampaignData
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground animate-fadeIn">
+      {isLoading && <SectionLoader label="Loading campaigns..." />}
       {/* Header */}
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -226,7 +245,7 @@ export default function CampaignsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {campaignData.map((campaign) => (
+                    {campaignRows.map((campaign) => (
                       <TableRow key={campaign.id} className="border-border/30 hover:bg-muted/50 transition-colors">
                         <TableCell className="font-semibold">{campaign.name}</TableCell>
                         <TableCell>
