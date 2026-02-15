@@ -14,8 +14,10 @@
 - `POST /api/shopify/connect`
 - `POST /api/shopify/sync/orders`
 - `POST /api/shopify/sync/customers`
+- `POST /api/shopify/sync/products`
 - `GET /api/shopify/status`
 
 **Change-log:**
 - 2026-02-15: Added dedicated Shopify management page with status + sync actions.
 - 2026-02-15: Connected service calls to backend-backed BFF endpoints.
+- 2026-02-15: Added product sync action and product sync status visibility on Shopify page.

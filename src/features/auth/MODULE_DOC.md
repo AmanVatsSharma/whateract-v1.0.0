@@ -23,3 +23,4 @@
 **Change-log:**
 - 2026-02-15: Added auth service and user-facing auth pages.
 - 2026-02-15: Wired auth cookies (`access_token`, `tenant_id`) through BFF handlers.
+- 2026-02-15: Connected forgot/reset password BFF routes to backend auth endpoints.
