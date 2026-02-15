@@ -2,7 +2,7 @@
  * File: src/features/team/services/team.service.ts
  * Module: frontend-team
  * Purpose: Team onboarding service APIs for frontend usage.
- * Author: Aman Sharma / Novologic/ Codex
+ * Author: Aman Sharma / Vedpragya/ Codex
  * Last-updated: 2026-02-15
  * Notes:
  * - Maps to backend `/team-onboarding/*` endpoints.

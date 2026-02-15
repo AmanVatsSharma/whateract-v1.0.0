@@ -2,7 +2,7 @@
  * File: src/components/shared/section-loader.tsx
  * Module: frontend-shared-components
  * Purpose: Small reusable loading section placeholder.
- * Author: Aman Sharma / Novologic/ Codex
+ * Author: Aman Sharma / Vedpragya/ Codex
  * Last-updated: 2026-02-15
  * Notes:
  * - Used across feature pages during async data loading.

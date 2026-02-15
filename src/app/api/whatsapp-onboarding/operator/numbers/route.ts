@@ -2,7 +2,7 @@
  * File: src/app/api/whatsapp-onboarding/operator/numbers/route.ts
  * Module: frontend-bff
  * Purpose: BFF routes for managed WhatsApp number inventory operations.
- * Author: Aman Sharma / Novologic/ Codex
+ * Author: Aman Sharma / Vedpragya/ Codex
  * Last-updated: 2026-02-15
  * Notes:
  * - GET supports optional `status` filter.

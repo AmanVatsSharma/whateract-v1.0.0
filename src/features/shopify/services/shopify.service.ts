@@ -2,7 +2,7 @@
  * File: src/features/shopify/services/shopify.service.ts
  * Module: frontend-shopify
  * Purpose: Frontend service layer for Shopify integration APIs.
- * Author: Aman Sharma / Novologic/ Codex
+ * Author: Aman Sharma / Vedpragya/ Codex
  * Last-updated: 2026-02-15
  * Notes:
  * - Calls frontend BFF routes (`/api/*`) for Shopify flows.

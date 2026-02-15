@@ -2,7 +2,7 @@
  * File: src/app/api/whatsapp-onboarding/operator/assign/route.ts
  * Module: frontend-bff
  * Purpose: BFF route for assigning managed numbers to tenants.
- * Author: Aman Sharma / Novologic/ Codex
+ * Author: Aman Sharma / Vedpragya/ Codex
  * Last-updated: 2026-02-15
  * Notes:
  * - Forwards operator assignment payload to backend.

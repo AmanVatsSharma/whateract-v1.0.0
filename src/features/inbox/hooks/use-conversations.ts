@@ -2,7 +2,7 @@
  * File: src/features/inbox/hooks/use-conversations.ts
  * Module: frontend-inbox
  * Purpose: React Query hook for inbox conversation list.
- * Author: Aman Sharma / Novologic/ Codex
+ * Author: Aman Sharma / Vedpragya/ Codex
  * Last-updated: 2026-02-15
  * Notes:
  * - Keeps conversation fetching out of page components.

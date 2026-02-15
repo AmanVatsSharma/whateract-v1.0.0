@@ -2,7 +2,7 @@
  * File: src/app/api/whatsapp-onboarding/operator/channels/route.ts
  * Module: frontend-bff
  * Purpose: BFF route for operator channel status listing.
- * Author: Aman Sharma / Novologic/ Codex
+ * Author: Aman Sharma / Vedpragya/ Codex
  * Last-updated: 2026-02-15
  * Notes:
  * - GET supports optional `status` filtering.

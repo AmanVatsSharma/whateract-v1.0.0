@@ -2,7 +2,7 @@
  * File: src/features/inbox/services/inbox.service.ts
  * Module: frontend-inbox
  * Purpose: Inbox domain service for conversations and AI helpers.
- * Author: Aman Sharma / Novologic/ Codex
+ * Author: Aman Sharma / Vedpragya/ Codex
  * Last-updated: 2026-02-15
  * Notes:
  * - BFF endpoints abstract backend route differences.

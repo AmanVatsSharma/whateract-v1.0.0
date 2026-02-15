@@ -2,7 +2,7 @@
  * File: src/app/api/whatsapp-onboarding/operator/funnel/route.ts
  * Module: frontend-bff
  * Purpose: BFF route for onboarding funnel analytics snapshot.
- * Author: Aman Sharma / Novologic/ Codex
+ * Author: Aman Sharma / Vedpragya/ Codex
  * Last-updated: 2026-02-15
  * Notes:
  * - Used by operations dashboard widgets in analytics/settings.

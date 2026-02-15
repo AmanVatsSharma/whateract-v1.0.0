@@ -2,7 +2,7 @@
  * File: src/features/campaigns/hooks/use-campaigns.ts
  * Module: frontend-campaigns
  * Purpose: React Query hook for campaigns list data.
- * Author: Aman Sharma / Novologic/ Codex
+ * Author: Aman Sharma / Vedpragya/ Codex
  * Last-updated: 2026-02-15
  * Notes:
  * - Centralizes query key and stale policy.

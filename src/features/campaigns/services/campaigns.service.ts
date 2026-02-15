@@ -2,7 +2,7 @@
  * File: src/features/campaigns/services/campaigns.service.ts
  * Module: frontend-campaigns
  * Purpose: Campaign data access layer for UI components/pages.
- * Author: Aman Sharma / Novologic/ Codex
+ * Author: Aman Sharma / Vedpragya/ Codex
  * Last-updated: 2026-02-15
  * Notes:
  * - Uses BFF route `/api/campaigns` as stable contract.

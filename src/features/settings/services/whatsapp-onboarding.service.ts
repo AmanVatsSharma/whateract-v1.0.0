@@ -2,7 +2,7 @@
  * File: src/features/settings/services/whatsapp-onboarding.service.ts
  * Module: frontend-settings
  * Purpose: Frontend service wrapper for managed WhatsApp onboarding APIs.
- * Author: Aman Sharma / Novologic/ Codex
+ * Author: Aman Sharma / Vedpragya/ Codex
  * Last-updated: 2026-02-15
  * Notes:
  * - Calls BFF endpoints under `/api/whatsapp-onboarding/*`.

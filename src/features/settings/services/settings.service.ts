@@ -2,7 +2,7 @@
  * File: src/features/settings/services/settings.service.ts
  * Module: frontend-settings
  * Purpose: Settings API service for webhook validation and API key rotation.
- * Author: Aman Sharma / Novologic/ Codex
+ * Author: Aman Sharma / Vedpragya/ Codex
  * Last-updated: 2026-02-15
  * Notes:
  * - Uses frontend BFF endpoints.

@@ -2,7 +2,7 @@
  * File: src/app/api/whatsapp-onboarding/request/route.ts
  * Module: frontend-bff
  * Purpose: BFF route for tenant onboarding request submission.
- * Author: Aman Sharma / Novologic/ Codex
+ * Author: Aman Sharma / Vedpragya/ Codex
  * Last-updated: 2026-02-15
  * Notes:
  * - Accepts tenant onboarding profile payload from settings UI.

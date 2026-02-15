@@ -2,7 +2,7 @@
  * File: src/app/api/whatsapp-onboarding/operator/channel-status/route.ts
  * Module: frontend-bff
  * Purpose: BFF route for operator-driven channel status transitions.
- * Author: Aman Sharma / Novologic/ Codex
+ * Author: Aman Sharma / Vedpragya/ Codex
  * Last-updated: 2026-02-15
  * Notes:
  * - Used to activate/suspend/update channel review details.

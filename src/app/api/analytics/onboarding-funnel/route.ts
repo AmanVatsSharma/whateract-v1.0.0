@@ -2,7 +2,7 @@
  * File: src/app/api/analytics/onboarding-funnel/route.ts
  * Module: frontend-bff
  * Purpose: BFF route for WhatsApp onboarding funnel analytics query.
- * Author: Aman Sharma / Novologic/ Codex
+ * Author: Aman Sharma / Vedpragya/ Codex
  * Last-updated: 2026-02-15
  * Notes:
  * - Uses GraphQL query through backend proxy.
