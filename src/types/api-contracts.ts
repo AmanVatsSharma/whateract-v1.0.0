@@ -18,6 +18,14 @@ export interface CampaignListItem {
   createdAt?: string | null;
 }
 
+export interface ApiDataEnvelope<T> {
+  data: T;
+}
+
+export interface ApiErrorEnvelope {
+  error: string;
+}
+
 export interface CampaignsResponse {
   data: CampaignListItem[];
 }
