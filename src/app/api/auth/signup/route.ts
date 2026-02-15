@@ -22,6 +22,7 @@ export async function POST(request: Request) {
       email?: string;
       password?: string;
       tenantName?: string;
+      otpCode?: string;
     };
     if (!body.email || !body.password || !body.tenantName) {
       return NextResponse.json(
@@ -38,6 +39,7 @@ export async function POST(request: Request) {
           email: body.email,
           password: body.password,
           tenantName: body.tenantName,
+          otpCode: body.otpCode,
         },
       }
     );
