@@ -1,11 +1,9 @@
-import { NextResponse } from "next/server";
+import { relayJsonResponse } from "@/services/backend/backend-proxy";
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const id: string | undefined = body?.conversationId;
-  const summary = `Summary for ${id || "conversation"}:
-- Customer asked for catalog
-- Agent responded with a link
-- Pending: confirm product availability`;
-  return NextResponse.json({ summary });
+  const body = await request.json().catch(() => ({}));
+  return relayJsonResponse(request, "/ai/summarize", {
+    method: "POST",
+    body,
+  });
 }
