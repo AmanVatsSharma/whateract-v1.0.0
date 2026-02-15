@@ -1,4 +1,4 @@
-import { relayJsonResponse } from "@/services/backend/backend-proxy";
+import { relayJsonResponse } from "@/services/bff/backend-proxy";
 
 export async function GET(request: Request) {
   return relayJsonResponse(request, "/inbox/conversations");

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { proxyGraphql } from "@/services/backend/backend-proxy";
+import { proxyGraphql } from "@/services/bff/backend-proxy";
+import { CAMPAIGNS_BFF_QUERY } from "@/services/bff/graphql-queries";
 import { CampaignsResponse } from "@/types/api-contracts";
 
 type CampaignsGraphqlData = {
@@ -13,24 +14,11 @@ type CampaignsGraphqlData = {
   }>;
 };
 
-const CAMPAIGNS_QUERY = `
-  query CampaignsBffList {
-    campaigns {
-      id
-      name
-      status
-      type
-      scheduledAt
-      createdAt
-    }
-  }
-`;
-
 export async function GET(request: Request) {
   try {
     const payload = await proxyGraphql<CampaignsGraphqlData>(
       request,
-      CAMPAIGNS_QUERY
+      CAMPAIGNS_BFF_QUERY
     );
 
     const response: CampaignsResponse = {
