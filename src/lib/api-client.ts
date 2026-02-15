@@ -3,7 +3,6 @@ import { createLogger } from "@/lib/logger";
 
 export interface ApiClientOptions {
   baseURL?: string;
-  useMocks?: boolean;
   headers?: Record<string, string>;
 }
 
@@ -46,5 +45,4 @@ export class ApiClient {
 }
 
 export const apiClient = new ApiClient({
-  useMocks: process.env.NEXT_PUBLIC_USE_MOCKS === "true",
 }).instance;
