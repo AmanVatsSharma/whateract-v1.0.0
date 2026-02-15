@@ -12,6 +12,7 @@ import {
   getShopifyStatus,
   syncShopifyCustomers,
   syncShopifyOrders,
+  syncShopifyProducts,
 } from "@/features/shopify/services/shopify.service";
 
 type ShopifyStatus = {
@@ -19,14 +20,16 @@ type ShopifyStatus = {
   shopDomain?: string | null;
   orders?: number;
   customers?: number;
+  products?: number;
   lastOrdersSyncAt?: string | null;
   lastCustomersSyncAt?: string | null;
+  lastProductsSyncAt?: string | null;
 };
 
 export default function ShopifyPage() {
   const [shopDomain, setShopDomain] = useState("");
   const [accessToken, setAccessToken] = useState("");
-  const [scopes, setScopes] = useState("read_orders,read_customers");
+  const [scopes, setScopes] = useState("read_orders,read_customers,read_products");
   const [status, setStatus] = useState<ShopifyStatus>({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -84,6 +87,19 @@ export default function ShopifyPage() {
       await loadStatus();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Customer sync failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSyncProducts = async () => {
+    try {
+      setIsLoading(true);
+      const result = await syncShopifyProducts(50);
+      toast.success(`Products synced: ${result?.count ?? 0}`);
+      await loadStatus();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Product sync failed");
     } finally {
       setIsLoading(false);
     }
@@ -147,11 +163,15 @@ export default function ShopifyPage() {
           <div className="text-sm">Shop: {status.shopDomain || "-"}</div>
           <div className="text-sm">Orders: {status.orders ?? 0}</div>
           <div className="text-sm">Customers: {status.customers ?? 0}</div>
+          <div className="text-sm">Products: {status.products ?? 0}</div>
           <div className="text-sm">
             Last order sync: {status.lastOrdersSyncAt || "-"}
           </div>
           <div className="text-sm">
             Last customer sync: {status.lastCustomersSyncAt || "-"}
+          </div>
+          <div className="text-sm">
+            Last product sync: {status.lastProductsSyncAt || "-"}
           </div>
           <Separator />
           <div className="flex flex-wrap gap-2">
@@ -160,6 +180,9 @@ export default function ShopifyPage() {
             </Button>
             <Button onClick={handleSyncCustomers} disabled={isLoading || !status.connected}>
               Sync customers
+            </Button>
+            <Button onClick={handleSyncProducts} disabled={isLoading || !status.connected}>
+              Sync products
             </Button>
             <Button variant="outline" onClick={loadStatus} disabled={isLoading}>
               Refresh status

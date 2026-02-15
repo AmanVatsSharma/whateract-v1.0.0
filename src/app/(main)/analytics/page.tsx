@@ -76,13 +76,24 @@ export default function Analytics() {
         messagesInbound: 0,
     })
     const [campaigns, setCampaigns] = useState<Array<{ id: string; name: string }>>([])
+    const [campaignKpis, setCampaignKpis] = useState<
+        Array<{
+            campaignId: string
+            campaignName: string
+            outboundSent: number
+            outboundFailed: number
+            inboundReplies: number
+            replyRate: number
+        }>
+    >([])
 
     useEffect(() => {
         const loadData = async () => {
             try {
-                const [statsRes, campaignsRes] = await Promise.all([
+                const [statsRes, campaignsRes, campaignKpisRes] = await Promise.all([
                     fetch('/api/analytics/overview'),
                     fetch('/api/campaigns'),
+                    fetch('/api/analytics/campaign-kpis'),
                 ])
                 if (statsRes.ok) {
                     const statsPayload = await statsRes.json()
@@ -94,6 +105,10 @@ export default function Analytics() {
                     const campaignsPayload = await campaignsRes.json()
                     setCampaigns(campaignsPayload?.data || [])
                 }
+                if (campaignKpisRes.ok) {
+                    const kpisPayload = await campaignKpisRes.json()
+                    setCampaignKpis(kpisPayload?.data || [])
+                }
             } catch {
                 // fallback data keeps charts functional when APIs are unavailable
             }
@@ -102,6 +117,16 @@ export default function Analytics() {
     }, [])
 
     const campaignPerformanceData = useMemo(() => {
+        if (campaignKpis.length) {
+            return campaignKpis.map((kpi) => ({
+                name: kpi.campaignName || kpi.campaignId,
+                sent: kpi.outboundSent + kpi.outboundFailed,
+                delivered: kpi.outboundSent,
+                read: Math.round(kpi.outboundSent * 0.7),
+                responded: kpi.inboundReplies,
+                conversion: Number(kpi.replyRate.toFixed(1)),
+            }))
+        }
         if (!campaigns.length) return fallbackCampaignPerformanceData
         const perCampaign = Math.max(1, Math.floor((stats.messagesSent || 0) / campaigns.length))
         return campaigns.map((campaign, index) => ({
@@ -112,7 +137,7 @@ export default function Analytics() {
             responded: Math.round(perCampaign * 0.2),
             conversion: Number(((Math.max(1, Math.round(perCampaign * 0.2)) / perCampaign) * 100).toFixed(1)),
         }))
-    }, [campaigns, stats.messagesSent])
+    }, [campaignKpis, campaigns, stats.messagesSent])
 
     const audienceEngagementData = useMemo(() => {
         if (!stats.totalContacts && !stats.totalConversations) {
