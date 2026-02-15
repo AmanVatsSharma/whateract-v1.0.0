@@ -30,6 +30,18 @@ export interface CampaignsResponse {
   data: CampaignListItem[];
 }
 
+export interface AutomationListItem {
+  id: string;
+  type: string;
+  enabled: boolean;
+  trigger?: string | null;
+  createdAt?: string | null;
+}
+
+export interface AutomationsResponse {
+  data: AutomationListItem[];
+}
+
 export interface ConversationListItem {
   id: string;
   contactId?: string | null;
@@ -78,5 +90,63 @@ export interface CampaignKpiItem {
 
 export interface CampaignKpisResponse {
   data: CampaignKpiItem[];
+}
+
+export interface WhatsAppOnboardingChecklistItem {
+  key: string;
+  label: string;
+  done: boolean;
+  blocker?: string;
+}
+
+export interface WhatsAppOnboardingStatusPayload {
+  tenantId: string;
+  status: string;
+  businessLegalName?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  website?: string | null;
+  expectedDailyVolume?: number | null;
+  reviewNotes?: string | null;
+  phoneNumberId?: string | null;
+  phoneNumberE164?: string | null;
+  wabaId?: string | null;
+  webhookVerifiedAt?: string | null;
+  activatedAt?: string | null;
+  suspendedAt?: string | null;
+  onboardingSlaTargetAt?: string | null;
+  approvedTemplates: number;
+  checklist: WhatsAppOnboardingChecklistItem[];
+  blockers: string[];
+}
+
+export interface ManagedWhatsAppNumberPayload {
+  id: string;
+  phoneNumberId: string;
+  displayPhoneNumber: string;
+  status: string;
+  assignedTenantId?: string | null;
+  wabaId?: string | null;
+  qualityRating?: string | null;
+  assignedAt?: string | null;
+  releasedAt?: string | null;
+}
+
+export interface ManagedWhatsAppChannelPayload {
+  tenantId: string;
+  status: string;
+  phoneNumberId?: string | null;
+  phoneNumberE164?: string | null;
+  businessLegalName?: string | null;
+  webhookVerifiedAt?: string | null;
+  activatedAt?: string | null;
+  suspendedAt?: string | null;
+  onboardingSlaTargetAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface WhatsAppOnboardingFunnelPayload {
+  total: number;
+  byStatus: Record<string, number>;
 }
 

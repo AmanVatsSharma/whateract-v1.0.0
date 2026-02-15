@@ -19,3 +19,7 @@
 - 2026-02-15: Added backend proxy timeout handling, generated request correlation IDs, and standardized relay failures.
 - 2026-02-15: Added `relayJsonDataResponse` to normalize JSON API contracts (`{ data }` / `{ error }`) for auth/shopify route handlers.
 - 2026-02-15: Added BFF regression tests for backend-proxy envelope behavior and high-risk auth/shopify route contracts.
+- 2026-02-15: Added campaign and automation mutation documents for create/update/delete lifecycle actions.
+- 2026-02-15: Added settings workspace route support to persist tenant-level preferences via integrations APIs.
+- 2026-02-15: Tightened architecture guardrail by failing boundary checks when legacy directories are reintroduced.
+- 2026-02-15: Added onboarding funnel GraphQL document for activation-stage analytics and operations dashboards.
