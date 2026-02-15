@@ -39,6 +39,7 @@ export async function registerAndLogin(payload: {
   email: string;
   password: string;
   tenantName: string;
+  otpCode?: string;
 }) {
   const response = await apiClient.post<AuthResponse>("/auth/signup", payload);
   if (response.data?.error) {
@@ -48,25 +49,31 @@ export async function registerAndLogin(payload: {
 }
 
 export async function requestPasswordReset(payload: { email: string }) {
-  const response = await apiClient.post<{ ok?: boolean; message?: string; error?: string }>(
+  const response = await apiClient.post<{
+    data?: { ok?: boolean; message?: string };
+    error?: string;
+  }>(
     "/auth/forgot-password",
     payload
   );
   if (response.data?.error) {
     throw new Error(response.data.error);
   }
-  return response.data;
+  return response.data?.data || {};
 }
 
 export async function resetPassword(payload: { token: string; password: string }) {
-  const response = await apiClient.post<{ ok?: boolean; message?: string; error?: string }>(
+  const response = await apiClient.post<{
+    data?: { ok?: boolean; message?: string };
+    error?: string;
+  }>(
     "/auth/reset-password",
     payload
   );
   if (response.data?.error) {
     throw new Error(response.data.error);
   }
-  return response.data;
+  return response.data?.data || {};
 }
 
 export async function logout() {
