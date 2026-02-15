@@ -16,13 +16,19 @@ export default function SignupPage() {
   const [tenantName, setTenantName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     try {
       setIsLoading(true);
-      const auth = await registerAndLogin({ tenantName, email, password });
+      const auth = await registerAndLogin({
+        tenantName,
+        email,
+        password,
+        otpCode: otpCode.trim() || undefined,
+      });
       if (auth.mfaRequired) {
         toast.error("MFA challenge required. Complete MFA flow first.");
         return;
@@ -61,6 +67,15 @@ export default function SignupPage() {
               onEmailChange={setEmail}
               onPasswordChange={setPassword}
             />
+            <div className="space-y-2">
+              <Label htmlFor="signupOtp">Signup OTP (optional)</Label>
+              <Input
+                id="signupOtp"
+                value={otpCode}
+                onChange={(event) => setOtpCode(event.target.value)}
+                placeholder="Enter OTP if your workspace requires it"
+              />
+            </div>
             <Button disabled={isLoading} type="submit" className="w-full">
               {isLoading ? "Creating..." : "Create workspace"}
             </Button>
