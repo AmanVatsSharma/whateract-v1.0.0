@@ -1,0 +1,128 @@
+/**
+ * File: src/services/bff/backend-proxy.ts
+ * Module: frontend-bff
+ * Purpose: Shared backend proxy and GraphQL helper for Next API routes.
+ * Author: Aman Sharma / Vedpragya/ Codex
+ * Last-updated: 2026-02-15
+ * Notes:
+ * - Forwards tenant/auth/request correlation headers.
+ * - Read proxyToBackend and proxyGraphql first.
+ */
+
+import { NextResponse } from "next/server";
+
+export interface GraphqlEnvelope<T> {
+  data?: T;
+  errors?: Array<{ message: string }>;
+}
+
+function getBackendBaseUrl(): string {
+  return (
+    process.env.BACKEND_API_URL ||
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    "http://localhost:3000"
+  );
+}
+
+function readCookieValue(request: Request, name: string): string | null {
+  const cookieHeader = request.headers.get("cookie");
+  if (!cookieHeader) {
+    return null;
+  }
+
+  const targetCookie = cookieHeader
+    .split(";")
+    .map((segment) => segment.trim())
+    .find((segment) => segment.startsWith(`${name}=`));
+  if (!targetCookie) {
+    return null;
+  }
+  return decodeURIComponent(targetCookie.split("=")[1] || "");
+}
+
+function buildForwardHeaders(request: Request, hasBody = false): HeadersInit {
+  const headers: Record<string, string> = {};
+  const authHeader = request.headers.get("authorization");
+  const tenantId = request.headers.get("x-tenant-id");
+  const requestId = request.headers.get("x-request-id");
+
+  if (authHeader) {
+    headers.authorization = authHeader;
+  } else {
+    const token = readCookieValue(request, "access_token");
+    if (token) {
+      headers.authorization = `Bearer ${token}`;
+    }
+  }
+
+  if (tenantId || readCookieValue(request, "tenant_id")) {
+    headers["x-tenant-id"] = tenantId || String(readCookieValue(request, "tenant_id"));
+  }
+  if (requestId) {
+    headers["x-request-id"] = requestId;
+  }
+  if (hasBody) {
+    headers["content-type"] = "application/json";
+  }
+
+  return headers;
+}
+
+export async function proxyToBackend(
+  request: Request,
+  backendPath: string,
+  init: { method?: string; body?: unknown } = {}
+): Promise<Response> {
+  const baseUrl = getBackendBaseUrl().replace(/\/$/, "");
+  const path = backendPath.startsWith("/") ? backendPath : `/${backendPath}`;
+  const hasBody = init.body !== undefined;
+  const response = await fetch(`${baseUrl}${path}`, {
+    method: init.method || "GET",
+    headers: buildForwardHeaders(request, hasBody),
+    body: hasBody ? JSON.stringify(init.body) : undefined,
+    cache: "no-store",
+  });
+
+  return response;
+}
+
+export async function proxyGraphql<T>(
+  request: Request,
+  query: string,
+  variables?: Record<string, unknown>
+): Promise<T> {
+  const response = await proxyToBackend(request, "/graphql", {
+    method: "POST",
+    body: { query, variables },
+  });
+
+  const envelope = (await response.json()) as GraphqlEnvelope<T>;
+  if (!response.ok || envelope.errors?.length) {
+    const errorMessage =
+      envelope.errors?.[0]?.message ||
+      `Backend GraphQL call failed (${response.status})`;
+    throw new Error(errorMessage);
+  }
+
+  if (!envelope.data) {
+    throw new Error("Backend GraphQL returned empty data");
+  }
+  return envelope.data;
+}
+
+export async function relayJsonResponse(
+  request: Request,
+  backendPath: string,
+  init: { method?: string; body?: unknown } = {}
+): Promise<NextResponse> {
+  const response = await proxyToBackend(request, backendPath, init);
+  const text = await response.text();
+
+  return new NextResponse(text, {
+    status: response.status,
+    headers: {
+      "content-type":
+        response.headers.get("content-type") || "application/json",
+    },
+  });
+}
