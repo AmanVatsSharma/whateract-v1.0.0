@@ -36,8 +36,13 @@ import { Paperclip, Send, Sparkles, Star, Filter, Search, Clock, X, UserPlus } f
 import { cn } from "@/lib/utils";
 import { useConversations } from "@/features/inbox/hooks/use-conversations";
 import {
+  addConversationNote,
+  assignConversation,
   fetchAiReply,
+  sendConversationMessage,
+  setConversationStatus,
   summarizeConversation,
+  tagConversation,
 } from "@/features/inbox/services/inbox.service";
 import { SectionLoader } from "@/components/shared/section-loader";
 
@@ -63,7 +68,7 @@ export default function InboxPage() {
   const [assigneeByConv, setAssigneeByConv] = useState<Record<string, string>>({});
   const [notesByConv, setNotesByConv] = useState<Record<string, string>>({});
   const [statusByConv, setStatusByConv] = useState<Record<string, "open" | "snoozed" | "closed">>({});
-  const { data: conversationsFromApi = [], isLoading } = useConversations();
+  const { data: conversationsFromApi = [], isLoading, refetch } = useConversations();
 
   // Available options (UI-only). Replace with backend data when wired.
   const availableAgents = ["You", "Aisha", "Rahul", "Priya"];
@@ -96,8 +101,19 @@ export default function InboxPage() {
 
   const sendMessage = async () => {
     if (!message.trim() || !selected) return;
-    logger.info("send", { to: selected.id, message });
-    setMessage("");
+    try {
+      await sendConversationMessage({
+        conversationId: selected.id,
+        message,
+      });
+      logger.info("send", { to: selected.id, message });
+      setMessage("");
+      toast.success("Message queued");
+      await refetch();
+    } catch (error) {
+      logger.error("send failed", error);
+      toast.error("Message send failed");
+    }
   };
 
   const suggestAiReply = async () => {
@@ -135,22 +151,70 @@ export default function InboxPage() {
     }
   };
 
-  const toggleLabel = (convId: string, label: string) => {
+  const toggleLabel = async (convId: string, label: string) => {
+    const currentlySet = (labelsByConv[convId] || []).includes(label);
     setLabelsByConv((prev) => {
       const cur = new Set(prev[convId] || []);
       if (cur.has(label)) cur.delete(label); else cur.add(label);
       return { ...prev, [convId]: Array.from(cur) };
     });
+    if (!currentlySet) {
+      try {
+        await tagConversation({ conversationId: convId, tag: label });
+      } catch (error) {
+        logger.error("tag failed", error);
+        toast.error("Failed to save label");
+      }
+    }
   };
 
-  const setAssignee = (convId: string, assignee: string) => {
+  const setAssignee = async (convId: string, assignee: string) => {
     setAssigneeByConv((prev) => ({ ...prev, [convId]: assignee }));
-    toast.success(`Assigned to ${assignee}`);
+    try {
+      await assignConversation({ conversationId: convId, userId: assignee });
+      toast.success(`Assigned to ${assignee}`);
+    } catch (error) {
+      logger.error("assign failed", error);
+      toast.error("Assignment failed");
+    }
   };
 
-  const setStatus = (convId: string, status: "open" | "snoozed" | "closed") => {
+  const setStatus = async (convId: string, status: "open" | "snoozed" | "closed") => {
     setStatusByConv((prev) => ({ ...prev, [convId]: status }));
-    toast.message(`Thread ${status}`);
+    try {
+      await setConversationStatus({
+        conversationId: convId,
+        status:
+          status === "open"
+            ? "OPEN"
+            : status === "closed"
+              ? "CLOSED"
+              : "PENDING",
+      });
+      toast.message(`Thread ${status}`);
+    } catch (error) {
+      logger.error("status update failed", error);
+      toast.error("Unable to update thread status");
+    }
+  };
+
+  const saveNote = async () => {
+    if (!selected) return;
+    const content = (notesByConv[selected.id] || "").trim();
+    if (!content) {
+      toast.info("Enter a note first");
+      return;
+    }
+    try {
+      await addConversationNote({
+        conversationId: selected.id,
+        content,
+      });
+      toast.success("Note saved");
+    } catch (error) {
+      logger.error("note save failed", error);
+      toast.error("Failed to save note");
+    }
   };
 
   return (
@@ -335,7 +399,7 @@ export default function InboxPage() {
               placeholder="Add notes for your team..."
               className="min-h-[120px] rounded-xl"
             />
-            <Button variant="outline" size="sm" className="rounded-xl hover:bg-primary/5">Save Note</Button>
+            <Button variant="outline" size="sm" className="rounded-xl hover:bg-primary/5" onClick={saveNote}>Save Note</Button>
           </div>
 
           {summary && (
