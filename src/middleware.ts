@@ -21,7 +21,17 @@ const PROTECTED_PAGE_PREFIXES = [
   "/message-templates",
   "/scheduler",
   "/notifications",
+  "/shopify",
+  "/team",
   "/settings",
+];
+
+const PUBLIC_API_PREFIXES = [
+  "/api/auth/login",
+  "/api/auth/signup",
+  "/api/auth/logout",
+  "/api/auth/forgot-password",
+  "/api/auth/reset-password",
 ];
 
 function hasAuth(request: NextRequest): boolean {
@@ -32,6 +42,10 @@ function hasAuth(request: NextRequest): boolean {
 
 function isProtectedPage(pathname: string): boolean {
   return PROTECTED_PAGE_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
+function isPublicApi(pathname: string): boolean {
+  return PUBLIC_API_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
 export function middleware(request: NextRequest) {
@@ -46,7 +60,7 @@ export function middleware(request: NextRequest) {
     return response;
   }
 
-  if (pathname.startsWith("/api/") && !authenticated) {
+  if (pathname.startsWith("/api/") && !authenticated && !isPublicApi(pathname)) {
     return NextResponse.json(
       { error: "Authentication required" },
       { status: 401 }
@@ -55,8 +69,8 @@ export function middleware(request: NextRequest) {
 
   if (isProtectedPage(pathname) && !authenticated) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/support";
-    redirectUrl.searchParams.set("authRequired", "1");
+    redirectUrl.pathname = "/login";
+    redirectUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
