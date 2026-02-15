@@ -39,3 +39,88 @@ export async function summarizeConversation(payload: {
   return response.data?.summary || "";
 }
 
+export async function assignConversation(payload: {
+  conversationId: string;
+  userId: string;
+}) {
+  const response = await apiClient.patch<{
+    data?: { ok?: boolean };
+    error?: string;
+  }>("/conversations", {
+    ...payload,
+    action: "assign",
+  });
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  return Boolean(response.data?.data?.ok);
+}
+
+export async function setConversationStatus(payload: {
+  conversationId: string;
+  status: "OPEN" | "PENDING" | "CLOSED";
+}) {
+  const response = await apiClient.patch<{
+    data?: { ok?: boolean };
+    error?: string;
+  }>("/conversations", {
+    ...payload,
+    action: "status",
+  });
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  return Boolean(response.data?.data?.ok);
+}
+
+export async function addConversationNote(payload: {
+  conversationId: string;
+  content: string;
+}) {
+  const response = await apiClient.post<{
+    data?: { ok?: boolean };
+    error?: string;
+  }>("/conversations", {
+    ...payload,
+    action: "note",
+  });
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  return Boolean(response.data?.data?.ok);
+}
+
+export async function tagConversation(payload: {
+  conversationId: string;
+  tag: string;
+}) {
+  const response = await apiClient.post<{
+    data?: { ok?: boolean };
+    error?: string;
+  }>("/conversations", {
+    ...payload,
+    action: "tag",
+  });
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  return Boolean(response.data?.data?.ok);
+}
+
+export async function sendConversationMessage(payload: {
+  conversationId: string;
+  message: string;
+}) {
+  const response = await apiClient.post<{
+    data?: { ok?: boolean };
+    error?: string;
+  }>("/conversations", {
+    ...payload,
+    action: "message",
+  });
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  return Boolean(response.data?.data?.ok);
+}
+
