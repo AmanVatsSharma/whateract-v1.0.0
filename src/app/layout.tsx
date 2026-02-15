@@ -17,7 +17,7 @@
  * @layout
  */
 
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
@@ -41,11 +41,12 @@ export const metadata: Metadata = {
   description: "Modern WhatsApp marketing platform with advanced automation, analytics, and campaign management",
   keywords: ["whatsapp", "marketing", "automation", "campaigns", "analytics"],
   authors: [{ name: "Whaterakt Team" }],
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 /**
@@ -63,8 +64,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  console.log('RootLayout: Rendering application layout');
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
