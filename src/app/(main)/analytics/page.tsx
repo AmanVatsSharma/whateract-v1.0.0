@@ -86,14 +86,16 @@ export default function Analytics() {
             replyRate: number
         }>
     >([])
+    const [onboardingFunnel, setOnboardingFunnel] = useState<Record<string, number>>({})
 
     useEffect(() => {
         const loadData = async () => {
             try {
-                const [statsRes, campaignsRes, campaignKpisRes] = await Promise.all([
+                const [statsRes, campaignsRes, campaignKpisRes, onboardingFunnelRes] = await Promise.all([
                     fetch('/api/analytics/overview'),
                     fetch('/api/campaigns'),
                     fetch('/api/analytics/campaign-kpis'),
+                    fetch('/api/analytics/onboarding-funnel'),
                 ])
                 if (statsRes.ok) {
                     const statsPayload = await statsRes.json()
@@ -108,6 +110,10 @@ export default function Analytics() {
                 if (campaignKpisRes.ok) {
                     const kpisPayload = await campaignKpisRes.json()
                     setCampaignKpis(kpisPayload?.data || [])
+                }
+                if (onboardingFunnelRes.ok) {
+                    const funnelPayload = await onboardingFunnelRes.json()
+                    setOnboardingFunnel(funnelPayload?.data?.byStatus || {})
                 }
             } catch {
                 // fallback data keeps charts functional when APIs are unavailable
@@ -171,6 +177,7 @@ export default function Analytics() {
     const openRate = stats.messagesSent
         ? Number(((stats.messagesInbound / Math.max(1, stats.messagesSent)) * 100).toFixed(1))
         : 75.8
+    const activeOnboardingChannels = onboardingFunnel.ACTIVE || 0
 
     console.log('📊 Analytics: Page loaded with modern light theme')
 
@@ -267,7 +274,7 @@ export default function Analytics() {
                 {/* Overview Tab */}
                 <TabsContent value="overview" className="space-y-6">
                     {/* KPI Cards */}
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
                         <Card className="hover:shadow-xl transition-all rounded-2xl border-primary/10 bg-gradient-to-br from-blue-50 via-white to-white">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-semibold text-muted-foreground">Total Sent</CardTitle>
@@ -340,6 +347,21 @@ export default function Analytics() {
                                         3.1%
                                     </Badge>
                                     <span className="text-xs text-muted-foreground">from last month</span>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card className="hover:shadow-xl transition-all rounded-2xl border-primary/10 bg-gradient-to-br from-teal-50 via-white to-white">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-semibold text-muted-foreground">Active WhatsApp Channels</CardTitle>
+                                <div className="h-10 w-10 rounded-xl bg-teal-100 flex items-center justify-center">
+                                    <Users className="h-5 w-5 text-teal-600" />
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent">{activeOnboardingChannels}</div>
+                                <div className="text-xs text-muted-foreground mt-2">
+                                    Managed onboarding activation snapshot
                                 </div>
                             </CardContent>
                         </Card>

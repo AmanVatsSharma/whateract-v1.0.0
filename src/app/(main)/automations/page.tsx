@@ -1,491 +1,238 @@
-"use client"
-import React, { useEffect, useState } from 'react'
-import { DndContext, type DragEndEvent } from '@dnd-kit/core'
-import { SortableContext, useSortable, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Slider } from "@/components/ui/slider"
-import { Badge } from "@/components/ui/badge"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Plus, Settings, Play, Pause, Edit, Trash, ArrowRight, Clock, Users, MessageSquare, BarChart2, Zap, Send, Filter, ChevronDown } from 'lucide-react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import ReactFlow, { Background, Controls, addEdge, applyEdgeChanges, applyNodeChanges } from 'reactflow'
-import 'reactflow/dist/style.css'
+/**
+ * File: src/app/(main)/automations/page.tsx
+ * Module: frontend-automations
+ * Purpose: Automation management page wired to backend create/update/delete flows.
+ * Author: BharatERP
+ * created: 2026-02-15
+ */
 
-const fallbackAutomationRules = [
-    { id: 1, name: "Welcome Series", trigger: "New Subscriber", actions: ["Send Welcome Message", "Add to Onboarding List"], status: "Active", performance: { sent: 1000, opened: 800, clicked: 500 } },
-    { id: 2, name: "Re-engagement", trigger: "Inactive for 30 days", actions: ["Send Discount Offer", "Update Segment"], status: "Paused", performance: { sent: 500, opened: 300, clicked: 150 } },
-    { id: 3, name: "Order Confirmation", trigger: "Purchase Completed", actions: ["Send Order Details", "Trigger Feedback Request (Delay: 3 days)"], status: "Active", performance: { sent: 2000, opened: 1900, clicked: 1500 } },
-    { id: 4, name: "Abandoned Cart", trigger: "Cart Abandoned", actions: ["Send Reminder (Delay: 1 hour)", "Send Discount (Delay: 24 hours)"], status: "Active", performance: { sent: 1500, opened: 1200, clicked: 800 } },
-]
+"use client";
 
-const initialNodes = [
-    { id: '1', position: { x: 0, y: 0 }, data: { label: 'Trigger' } },
-    { id: '2', position: { x: 0, y: 100 }, data: { label: 'Action 1' } },
-    { id: '3', position: { x: 0, y: 200 }, data: { label: 'Action 2' } },
-]
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Plus, RefreshCw, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { useAutomations } from "@/features/automations/hooks/use-automations";
+import {
+  createAutomation,
+  deleteAutomation,
+  setAutomationEnabled,
+} from "@/features/automations/services/automations.service";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { SectionLoader } from "@/components/shared/section-loader";
 
-const initialEdges = [
-    { id: 'e1-2', source: '1', target: '2' },
-    { id: 'e2-3', source: '2', target: '3' },
-]
+type AutomationType = "KEYWORD_REPLY" | "DRIP_SEQUENCE";
 
-type AutomationRule = typeof fallbackAutomationRules[number]
+export default function AutomationsPage() {
+  const queryClient = useQueryClient();
+  const { data: automations = [], isLoading, isFetching } = useAutomations();
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isMutating, setIsMutating] = useState(false);
+  const [type, setType] = useState<AutomationType>("KEYWORD_REPLY");
+  const [trigger, setTrigger] = useState("");
+  const [message, setMessage] = useState("");
 
-export default function Automation() {
-    const [isCreating, setIsCreating] = useState(false)
-    const [selectedAutomation, setSelectedAutomation] = useState<AutomationRule | null>(null)
-    const [isABTestingModalOpen, setIsABTestingModalOpen] = useState(false)
-    const [isPerformanceModalOpen, setIsPerformanceModalOpen] = useState(false)
-    const [rules, setRules] = useState<AutomationRule[]>(fallbackAutomationRules)
-    const [nodes, setNodes] = useState(initialNodes)
-    const [edges, setEdges] = useState(initialEdges)
-    const activeRules = rules.filter((rule) => rule.status === "Active")
+  const refreshAutomations = async () => {
+    await queryClient.invalidateQueries({ queryKey: ["automations"] });
+  };
 
-    useEffect(() => {
-        const loadAutomations = async () => {
-            try {
-                const response = await fetch('/api/automations')
-                if (!response.ok) return
-                const payload = await response.json()
-                const list = (payload?.data || []).map((automation: any, index: number) => ({
-                    id: index + 1,
-                    name: automation.type || `Automation ${index + 1}`,
-                    trigger: automation.trigger || 'Keyword Trigger',
-                    actions: ['Send Message'],
-                    status: automation.enabled ? 'Active' : 'Paused',
-                    performance: { sent: 0, opened: 0, clicked: 0 },
-                }))
-                if (list.length) {
-                    setRules(list)
-                }
-            } catch {
-                // fallback rules remain visible when API is unavailable
-            }
-        }
-        loadAutomations()
-    }, [])
-
-    const onDragEnd = (event: DragEndEvent) => {
-        console.log('[AutomationPage] drag end payload', event)
-        const { active, over } = event
-        if (!over) {
-            console.warn('[AutomationPage] drag ended without a drop target', event)
-            return
-        }
-        if (active.id === over.id) {
-            console.log('[AutomationPage] drag ended without positional change')
-            return
-        }
-        setRules((prev) => {
-            const activeIndex = prev.findIndex((rule) => rule.id.toString() === active.id)
-            const overIndex = prev.findIndex((rule) => rule.id.toString() === over.id)
-            if (activeIndex === -1 || overIndex === -1) {
-                console.warn('[AutomationPage] unable to locate drag indexes', { activeIndex, overIndex })
-                return prev
-            }
-            const updated = arrayMove(prev, activeIndex, overIndex)
-            console.log('[AutomationPage] reordered automations', updated.map((rule) => rule.id))
-            return updated
-        })
+  const handleCreate = async () => {
+    try {
+      setIsMutating(true);
+      await createAutomation({
+        type,
+        trigger: trigger.trim() || undefined,
+        enabled: true,
+        definition:
+          type === "KEYWORD_REPLY"
+            ? {
+                trigger: trigger.trim(),
+                replyText: message.trim(),
+              }
+            : {
+                trigger: trigger.trim(),
+                startAt: new Date().toISOString(),
+                steps: [
+                  {
+                    offsetMinutes: 0,
+                    message: message.trim(),
+                  },
+                ],
+              },
+      });
+      setIsCreateOpen(false);
+      setTrigger("");
+      setMessage("");
+      await refreshAutomations();
+      toast.success("Automation created");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to create automation");
+    } finally {
+      setIsMutating(false);
     }
+  };
 
-    return (
-        <div className="flex flex-col min-h-screen bg-background text-foreground p-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-primary">Automation</h1>
-                <div className="flex space-x-2">
-                    <Button onClick={() => setIsCreating(true)} className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                        <Plus className="mr-2 h-4 w-4" /> Create Automation
-                    </Button>
-                    <Button variant="outline" className="bg-card border-border text-foreground">
-                        <Filter className="mr-2 h-4 w-4" /> Filter
-                    </Button>
-                    <Select>
-                        <SelectTrigger className="w-[180px] bg-card border-border text-foreground">
-                            <SelectValue placeholder="Sort by" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-card border-border text-foreground">
-                            <SelectItem value="name">Name</SelectItem>
-                            <SelectItem value="status">Status</SelectItem>
-                            <SelectItem value="performance">Performance</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+  const handleToggle = async (automationId: string, enabled: boolean) => {
+    try {
+      setIsMutating(true);
+      await setAutomationEnabled(automationId, enabled);
+      await refreshAutomations();
+      toast.success(enabled ? "Automation enabled" : "Automation paused");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update automation");
+    } finally {
+      setIsMutating(false);
+    }
+  };
+
+  const handleDelete = async (automationId: string) => {
+    try {
+      setIsMutating(true);
+      await deleteAutomation(automationId);
+      await refreshAutomations();
+      toast.success("Automation deleted");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to delete automation");
+    } finally {
+      setIsMutating(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {isLoading && <SectionLoader label="Loading automations..." />}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Automations</h1>
+          <p className="text-muted-foreground">
+            Manage keyword replies and drip sequences from one place.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={refreshAutomations} disabled={isFetching || isMutating}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Refresh
+          </Button>
+          <Button onClick={() => setIsCreateOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Create Automation
+          </Button>
+        </div>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Automation List</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Type</TableHead>
+                <TableHead>Trigger</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {automations.map((automation) => (
+                <TableRow key={automation.id}>
+                  <TableCell>{automation.type}</TableCell>
+                  <TableCell>{automation.trigger || "-"}</TableCell>
+                  <TableCell>
+                    <Badge variant={automation.enabled ? "default" : "secondary"}>
+                      {automation.enabled ? "active" : "paused"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{automation.createdAt || "-"}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Switch
+                        checked={automation.enabled}
+                        onCheckedChange={(checked) => void handleToggle(automation.id, checked)}
+                        disabled={isMutating}
+                      />
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => void handleDelete(automation.id)}
+                        disabled={isMutating}
+                      >
+                        <Trash2 className="mr-1 h-3 w-3" />
+                        Delete
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {!automations.length && (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-muted-foreground">
+                    No automations configured yet.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create automation</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Automation type</Label>
+              <Select value={type} onValueChange={(value) => setType(value as AutomationType)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="KEYWORD_REPLY">Keyword reply</SelectItem>
+                  <SelectItem value="DRIP_SEQUENCE">Drip sequence</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-
-            <Tabs defaultValue="active" className="space-y-4">
-                <TabsList className="bg-secondary">
-                    <TabsTrigger value="active" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Active</TabsTrigger>
-                    <TabsTrigger value="paused" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Paused</TabsTrigger>
-                    <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">All</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="active" className="space-y-4">
-                    <DndContext onDragEnd={onDragEnd}>
-                        <SortableContext
-                            items={activeRules.map((rule) => rule.id.toString())}
-                            strategy={verticalListSortingStrategy}
-                        >
-                            {activeRules.map((rule) => (
-                                <SortableAutomationCard
-                                    key={rule.id}
-                                    rule={rule}
-                                    onSelectAutomation={setSelectedAutomation}
-                                    onOpenABTesting={() => setIsABTestingModalOpen(true)}
-                                    onOpenPerformance={() => setIsPerformanceModalOpen(true)}
-                                />
-                            ))}
-                        </SortableContext>
-                    </DndContext>
-                </TabsContent>
-
-                <TabsContent value="paused" className="space-y-4">
-                    {/* Similar structure as active, but for paused automations */}
-                </TabsContent>
-
-                <TabsContent value="all" className="space-y-4">
-                    {/* Similar structure as active, but for all automations */}
-                </TabsContent>
-            </Tabs>
-
-            <Dialog open={isCreating} onOpenChange={setIsCreating}>
-                <DialogContent className="bg-card text-foreground max-w-4xl">
-                    <DialogHeader>
-                        <DialogTitle>Create New Automation</DialogTitle>
-                        <DialogDescription>Set up a new automated workflow for your WhatsApp marketing.</DialogDescription>
-                    </DialogHeader>
-                    <Tabs defaultValue="basic" className="mt-4">
-                        <TabsList className="bg-secondary">
-                            <TabsTrigger value="basic" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Basic Setup</TabsTrigger>
-                            <TabsTrigger value="advanced" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Advanced Configuration</TabsTrigger>
-                            <TabsTrigger value="visual" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Visual Workflow</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="basic" className="mt-4">
-                            <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="name" className="text-right">Name</Label>
-                                    <Input id="name" placeholder="Automation name" className="col-span-3 bg-muted text-foreground" />
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="trigger" className="text-right">Trigger</Label>
-                                    <Select>
-                                        <SelectTrigger className="col-span-3 bg-muted text-foreground">
-                                            <SelectValue placeholder="Select a trigger" />
-                                        </SelectTrigger>
-                                        <SelectContent className="bg-card text-foreground">
-                                            <SelectItem value="new-subscriber">New Subscriber</SelectItem>
-                                            <SelectItem value="purchase">Purchase Completed</SelectItem>
-                                            <SelectItem value="abandoned-cart">Abandoned Cart</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="action" className="text-right">Action</Label>
-                                    <Select>
-                                        <SelectTrigger className="col-span-3 bg-muted text-foreground">
-                                            <SelectValue placeholder="Select an action" />
-                                        </SelectTrigger>
-                                        <SelectContent className="bg-card text-foreground">
-                                            <SelectItem value="send-message">Send Message</SelectItem>
-                                            <SelectItem value="update-tag">Update Tag</SelectItem>
-                                            <SelectItem value="add-to-list">Add to List</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="message" className="text-right">Message</Label>
-                                    <Textarea id="message" placeholder="Enter your message" className="col-span-3 bg-muted text-foreground" />
-                                </div>
-                            </div>
-                        </TabsContent>
-                        <TabsContent value="advanced" className="mt-4">
-                            <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="delay" className="text-right">Delay</Label>
-                                    <div className="col-span-3 flex items-center space-x-2">
-                                        <Input id="delay" type="number" className="bg-muted text-foreground w-20" />
-                                        <Select>
-                                            <SelectTrigger className="bg-muted text-foreground w-32">
-                                                <SelectValue placeholder="Unit" />
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-card text-foreground">
-                                                <SelectItem value="minutes">Minutes</SelectItem>
-                                                <SelectItem value="hours">Hours</SelectItem>
-                                                <SelectItem value="days">Days</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="conditions" className="text-right">Conditions</Label>
-                                    <div className="col-span-3 space-y-2">
-                                        <div className="flex items-center space-x-2">
-                                            <Select>
-                                                <SelectTrigger className="bg-muted text-foreground w-40">
-                                                    <SelectValue placeholder="Select field" />
-                                                </SelectTrigger>
-                                                <SelectContent className="bg-card text-foreground">
-                                                    <SelectItem value="tag">Tag</SelectItem>
-                                                    <SelectItem value="custom-field">Custom Field</SelectItem>
-                                                    <SelectItem value="engagement">Engagement</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <Select>
-                                                <SelectTrigger className="bg-muted text-foreground w-40">
-                                                    <SelectValue placeholder="Condition" />
-                                                </SelectTrigger>
-                                                <SelectContent className="bg-card text-foreground">
-                                                    <SelectItem value="equals">Equals</SelectItem>
-                                                    <SelectItem value="not-equals">Not Equals</SelectItem>
-                                                    <SelectItem value="contains">Contains</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <Input className="bg-muted text-foreground" placeholder="Value" />
-                                        </div>
-                                        <Button variant="outline" size="sm" className="border-border text-muted-foreground hover:bg-secondary">
-                                            <Plus className="h-4 w-4 mr-2" /> Add Condition
-                                        </Button>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="segmentation" className="text-right">Segmentation</Label>
-                                    <Select>
-                                        <SelectTrigger className="col-span-3 bg-muted text-foreground">
-                                            <SelectValue placeholder="Select segment" />
-                                        </SelectTrigger>
-                                        <SelectContent className="bg-card text-foreground">
-                                            <SelectItem value="all">All Subscribers</SelectItem>
-                                            <SelectItem value="active">Active Subscribers</SelectItem>
-                                            <SelectItem value="inactive">Inactive Subscribers</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                        </TabsContent>
-                        <TabsContent value="visual" className="mt-4">
-                            <div style={{ height: '400px' }}>
-                                <ReactFlow
-                                    nodes={nodes}
-                                    edges={edges}
-                                    onNodesChange={(changes) => setNodes((nds) => applyNodeChanges(changes, nds))}
-                                    onEdgesChange={(changes) => setEdges((eds) => applyEdgeChanges(changes, eds))}
-                                    onConnect={(params) => setEdges((eds) => addEdge(params, eds))}
-                                >
-                                    <Background />
-                                    <Controls />
-                                </ReactFlow>
-                            </div>
-                        </TabsContent>
-                    </Tabs>
-                    <DialogFooter>
-                        <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground">Create Automation</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
-            <Dialog open={selectedAutomation !== null} onOpenChange={() => setSelectedAutomation(null)}>
-                <DialogContent className="bg-card text-foreground">
-                    <DialogHeader>
-                        <DialogTitle>Edit Automation: {selectedAutomation?.name}</DialogTitle>
-                        <DialogDescription>Modify the settings for this automation workflow.</DialogDescription>
-                    </DialogHeader>
-                    {/* Add form fields for editing automation, similar to the create form */}
-                    <DialogFooter>
-                        <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground">Save Changes</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
-            <Dialog open={isABTestingModalOpen} onOpenChange={setIsABTestingModalOpen}>
-                <DialogContent className="bg-card text-foreground">
-                    <DialogHeader>
-                        <DialogTitle>A/B Testing</DialogTitle>
-                        <DialogDescription>Set up an A/B test for your automation</DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="test-name" className="text-right">Test Name</Label>
-                            <Input id="test-name" placeholder="A/B Test Name" className="col-span-3 bg-muted text-foreground" />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="variant-a" className="text-right">Variant A</Label>
-                            <Textarea id="variant-a" placeholder="Enter message for Variant A" className="col-span-3 bg-muted text-foreground" />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="variant-b" className="text-right">Variant B</Label>
-                            <Textarea id="variant-b" placeholder="Enter message for Variant B" className="col-span-3 bg-muted text-foreground" />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="test-size" className="text-right">Test Size</Label>
-                            <div className="col-span-3 flex items-center space-x-2">
-                                <Slider defaultValue={[10]} max={100} step={1} className="w-full" />
-                                <span className="w-12 text-center">10%</span>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="success-metric" className="text-right">Success Metric</Label>
-                            <Select>
-                                <SelectTrigger className="col-span-3 bg-muted text-foreground">
-                                    <SelectValue placeholder="Select success metric" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-card text-foreground">
-                                    <SelectItem value="open-rate">Open Rate</SelectItem>
-                                    <SelectItem value="click-rate">Click Rate</SelectItem>
-                                    <SelectItem value="conversion-rate">Conversion Rate</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground">Start A/B Test</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
-            <Dialog open={isPerformanceModalOpen} onOpenChange={setIsPerformanceModalOpen}>
-                <DialogContent className="bg-card text-foreground max-w-4xl">
-                    <DialogHeader>
-                        <DialogTitle>Automation Performance</DialogTitle>
-                        <DialogDescription>Detailed analytics for your automation workflow</DialogDescription>
-                    </DialogHeader>
-                    <div className="mt-4">
-                        <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={rules}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name" />
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-                                <Bar dataKey="performance.sent" fill="#8884d8" name="Sent" />
-                                <Bar dataKey="performance.opened" fill="#82ca9d" name="Opened" />
-                                <Bar dataKey="performance.clicked" fill="#ffc658" name="Clicked" />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                    <div className="mt-4 grid grid-cols-3 gap-4">
-                        <Card className="bg-muted">
-                            <CardHeader>
-                                <CardTitle className="text-lg">Conversion Rate</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">24.5%</div>
-                                <p className="text-sm text-muted-foreground">+2.5% from last week</p>
-                            </CardContent>
-                        </Card>
-                        <Card className="bg-muted">
-                            <CardHeader>
-                                <CardTitle className="text-lg">Avg. Response Time</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">1.5 hours</div>
-                                <p className="text-sm text-muted-foreground">-30 min from last week</p>
-                            </CardContent>
-                        </Card>
-                        <Card className="bg-muted">
-                            <CardHeader>
-                                <CardTitle className="text-lg">Engagement Score</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">8.7/10</div>
-                                <p className="text-sm text-muted-foreground">+0.3 from last week</p>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </DialogContent>
-            </Dialog>
-        </div>
-    )
-}
-
-type SortableAutomationCardProps = {
-    rule: AutomationRule
-    onSelectAutomation: (rule: AutomationRule) => void
-    onOpenABTesting: () => void
-    onOpenPerformance: () => void
-}
-
-function SortableAutomationCard({
-    rule,
-    onSelectAutomation,
-    onOpenABTesting,
-    onOpenPerformance,
-}: SortableAutomationCardProps) {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: rule.id.toString() })
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.85 : 1,
-    }
-    const safeSentTotal = Math.max(rule.performance.sent, 1)
-
-    return (
-        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-            <Card className="bg-card border-border mb-4">
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                        <CardTitle className="text-primary">{rule.name}</CardTitle>
-                        <CardDescription className="text-muted-foreground">Trigger: {rule.trigger}</CardDescription>
-                    </div>
-                    <Badge variant="secondary" className="bg-green-600 text-white">{rule.status}</Badge>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-2">
-                        <Label>Actions:</Label>
-                        <ul className="list-disc list-inside text-muted-foreground">
-                            {rule.actions.map((action, index) => (
-                                <li key={index}>{action}</li>
-                            ))}
-                        </ul>
-                    </div>
-                    <div className="mt-4">
-                        <Label>Performance:</Label>
-                        <div className="flex justify-between text-sm text-muted-foreground mt-2">
-                            <span>Sent: {rule.performance.sent}</span>
-                            <span>Opened: {rule.performance.opened}</span>
-                            <span>Clicked: {rule.performance.clicked}</span>
-                        </div>
-                        <div className="mt-2">
-                            <Slider
-                                defaultValue={[
-                                    0,
-                                    (rule.performance.opened / safeSentTotal) * 100,
-                                    (rule.performance.clicked / safeSentTotal) * 100
-                                ]}
-                                max={100}
-                                step={1}
-                                className="w-full"
-                            />
-                        </div>
-                    </div>
-                </CardContent>
-                <CardFooter className="flex justify-between">
-                    <Button variant="outline" size="sm" onClick={() => onSelectAutomation(rule)}>
-                        <Edit className="h-4 w-4 mr-2" /> Edit
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={onOpenABTesting}>
-                        <BarChart2 className="h-4 w-4 mr-2" /> A/B Test
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={onOpenPerformance}>
-                        <BarChart2 className="h-4 w-4 mr-2" /> Analytics
-                    </Button>
-                    <Button variant="outline" size="sm">
-                        <Pause className="h-4 w-4 mr-2" /> Pause
-                    </Button>
-                </CardFooter>
-            </Card>
-        </div>
-    )
+            <div className="space-y-2">
+              <Label htmlFor="automation-trigger">Trigger</Label>
+              <Input
+                id="automation-trigger"
+                placeholder="hello"
+                value={trigger}
+                onChange={(event) => setTrigger(event.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="automation-message">Message</Label>
+              <Input
+                id="automation-message"
+                placeholder="Namaste! How can we help?"
+                value={message}
+                onChange={(event) => setMessage(event.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
+              Cancel
+            </Button>
+            <Button disabled={!trigger.trim() || !message.trim() || isMutating} onClick={handleCreate}>
+              Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }
