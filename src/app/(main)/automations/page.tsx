@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { DndContext, type DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, useSortable, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -24,7 +24,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import ReactFlow, { Background, Controls, addEdge, applyEdgeChanges, applyNodeChanges } from 'reactflow'
 import 'reactflow/dist/style.css'
 
-const defaultAutomationRules = [
+const fallbackAutomationRules = [
     { id: 1, name: "Welcome Series", trigger: "New Subscriber", actions: ["Send Welcome Message", "Add to Onboarding List"], status: "Active", performance: { sent: 1000, opened: 800, clicked: 500 } },
     { id: 2, name: "Re-engagement", trigger: "Inactive for 30 days", actions: ["Send Discount Offer", "Update Segment"], status: "Paused", performance: { sent: 500, opened: 300, clicked: 150 } },
     { id: 3, name: "Order Confirmation", trigger: "Purchase Completed", actions: ["Send Order Details", "Trigger Feedback Request (Delay: 3 days)"], status: "Active", performance: { sent: 2000, opened: 1900, clicked: 1500 } },
@@ -42,17 +42,41 @@ const initialEdges = [
     { id: 'e2-3', source: '2', target: '3' },
 ]
 
-type AutomationRule = typeof defaultAutomationRules[number]
+type AutomationRule = typeof fallbackAutomationRules[number]
 
 export default function Automation() {
     const [isCreating, setIsCreating] = useState(false)
     const [selectedAutomation, setSelectedAutomation] = useState<AutomationRule | null>(null)
     const [isABTestingModalOpen, setIsABTestingModalOpen] = useState(false)
     const [isPerformanceModalOpen, setIsPerformanceModalOpen] = useState(false)
-    const [rules, setRules] = useState<AutomationRule[]>(defaultAutomationRules)
+    const [rules, setRules] = useState<AutomationRule[]>(fallbackAutomationRules)
     const [nodes, setNodes] = useState(initialNodes)
     const [edges, setEdges] = useState(initialEdges)
     const activeRules = rules.filter((rule) => rule.status === "Active")
+
+    useEffect(() => {
+        const loadAutomations = async () => {
+            try {
+                const response = await fetch('/api/automations')
+                if (!response.ok) return
+                const payload = await response.json()
+                const list = (payload?.data || []).map((automation: any, index: number) => ({
+                    id: index + 1,
+                    name: automation.type || `Automation ${index + 1}`,
+                    trigger: automation.trigger || 'Keyword Trigger',
+                    actions: ['Send Message'],
+                    status: automation.enabled ? 'Active' : 'Paused',
+                    performance: { sent: 0, opened: 0, clicked: 0 },
+                }))
+                if (list.length) {
+                    setRules(list)
+                }
+            } catch {
+                // fallback rules remain visible when API is unavailable
+            }
+        }
+        loadAutomations()
+    }, [])
 
     const onDragEnd = (event: DragEndEvent) => {
         console.log('[AutomationPage] drag end payload', event)
