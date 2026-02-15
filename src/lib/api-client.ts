@@ -11,8 +11,9 @@ export class ApiClient {
   private logger = createLogger("api");
 
   constructor(options: ApiClientOptions = {}) {
-    const baseURL =
-      options.baseURL || process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
+    const baseURL = this.resolveBaseUrl(
+      options.baseURL || process.env.NEXT_PUBLIC_API_BASE_URL || "/api"
+    );
 
     this.axios = axios.create({
       baseURL,
@@ -41,6 +42,21 @@ export class ApiClient {
 
   get instance(): AxiosInstance {
     return this.axios;
+  }
+
+  private resolveBaseUrl(candidate: string): string {
+    const trimmed = (candidate || "").trim();
+    if (!trimmed) {
+      return "/api";
+    }
+    if (trimmed.startsWith("/api")) {
+      return trimmed;
+    }
+    this.logger.warn(
+      "Non-BFF base URL ignored to enforce frontend boundary:",
+      trimmed
+    );
+    return "/api";
   }
 }
 

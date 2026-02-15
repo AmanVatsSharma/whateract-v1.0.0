@@ -5,7 +5,7 @@
  * Author: Aman Sharma / Novologic/ Codex
  * Last-updated: 2026-02-15
  * Notes:
- * - Calls backend directly for Shopify flows.
+ * - Calls frontend BFF routes (`/api/*`) for Shopify flows.
  * - Intended for settings/integrations UX wiring.
  */
 
