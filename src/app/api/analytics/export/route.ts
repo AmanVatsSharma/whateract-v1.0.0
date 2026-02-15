@@ -1,19 +1,52 @@
 import { NextResponse } from "next/server";
+import { proxyGraphql } from "@/services/backend/backend-proxy";
+import { TenantStatsResponse } from "@/types/api-contracts";
 
-export async function GET() {
-  const rows = [
-    ["Campaign","Sent","Delivered","Read","Responded","Conversion"],
-    ["Campaign A","1000","980","750","200","15"],
-    ["Campaign B","1500","1450","1200","350","20"],
-    ["Campaign C","800","790","600","150","12"],
-    ["Campaign D","2000","1950","1600","500","18"],
-  ];
-  const csv = rows.map(r => r.join(",")).join("\n");
-  return new NextResponse(csv, {
-    status: 200,
-    headers: {
-      "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": "attachment; filename=analytics.csv",
-    },
-  });
+type TenantStatsGraphqlData = {
+  tenantStats: TenantStatsResponse;
+};
+
+const TENANT_STATS_QUERY = `
+  query TenantStatsBffExport {
+    tenantStats {
+      totalContacts
+      totalConversations
+      messagesSent
+      messagesInbound
+    }
+  }
+`;
+
+export async function GET(request: Request) {
+  try {
+    const data = await proxyGraphql<TenantStatsGraphqlData>(
+      request,
+      TENANT_STATS_QUERY
+    );
+
+    const rows = [
+      ["Metric", "Value"],
+      ["Total Contacts", String(data.tenantStats.totalContacts ?? 0)],
+      ["Total Conversations", String(data.tenantStats.totalConversations ?? 0)],
+      ["Messages Sent", String(data.tenantStats.messagesSent ?? 0)],
+      ["Messages Inbound", String(data.tenantStats.messagesInbound ?? 0)],
+    ];
+
+    const csv = rows.map((row) => row.join(",")).join("\n");
+    return new NextResponse(csv, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": "attachment; filename=analytics.csv",
+      },
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to export analytics",
+      },
+      { status: 502 }
+    );
+  }
 }
