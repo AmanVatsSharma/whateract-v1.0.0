@@ -21,6 +21,7 @@ type ShopifyStatus = {
   orders?: number;
   customers?: number;
   products?: number;
+  commerceJourneys?: number;
   lastOrdersSyncAt?: string | null;
   lastCustomersSyncAt?: string | null;
   lastProductsSyncAt?: string | null;
@@ -164,6 +165,7 @@ export default function ShopifyPage() {
           <div className="text-sm">Orders: {status.orders ?? 0}</div>
           <div className="text-sm">Customers: {status.customers ?? 0}</div>
           <div className="text-sm">Products: {status.products ?? 0}</div>
+          <div className="text-sm">Commerce journeys: {status.commerceJourneys ?? 0}</div>
           <div className="text-sm">
             Last order sync: {status.lastOrdersSyncAt || "-"}
           </div>
