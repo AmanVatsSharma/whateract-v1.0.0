@@ -1,6 +1,6 @@
-import { relayJsonResponse } from "@/services/bff/backend-proxy";
+import { relayJsonDataResponse } from "@/services/bff/backend-proxy";
 
 export async function GET(request: Request) {
-  return relayJsonResponse(request, "/shopify/status");
+  return relayJsonDataResponse(request, "/shopify/status");
 }
 
