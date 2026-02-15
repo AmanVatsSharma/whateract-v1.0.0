@@ -10,6 +10,7 @@
  */
 
 import { NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 
 export interface GraphqlEnvelope<T> {
   data?: T;
@@ -44,7 +45,7 @@ function buildForwardHeaders(request: Request, hasBody = false): HeadersInit {
   const headers: Record<string, string> = {};
   const authHeader = request.headers.get("authorization");
   const tenantId = request.headers.get("x-tenant-id");
-  const requestId = request.headers.get("x-request-id");
+  const requestId = request.headers.get("x-request-id") || randomUUID();
 
   if (authHeader) {
     headers.authorization = authHeader;
@@ -76,14 +77,25 @@ export async function proxyToBackend(
   const baseUrl = getBackendBaseUrl().replace(/\/$/, "");
   const path = backendPath.startsWith("/") ? backendPath : `/${backendPath}`;
   const hasBody = init.body !== undefined;
-  const response = await fetch(`${baseUrl}${path}`, {
-    method: init.method || "GET",
-    headers: buildForwardHeaders(request, hasBody),
-    body: hasBody ? JSON.stringify(init.body) : undefined,
-    cache: "no-store",
-  });
+  const timeoutMs = Number(process.env.BFF_BACKEND_TIMEOUT_MS || 15_000);
+  const controller = new AbortController();
+  const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
 
-  return response;
+  try {
+    return await fetch(`${baseUrl}${path}`, {
+      method: init.method || "GET",
+      headers: buildForwardHeaders(request, hasBody),
+      body: hasBody ? JSON.stringify(init.body) : undefined,
+      cache: "no-store",
+      signal: controller.signal,
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown backend proxy error";
+    throw new Error(`Backend request failed for ${path}: ${message}`);
+  } finally {
+    clearTimeout(timeoutHandle);
+  }
 }
 
 export async function proxyGraphql<T>(
@@ -115,14 +127,25 @@ export async function relayJsonResponse(
   backendPath: string,
   init: { method?: string; body?: unknown } = {}
 ): Promise<NextResponse> {
-  const response = await proxyToBackend(request, backendPath, init);
-  const text = await response.text();
+  try {
+    const response = await proxyToBackend(request, backendPath, init);
+    const text = await response.text();
 
-  return new NextResponse(text, {
-    status: response.status,
-    headers: {
-      "content-type":
-        response.headers.get("content-type") || "application/json",
-    },
-  });
+    return new NextResponse(text, {
+      status: response.status,
+      headers: {
+        "content-type":
+          response.headers.get("content-type") || "application/json",
+      },
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Backend proxy request failed";
+    return NextResponse.json(
+      {
+        error: message,
+      },
+      { status: 502 }
+    );
+  }
 }

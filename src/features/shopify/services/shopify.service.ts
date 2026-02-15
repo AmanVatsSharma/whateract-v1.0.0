@@ -30,6 +30,11 @@ export async function syncShopifyCustomers(limit = 25) {
   return response.data;
 }
 
+export async function syncShopifyProducts(limit = 25) {
+  const response = await apiClient.post("/shopify/sync/products", { limit });
+  return response.data;
+}
+
 export async function getShopifyStatus() {
   const response = await apiClient.get("/shopify/status");
   return response.data;
