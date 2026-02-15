@@ -24,3 +24,4 @@
 - 2026-02-15: Standardized connect/status/sync BFF responses to `{ data }` / `{ error }` envelopes.
 - 2026-02-15: Updated `shopify.service.ts` to unwrap envelope payloads and throw normalized route errors.
 - 2026-02-15: Added shopify connect/status/sync BFF regression tests to prevent contract drift.
+- 2026-02-15: Surfaced commerce journey count in Shopify status panel for marketing automation readiness.

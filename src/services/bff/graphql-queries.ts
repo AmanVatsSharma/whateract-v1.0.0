@@ -19,6 +19,38 @@ export const CAMPAIGNS_BFF_QUERY = `
   }
 `;
 
+export const CREATE_CAMPAIGN_BFF_MUTATION = `
+  mutation CreateCampaignBff($input: CreateCampaignInput!) {
+    createCampaign(input: $input) {
+      id
+      name
+      status
+      type
+      scheduledAt
+      createdAt
+    }
+  }
+`;
+
+export const SET_CAMPAIGN_STATUS_BFF_MUTATION = `
+  mutation SetCampaignStatusBff($campaignId: String!, $status: CampaignStatus!, $scheduledAt: DateTime) {
+    setCampaignStatus(campaignId: $campaignId, status: $status, scheduledAt: $scheduledAt) {
+      id
+      name
+      status
+      type
+      scheduledAt
+      createdAt
+    }
+  }
+`;
+
+export const DELETE_CAMPAIGN_BFF_MUTATION = `
+  mutation DeleteCampaignBff($campaignId: String!) {
+    deleteCampaign(campaignId: $campaignId)
+  }
+`;
+
 export const TENANT_STATS_BFF_QUERY = `
   query TenantStatsBffExport {
     tenantStats {
@@ -43,6 +75,18 @@ export const CAMPAIGN_KPIS_BFF_QUERY = `
       outboundFailed
       inboundReplies
       replyRate
+    }
+  }
+`;
+
+export const WHATSAPP_ONBOARDING_FUNNEL_BFF_QUERY = `
+  query WhatsAppOnboardingFunnelBff {
+    whatsappOnboardingFunnel {
+      total
+      buckets {
+        status
+        count
+      }
     }
   }
 `;
@@ -112,5 +156,69 @@ export const AUTOMATIONS_BFF_QUERY = `
       trigger
       createdAt
     }
+  }
+`;
+
+export const CREATE_AUTOMATION_BFF_MUTATION = `
+  mutation CreateAutomationBff(
+    $type: String!,
+    $trigger: String,
+    $enabled: Boolean,
+    $definitionJson: String
+  ) {
+    createAutomation(
+      type: $type,
+      trigger: $trigger,
+      enabled: $enabled,
+      definitionJson: $definitionJson
+    ) {
+      id
+      type
+      enabled
+      trigger
+      createdAt
+    }
+  }
+`;
+
+export const UPDATE_AUTOMATION_BFF_MUTATION = `
+  mutation UpdateAutomationBff(
+    $automationId: String!,
+    $type: String,
+    $trigger: String,
+    $enabled: Boolean,
+    $definitionJson: String
+  ) {
+    updateAutomation(
+      automationId: $automationId,
+      type: $type,
+      trigger: $trigger,
+      enabled: $enabled,
+      definitionJson: $definitionJson
+    ) {
+      id
+      type
+      enabled
+      trigger
+      createdAt
+    }
+  }
+`;
+
+export const SET_AUTOMATION_ENABLED_BFF_MUTATION = `
+  mutation SetAutomationEnabledBff($automationId: String!, $enabled: Boolean!) {
+    setAutomationEnabled(automationId: $automationId, enabled: $enabled) {
+      id
+      type
+      enabled
+      trigger
+      createdAt
+    }
+  }
+`;
+
+export const DELETE_AUTOMATION_BFF_MUTATION = `
+  mutation DeleteAutomationBff($automationId: String!) {
+    deleteAutomation(automationId: $automationId)
   }
 `;
