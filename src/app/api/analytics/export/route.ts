@@ -20,6 +20,10 @@ export async function GET(request: Request) {
       ["Total Conversations", String(data.tenantStats.totalConversations ?? 0)],
       ["Messages Sent", String(data.tenantStats.messagesSent ?? 0)],
       ["Messages Inbound", String(data.tenantStats.messagesInbound ?? 0)],
+      ["Total Campaigns", String(data.tenantStats.totalCampaigns ?? 0)],
+      ["Campaign Messages Sent", String(data.tenantStats.campaignMessagesSent ?? 0)],
+      ["Campaign Messages Failed", String(data.tenantStats.campaignMessagesFailed ?? 0)],
+      ["Campaign Reply Rate (%)", String(data.tenantStats.campaignReplyRate ?? 0)],
     ];
 
     const csv = rows.map((row) => row.join(",")).join("\n");

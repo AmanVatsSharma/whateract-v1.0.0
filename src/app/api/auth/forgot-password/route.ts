@@ -1,13 +1,9 @@
-import { NextResponse } from "next/server";
+import { relayJsonResponse } from "@/services/bff/backend-proxy";
 
 export async function POST(request: Request) {
-  const body = (await request.json().catch(() => ({}))) as { email?: string };
-  if (!body.email) {
-    return NextResponse.json({ error: "email is required" }, { status: 400 });
-  }
-  return NextResponse.json({
-    ok: true,
-    message:
-      "If the email exists, a reset link will be sent. [SonuRamTODO] Wire real backend reset workflow.",
+  const body = await request.json().catch(() => ({}));
+  return relayJsonResponse(request, "/auth/forgot-password", {
+    method: "POST",
+    body,
   });
 }
