@@ -11,32 +11,66 @@
 
 import { apiClient } from "@/lib/api-client";
 
+type Envelope<T> = {
+  data?: T;
+  error?: string;
+};
+
 export async function connectShopifyStore(payload: {
   shopDomain: string;
   accessToken: string;
   scopes?: string[];
 }) {
-  const response = await apiClient.post("/shopify/connect", payload);
-  return response.data;
+  const response = await apiClient.post<Envelope<Record<string, unknown>>>(
+    "/shopify/connect",
+    payload
+  );
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  return response.data?.data || {};
 }
 
 export async function syncShopifyOrders(limit = 25) {
-  const response = await apiClient.post("/shopify/sync/orders", { limit });
-  return response.data;
+  const response = await apiClient.post<Envelope<Record<string, unknown>>>(
+    "/shopify/sync/orders",
+    { limit }
+  );
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  return response.data?.data || {};
 }
 
 export async function syncShopifyCustomers(limit = 25) {
-  const response = await apiClient.post("/shopify/sync/customers", { limit });
-  return response.data;
+  const response = await apiClient.post<Envelope<Record<string, unknown>>>(
+    "/shopify/sync/customers",
+    { limit }
+  );
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  return response.data?.data || {};
 }
 
 export async function syncShopifyProducts(limit = 25) {
-  const response = await apiClient.post("/shopify/sync/products", { limit });
-  return response.data;
+  const response = await apiClient.post<Envelope<Record<string, unknown>>>(
+    "/shopify/sync/products",
+    { limit }
+  );
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  return response.data?.data || {};
 }
 
 export async function getShopifyStatus() {
-  const response = await apiClient.get("/shopify/status");
-  return response.data;
+  const response = await apiClient.get<Envelope<Record<string, unknown>>>(
+    "/shopify/status"
+  );
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  return response.data?.data || {};
 }
 

@@ -21,3 +21,6 @@
 - 2026-02-15: Added dedicated Shopify management page with status + sync actions.
 - 2026-02-15: Connected service calls to backend-backed BFF endpoints.
 - 2026-02-15: Added product sync action and product sync status visibility on Shopify page.
+- 2026-02-15: Standardized connect/status/sync BFF responses to `{ data }` / `{ error }` envelopes.
+- 2026-02-15: Updated `shopify.service.ts` to unwrap envelope payloads and throw normalized route errors.
+- 2026-02-15: Added shopify connect/status/sync BFF regression tests to prevent contract drift.
