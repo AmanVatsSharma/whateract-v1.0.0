@@ -17,6 +17,14 @@ export interface GraphqlEnvelope<T> {
   errors?: Array<{ message: string }>;
 }
 
+type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [key: string]: JsonValue };
+
 function getBackendBaseUrl(): string {
   return (
     process.env.BACKEND_API_URL ||
@@ -138,6 +146,70 @@ export async function relayJsonResponse(
           response.headers.get("content-type") || "application/json",
       },
     });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Backend proxy request failed";
+    return NextResponse.json(
+      {
+        error: message,
+      },
+      { status: 502 }
+    );
+  }
+}
+
+function parseBackendErrorMessage(payload: JsonValue | null, status: number) {
+  if (payload && typeof payload === "object" && !Array.isArray(payload)) {
+    const record = payload as Record<string, unknown>;
+    if (typeof record.error === "string" && record.error.trim()) {
+      return record.error;
+    }
+    if (typeof record.message === "string" && record.message.trim()) {
+      return record.message;
+    }
+  }
+  if (typeof payload === "string" && payload.trim()) {
+    return payload;
+  }
+  return `Backend request failed (${status})`;
+}
+
+async function parseBackendJsonPayload(response: Response): Promise<JsonValue | null> {
+  const text = await response.text();
+  if (!text) {
+    return null;
+  }
+  try {
+    return JSON.parse(text) as JsonValue;
+  } catch {
+    return text;
+  }
+}
+
+export async function relayJsonDataResponse(
+  request: Request,
+  backendPath: string,
+  init: { method?: string; body?: unknown } = {}
+): Promise<NextResponse> {
+  try {
+    const response = await proxyToBackend(request, backendPath, init);
+    const payload = await parseBackendJsonPayload(response);
+
+    if (!response.ok) {
+      return NextResponse.json(
+        {
+          error: parseBackendErrorMessage(payload, response.status),
+        },
+        { status: response.status }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        data: payload,
+      },
+      { status: response.status }
+    );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Backend proxy request failed";
