@@ -26,6 +26,15 @@ This frontend follows a strict BFF (Backend for Frontend) pattern:
 - `apiClient` enforces `/api` base URL and ignores non-BFF base URLs.
 - BFF proxy adds request correlation headers and timeout protection.
 
+## JSON Contract Envelope
+
+For JSON routes exposed by BFF handlers:
+
+- Success responses return: `{ data: ... }`
+- Error responses return: `{ error: "..." }`
+
+This contract is now enforced across auth and shopify BFF routes, with regression coverage in Vitest route specs.
+
 ## Notes
 
 - Keeping BFF in frontend is intentional and not a boundary violation.

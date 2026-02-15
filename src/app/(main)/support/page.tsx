@@ -89,15 +89,15 @@ export default function SupportPage() {
           <CardContent className="space-y-2 text-sm">
             <div className="flex items-center gap-2">
               <BookOpen className="h-4 w-4 text-primary" />
-              <a href="/docs/BFF-ARCHITECTURE.md" className="hover:underline">
-                BFF Architecture
-              </a>
+              <code className="rounded bg-muted px-1 py-0.5 text-xs">
+                docs/BFF-ARCHITECTURE.md
+              </code>
             </div>
             <div className="flex items-center gap-2">
               <BookOpen className="h-4 w-4 text-primary" />
-              <a href="/docs/COMPONENT-FLOW.md" className="hover:underline">
-                Component Flow
-              </a>
+              <code className="rounded bg-muted px-1 py-0.5 text-xs">
+                docs/COMPONENT-FLOW.md
+              </code>
             </div>
           </CardContent>
         </Card>
