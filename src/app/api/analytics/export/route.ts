@@ -1,27 +1,17 @@
 import { NextResponse } from "next/server";
-import { proxyGraphql } from "@/services/backend/backend-proxy";
+import { proxyGraphql } from "@/services/bff/backend-proxy";
+import { TENANT_STATS_BFF_QUERY } from "@/services/bff/graphql-queries";
 import { TenantStatsResponse } from "@/types/api-contracts";
 
 type TenantStatsGraphqlData = {
   tenantStats: TenantStatsResponse;
 };
 
-const TENANT_STATS_QUERY = `
-  query TenantStatsBffExport {
-    tenantStats {
-      totalContacts
-      totalConversations
-      messagesSent
-      messagesInbound
-    }
-  }
-`;
-
 export async function GET(request: Request) {
   try {
     const data = await proxyGraphql<TenantStatsGraphqlData>(
       request,
-      TENANT_STATS_QUERY
+      TENANT_STATS_BFF_QUERY
     );
 
     const rows = [
