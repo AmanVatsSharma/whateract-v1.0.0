@@ -12,6 +12,12 @@ import path from "node:path";
 const ROOT = process.cwd();
 const SRC_DIR = path.join(ROOT, "src");
 const ALLOWED_SERVER_PREFIXES = ["app/api/", "services/bff/"];
+const FORBIDDEN_DIRECTORIES = [
+  "src/services/backend",
+  "src/GrapqhQl",
+  "src/pages",
+  "prisma",
+];
 
 const FORBIDDEN_IMPORT_PATTERNS = [
   /from\s+["']@nestjs\//,
@@ -50,8 +56,23 @@ function isAllowedServerFile(relativePath) {
 }
 
 async function main() {
+  const forbiddenDirViolations = await Promise.all(
+    FORBIDDEN_DIRECTORIES.map(async (relativePath) => {
+      const absolutePath = path.join(ROOT, relativePath);
+      try {
+        const stats = await fs.stat(absolutePath);
+        if (stats.isDirectory()) {
+          return `${relativePath}: legacy directory should not exist in app-router BFF architecture`;
+        }
+      } catch {
+        return null;
+      }
+      return null;
+    })
+  );
   const sourceFiles = await listSourceFiles(SRC_DIR);
   const violations = [];
+  violations.push(...forbiddenDirViolations.filter(Boolean));
 
   for (const filePath of sourceFiles) {
     const relativePath = path.relative(SRC_DIR, filePath).replaceAll("\\", "/");

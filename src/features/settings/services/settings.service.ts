@@ -11,6 +11,15 @@
 
 import { apiClient } from "@/lib/api-client";
 
+export interface WorkspaceSettingsPayload {
+  timezone?: string;
+  language?: string;
+  dateFormat?: string;
+  currency?: string;
+  autoReply?: boolean;
+  analyticsEnabled?: boolean;
+}
+
 export async function rotateApiKey() {
   const response = await apiClient.post<{ key: string }>("/settings/api-key");
   return response.data?.key || "";
@@ -25,5 +34,20 @@ export async function validateWebhook(url: string, secret: string) {
     }
   );
   return response.data;
+}
+
+export async function getWorkspaceSettings() {
+  const response = await apiClient.get<WorkspaceSettingsPayload>(
+    "/settings/workspace",
+  );
+  return response.data || {};
+}
+
+export async function saveWorkspaceSettings(payload: WorkspaceSettingsPayload) {
+  const response = await apiClient.post<WorkspaceSettingsPayload>(
+    "/settings/workspace",
+    payload,
+  );
+  return response.data || {};
 }
 
