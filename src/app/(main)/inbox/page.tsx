@@ -1,420 +1,632 @@
 /**
- * ============================================
- * INBOX PAGE - Modern Light Theme
- * ============================================
- * 
- * Professional messaging interface featuring:
- * - Clean light design aesthetic
- * - Real-time conversations
- * - AI-powered features
- * - Label management
- * - Team collaboration
- * - Responsive layout
- * - Modern messaging UI
- * 
- * @page
- * @version 2.0.0
+ * File: src/app/(main)/inbox/page.tsx
+ * Module: inbox-page
+ * Purpose: Live inbox workspace with filtering, assignment UX, and tag lifecycle actions.
+ * Author: BharatERP
+ * created: 2026-02-16
  */
-
 "use client";
-import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { createLogger } from "@/lib/logger";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Paperclip, Send, Sparkles, Star, Filter, Search, Clock, X, UserPlus } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useConversations } from "@/features/inbox/hooks/use-conversations";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import {
   addConversationNote,
+  AssignableMember,
   assignConversation,
-  fetchAiReply,
+  fetchAssignableMembers,
+  fetchConversationThread,
+  fetchConversations,
+  getConversationLabel,
   sendConversationMessage,
   setConversationStatus,
-  summarizeConversation,
   tagConversation,
+  untagConversation,
 } from "@/features/inbox/services/inbox.service";
-import { SectionLoader } from "@/components/shared/section-loader";
+import type { ConversationListItem, ConversationThreadPayload } from "@/types/api-contracts";
 
-const logger = createLogger("inbox");
+type ConversationStatus = "OPEN" | "PENDING" | "CLOSED";
+type ConversationStatusFilter = "ALL" | ConversationStatus;
 
-type Conversation = {
-  id: string;
-  name: string;
-  lastMessage: string;
-  unread: number;
-  priority: "low" | "high";
-  tags: string[];
-};
+function formatDateTime(value?: string | null) {
+  if (!value) {
+    return "-";
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+  return parsed.toLocaleString();
+}
 
 export default function InboxPage() {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selected, setSelected] = useState<Conversation | null>(null);
-  const [query, setQuery] = useState("");
-  const [message, setMessage] = useState("");
-  const [summary, setSummary] = useState("");
-  const [isSummarizing, setIsSummarizing] = useState(false);
-  const [labelsByConv, setLabelsByConv] = useState<Record<string, string[]>>({});
-  const [assigneeByConv, setAssigneeByConv] = useState<Record<string, string>>({});
-  const [notesByConv, setNotesByConv] = useState<Record<string, string>>({});
-  const [statusByConv, setStatusByConv] = useState<Record<string, "open" | "snoozed" | "closed">>({});
-  const { data: conversationsFromApi = [], isLoading, refetch } = useConversations();
+  const [conversations, setConversations] = useState<ConversationListItem[]>([]);
+  const [assignableMembers, setAssignableMembers] = useState<AssignableMember[]>([]);
+  const [selectedConversationId, setSelectedConversationId] = useState<string>("");
+  const [thread, setThread] = useState<ConversationThreadPayload | null>(null);
+  const [isLoadingList, setIsLoadingList] = useState(true);
+  const [isLoadingThread, setIsLoadingThread] = useState(false);
+  const [isLoadingMembers, setIsLoadingMembers] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [statusFilter, setStatusFilter] = useState<ConversationStatusFilter>("ALL");
+  const [assignedFilter, setAssignedFilter] = useState("ALL");
+  const [tagFilterInput, setTagFilterInput] = useState("");
+  const [appliedFilters, setAppliedFilters] = useState<{
+    search?: string;
+    status?: ConversationStatus;
+    assignedUserId?: string;
+    tag?: string;
+  }>({});
+  const [composeMessage, setComposeMessage] = useState("");
+  const [noteInput, setNoteInput] = useState("");
+  const [tagInput, setTagInput] = useState("");
+  const [assignUserId, setAssignUserId] = useState("");
 
-  // Available options (UI-only). Replace with backend data when wired.
-  const availableAgents = ["You", "Aisha", "Rahul", "Priya"];
-  const availableLabels = ["VIP", "Return", "New", "Support", "Lead"];
+  const selectedConversation = useMemo(
+    () => conversations.find((item) => item.id === selectedConversationId) || null,
+    [conversations, selectedConversationId],
+  );
 
-  useEffect(() => {
-    const list = conversationsFromApi.map((item) => ({
-      id: item.id,
-      name: item.contactId
-        ? `Contact ${item.contactId.slice(-4)}`
-        : `Conversation ${item.id.slice(0, 6)}`,
-      lastMessage: item.lastMessage || "No message yet",
-      unread: item.status === "OPEN" ? 1 : 0,
-      priority: item.tags.some((tag) => tag.toLowerCase() === "vip")
-        ? ("high" as const)
-        : ("low" as const),
-      tags: item.tags || [],
-    }));
-    setConversations(list);
-    if (list.length && !selected) {
-      setSelected(list[0]);
+  const assignableMemberByUserId = useMemo(() => {
+    const map = new Map<string, AssignableMember>();
+    for (const member of assignableMembers) {
+      map.set(member.userId, member);
     }
-  }, [conversationsFromApi, selected]);
+    return map;
+  }, [assignableMembers]);
 
-  const filtered = useMemo(() => {
-    return conversations.filter((c) =>
-      `${c.name} ${c.lastMessage}`.toLowerCase().includes(query.toLowerCase())
-    );
-  }, [conversations, query]);
-
-  const sendMessage = async () => {
-    if (!message.trim() || !selected) return;
+  const loadConversations = useCallback(async () => {
     try {
-      await sendConversationMessage({
-        conversationId: selected.id,
-        message,
-      });
-      logger.info("send", { to: selected.id, message });
-      setMessage("");
-      toast.success("Message queued");
-      await refetch();
-    } catch (error) {
-      logger.error("send failed", error);
-      toast.error("Message send failed");
-    }
-  };
-
-  const suggestAiReply = async () => {
-    try {
-      const suggestion = await fetchAiReply({
-        text: message || selected?.lastMessage || "",
-        conversationId: selected?.id,
-      });
-      if (suggestion) {
-        setMessage(suggestion);
-        toast.success("AI suggestion ready");
-      } else {
-        toast.info("No suggestion available");
+      setErrorMessage("");
+      setIsLoadingList(true);
+      const list = await fetchConversations(appliedFilters);
+      setConversations(list);
+      if (!selectedConversationId && list.length) {
+        setSelectedConversationId(list[0].id);
+      } else if (selectedConversationId && !list.some((item) => item.id === selectedConversationId)) {
+        setSelectedConversationId(list[0]?.id || "");
       }
-    } catch (e) {
-      logger.error("ai suggest failed", e);
-      toast.error("AI suggestion failed");
-    }
-  };
-
-  const summarizeThread = async () => {
-    if (!selected) return;
-    try {
-      setIsSummarizing(true);
-      const s = await summarizeConversation({
-        conversationId: selected.id,
-      });
-      setSummary(s);
-      if (s) toast.success("Summary generated");
-    } catch (e) {
-      logger.error("summarize failed", e);
-      toast.error("Summarization failed");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unable to load conversations";
+      setErrorMessage(message);
+      setConversations([]);
     } finally {
-      setIsSummarizing(false);
+      setIsLoadingList(false);
     }
-  };
+  }, [appliedFilters, selectedConversationId]);
 
-  const toggleLabel = async (convId: string, label: string) => {
-    const currentlySet = (labelsByConv[convId] || []).includes(label);
-    setLabelsByConv((prev) => {
-      const cur = new Set(prev[convId] || []);
-      if (cur.has(label)) cur.delete(label); else cur.add(label);
-      return { ...prev, [convId]: Array.from(cur) };
-    });
-    if (!currentlySet) {
-      try {
-        await tagConversation({ conversationId: convId, tag: label });
-      } catch (error) {
-        logger.error("tag failed", error);
-        toast.error("Failed to save label");
-      }
-    }
-  };
-
-  const setAssignee = async (convId: string, assignee: string) => {
-    setAssigneeByConv((prev) => ({ ...prev, [convId]: assignee }));
-    try {
-      await assignConversation({ conversationId: convId, userId: assignee });
-      toast.success(`Assigned to ${assignee}`);
-    } catch (error) {
-      logger.error("assign failed", error);
-      toast.error("Assignment failed");
-    }
-  };
-
-  const setStatus = async (convId: string, status: "open" | "snoozed" | "closed") => {
-    setStatusByConv((prev) => ({ ...prev, [convId]: status }));
-    try {
-      await setConversationStatus({
-        conversationId: convId,
-        status:
-          status === "open"
-            ? "OPEN"
-            : status === "closed"
-              ? "CLOSED"
-              : "PENDING",
-      });
-      toast.message(`Thread ${status}`);
-    } catch (error) {
-      logger.error("status update failed", error);
-      toast.error("Unable to update thread status");
-    }
-  };
-
-  const saveNote = async () => {
-    if (!selected) return;
-    const content = (notesByConv[selected.id] || "").trim();
-    if (!content) {
-      toast.info("Enter a note first");
+  const loadThread = useCallback(async (conversationId: string) => {
+    if (!conversationId) {
+      setThread(null);
       return;
     }
     try {
-      await addConversationNote({
-        conversationId: selected.id,
-        content,
-      });
-      toast.success("Note saved");
+      setErrorMessage("");
+      setIsLoadingThread(true);
+      const response = await fetchConversationThread(conversationId);
+      setThread(response);
+      setAssignUserId(response?.assignedUserId || "UNASSIGNED");
     } catch (error) {
-      logger.error("note save failed", error);
-      toast.error("Failed to save note");
+      const message =
+        error instanceof Error ? error.message : "Unable to load conversation thread";
+      setErrorMessage(message);
+      setThread(null);
+    } finally {
+      setIsLoadingThread(false);
+    }
+  }, []);
+
+  const loadAssignableTeamMembers = useCallback(async () => {
+    try {
+      setIsLoadingMembers(true);
+      const members = await fetchAssignableMembers();
+      setAssignableMembers(members);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unable to load assignable team members";
+      setErrorMessage(message);
+    } finally {
+      setIsLoadingMembers(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadConversations();
+  }, [loadConversations]);
+
+  useEffect(() => {
+    void loadAssignableTeamMembers();
+  }, [loadAssignableTeamMembers]);
+
+  useEffect(() => {
+    if (!selectedConversationId) {
+      setThread(null);
+      return;
+    }
+    void loadThread(selectedConversationId);
+  }, [loadThread, selectedConversationId]);
+
+  const runAction = async (action: () => Promise<void>, successMessage: string) => {
+    try {
+      setIsSaving(true);
+      await action();
+      toast.success(successMessage);
+      await Promise.all([
+        loadConversations(),
+        loadThread(selectedConversationId),
+      ]);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Inbox action failed";
+      setErrorMessage(message);
+      toast.error(message);
+    } finally {
+      setIsSaving(false);
     }
   };
 
+  const onSendMessage = async () => {
+    const message = composeMessage.trim();
+    if (!selectedConversationId || !message) {
+      toast.error("Select a conversation and enter a message");
+      return;
+    }
+    await runAction(
+      async () => {
+        await sendConversationMessage({
+          conversationId: selectedConversationId,
+          message,
+        });
+        setComposeMessage("");
+      },
+      "Message sent",
+    );
+  };
+
+  const onAddNote = async () => {
+    const content = noteInput.trim();
+    if (!selectedConversationId || !content) {
+      toast.error("Add note text before saving");
+      return;
+    }
+    await runAction(
+      async () => {
+        await addConversationNote({
+          conversationId: selectedConversationId,
+          content,
+        });
+        setNoteInput("");
+      },
+      "Conversation note added",
+    );
+  };
+
+  const onTagConversation = async () => {
+    const tag = tagInput.trim();
+    if (!selectedConversationId || !tag) {
+      toast.error("Provide a tag value");
+      return;
+    }
+    await runAction(
+      async () => {
+        await tagConversation({
+          conversationId: selectedConversationId,
+          tag,
+        });
+        setTagInput("");
+      },
+      "Tag added",
+    );
+  };
+
+  const onRemoveTag = async (tag: string) => {
+    if (!selectedConversationId || !tag) {
+      return;
+    }
+    await runAction(
+      async () => {
+        await untagConversation({
+          conversationId: selectedConversationId,
+          tag,
+        });
+      },
+      "Tag removed",
+    );
+  };
+
+  const onAssignConversation = async () => {
+    const selectedAssignee = assignUserId.trim();
+    if (!selectedConversationId || !selectedAssignee) {
+      toast.error("Select an assignee option");
+      return;
+    }
+    await runAction(
+      async () => {
+        await assignConversation({
+          conversationId: selectedConversationId,
+          userId: selectedAssignee === "UNASSIGNED" ? null : selectedAssignee,
+        });
+      },
+      selectedAssignee === "UNASSIGNED"
+        ? "Conversation unassigned"
+        : "Conversation assigned",
+    );
+  };
+
+  const onApplyFilters = () => {
+    setAppliedFilters({
+      search: searchInput.trim() || undefined,
+      status: statusFilter === "ALL" ? undefined : statusFilter,
+      assignedUserId: assignedFilter === "ALL" ? undefined : assignedFilter,
+      tag: tagFilterInput.trim() || undefined,
+    });
+  };
+
+  const onClearFilters = () => {
+    setSearchInput("");
+    setStatusFilter("ALL");
+    setAssignedFilter("ALL");
+    setTagFilterInput("");
+    setAppliedFilters({});
+  };
+
+  const onStatusChange = async (status: ConversationStatus) => {
+    if (!selectedConversationId) {
+      return;
+    }
+    await runAction(
+      async () => {
+        await setConversationStatus({
+          conversationId: selectedConversationId,
+          status,
+        });
+      },
+      "Conversation status updated",
+    );
+  };
+
   return (
-    <div className="grid grid-cols-12 gap-4 p-4 sm:p-6 animate-fadeIn">
-      {isLoading && <SectionLoader label="Loading conversations..." />}
-      {/* Conversations list */}
-      <Card className="col-span-12 lg:col-span-3 overflow-hidden rounded-2xl border-border/50 shadow-lg">
-        <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-transparent">
-          <CardTitle className="flex items-center justify-between text-xl font-bold">
-            <span>Inbox</span>
-            <div className="flex items-center gap-2">
-              <Select>
-                <SelectTrigger className="w-[120px] rounded-xl"><SelectValue placeholder="All" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="unread">Unread</SelectItem>
-                  <SelectItem value="priority">Priority</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search" className="pl-8 rounded-xl" />
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-semibold">Inbox</h1>
+          <p className="text-sm text-muted-foreground">
+            Real-time thread operations backed by inbox conversation APIs.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          disabled={isLoadingList || isLoadingThread || isLoadingMembers || isSaving}
+          onClick={() => {
+            void Promise.all([
+              loadConversations(),
+              loadThread(selectedConversationId),
+              loadAssignableTeamMembers(),
+            ]);
+          }}
+        >
+          Refresh
+        </Button>
+      </div>
+
+      {errorMessage ? (
+        <Card className="border-destructive/40">
+          <CardHeader>
+            <CardTitle className="text-destructive">Inbox sync warning</CardTitle>
+            <CardDescription>{errorMessage}</CardDescription>
+          </CardHeader>
+        </Card>
+      ) : null}
+
+      <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
+        <Card className="h-[70vh]">
+          <CardHeader>
+            <CardTitle>Conversations</CardTitle>
+            <CardDescription>Tenant-scoped list with search and filters.</CardDescription>
+            <div className="space-y-2 pt-2">
+              <Input
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+                placeholder="Search by phone, name, or tag"
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as ConversationStatusFilter)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">All status</SelectItem>
+                    <SelectItem value="OPEN">OPEN</SelectItem>
+                    <SelectItem value="PENDING">PENDING</SelectItem>
+                    <SelectItem value="CLOSED">CLOSED</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={assignedFilter} onValueChange={setAssignedFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Assignee" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">All assignees</SelectItem>
+                    <SelectItem value="UNASSIGNED">Unassigned</SelectItem>
+                    {assignableMembers.map((member) => (
+                      <SelectItem key={member.id} value={member.userId}>
+                        {member.userEmail || member.userId}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  value={tagFilterInput}
+                  onChange={(event) => setTagFilterInput(event.target.value)}
+                  placeholder="Filter by tag"
+                />
+                <Button size="sm" variant="outline" onClick={onApplyFilters}>
+                  Apply
+                </Button>
+                <Button size="sm" variant="ghost" onClick={onClearFilters}>
+                  Clear
+                </Button>
               </div>
             </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <ScrollArea className="h-[calc(100vh-240px)]">
-            {filtered.map((c) => (
-              <motion.button
-                key={c.id}
-                onClick={() => setSelected(c)}
-                className={cn(
-                  "flex w-full items-center gap-3 p-3 text-left rounded-xl transition-all",
-                  "hover:bg-primary/5 hover:border-l-4 hover:border-primary",
-                  selected?.id === c.id ? "bg-primary/10 border-l-4 border-primary shadow-sm" : ""
-                )}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-              >
-                <Avatar>
-                  <AvatarFallback>{c.name.slice(0, 2).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <div className="font-medium">{c.name}</div>
-                    {c.unread > 0 && (
-                      <Badge variant="secondary">{c.unread}</Badge>
-                    )}
+          </CardHeader>
+          <CardContent className="h-[calc(70vh-100px)] p-0">
+            <ScrollArea className="h-full">
+              {isLoadingList ? (
+                <p className="px-4 py-3 text-sm text-muted-foreground">Loading conversations...</p>
+              ) : null}
+              {!isLoadingList && conversations.length === 0 ? (
+                <p className="px-4 py-3 text-sm text-muted-foreground">
+                  No conversations found.
+                </p>
+              ) : null}
+              {!isLoadingList &&
+                conversations.map((conversation) => (
+                  <button
+                    key={conversation.id}
+                    type="button"
+                    className={`w-full border-b px-4 py-3 text-left transition hover:bg-muted/60 ${
+                      conversation.id === selectedConversationId ? "bg-muted" : ""
+                    }`}
+                    onClick={() => setSelectedConversationId(conversation.id)}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="truncate text-sm font-medium">{getConversationLabel(conversation)}</p>
+                      <Badge variant="outline">{conversation.status}</Badge>
+                    </div>
+                    <p className="mt-1 truncate text-xs text-muted-foreground">
+                      {conversation.lastMessage || "No recent message"}
+                    </p>
+                    <p className="mt-1 truncate text-[11px] text-muted-foreground">
+                      Assignee:{" "}
+                      {conversation.assignedUserEmail ||
+                        assignableMemberByUserId.get(conversation.assignedUserId || "")?.userEmail ||
+                        "Unassigned"}
+                    </p>
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      {formatDateTime(conversation.lastMessageAt)}
+                    </p>
+                  </button>
+                ))}
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        <Card className="h-[70vh]">
+          <CardHeader>
+            <CardTitle>Conversation Thread</CardTitle>
+            <CardDescription>
+              {selectedConversationId
+                ? `Conversation ${selectedConversationId}`
+                : "Select a conversation from the left panel"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex h-[calc(70vh-100px)] flex-col gap-4">
+            {isLoadingThread ? (
+              <p className="text-sm text-muted-foreground">Loading thread...</p>
+            ) : null}
+
+            {!isLoadingThread && !thread ? (
+              <p className="text-sm text-muted-foreground">
+                No thread loaded yet. Select a conversation to continue.
+              </p>
+            ) : null}
+
+            {thread ? (
+              <>
+                <div className="grid gap-3 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label>Status</Label>
+                    <Select
+                      value={(thread.status || selectedConversation?.status || "OPEN") as ConversationStatus}
+                      onValueChange={(value) => {
+                        void onStatusChange(value as ConversationStatus);
+                      }}
+                      disabled={isSaving}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="OPEN">OPEN</SelectItem>
+                        <SelectItem value="PENDING">PENDING</SelectItem>
+                        <SelectItem value="CLOSED">CLOSED</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <div className="text-sm text-muted-foreground truncate">{c.lastMessage}</div>
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {c.tags.map((t) => (
-                      <Badge key={t} variant="outline" className="text-xs">{t}</Badge>
-                    ))}
+                  <div className="space-y-2">
+                    <Label>Assignee</Label>
+                    <Select
+                      value={assignUserId}
+                      onValueChange={setAssignUserId}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select assignee" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="UNASSIGNED">Unassigned</SelectItem>
+                        {assignableMembers.map((member) => (
+                          <SelectItem key={member.id} value={member.userId}>
+                            {member.userEmail || member.userId}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-end">
+                    <Button
+                      className="w-full"
+                      variant="outline"
+                      disabled={isSaving || isLoadingMembers || !assignUserId}
+                      onClick={() => {
+                        void onAssignConversation();
+                      }}
+                    >
+                      Assign
+                    </Button>
                   </div>
                 </div>
-                {c.priority === "high" && <Star className="h-4 w-4 text-yellow-500" />}
-              </motion.button>
-            ))}
-          </ScrollArea>
-        </CardContent>
-      </Card>
 
-      {/* Thread */}
-      <Card className="col-span-12 lg:col-span-6 overflow-hidden rounded-2xl border-border/50 shadow-lg">
-        <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-transparent">
-          <CardTitle className="flex items-center justify-between text-xl font-bold">
-            <div className="flex items-center gap-3">
-              <Avatar>
-                <AvatarFallback>{selected?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <div>
-                <div className="font-semibold">{selected?.name || "Select a conversation"}</div>
-                <div className="text-xs text-muted-foreground">{statusByConv[selected?.id || ""] || "open"}</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button size="sm" variant="outline" className="rounded-xl hover:bg-primary/5"><Filter className="mr-2 h-4 w-4" />Label</Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Assign labels</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <Button size="sm" variant="outline" onClick={summarizeThread} disabled={!selected || isSummarizing} className="rounded-xl hover:bg-primary/5 bg-gradient-to-r from-purple-50 to-transparent">
-                <Sparkles className="mr-2 h-4 w-4 text-purple-600" />{isSummarizing ? "Summarizing..." : "AI Summarize"}
-              </Button>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button size="sm" variant="outline" className="rounded-xl hover:bg-primary/5"><Clock className="mr-2 h-4 w-4" />Snooze</Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-56">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="secondary">Contact: {thread.contactPhone || "-"}</Badge>
+                  {thread.tags?.map((tag) => (
+                    <div key={tag} className="inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs">
+                      <span>{tag}</span>
+                      <button
+                        type="button"
+                        className="font-semibold text-muted-foreground hover:text-foreground"
+                        onClick={() => {
+                          void onRemoveTag(tag);
+                        }}
+                        disabled={isSaving}
+                        aria-label={`Remove ${tag}`}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <Separator />
+
+                <div className="grid flex-1 gap-3 lg:grid-cols-[1fr_300px]">
+                  <ScrollArea className="h-[320px] rounded-md border p-3">
+                    <div className="space-y-3">
+                      {thread.messages?.length ? (
+                        thread.messages.map((message) => (
+                          <div
+                            key={message.id}
+                            className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
+                              message.direction === "OUTBOUND"
+                                ? "ml-auto bg-primary text-primary-foreground"
+                                : "bg-muted"
+                            }`}
+                          >
+                            <p>{message.content}</p>
+                            <p className="mt-1 text-[11px] opacity-70">
+                              {formatDateTime(message.createdAt)}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-muted-foreground">
+                          No messages available for this conversation.
+                        </p>
+                      )}
+                    </div>
+                  </ScrollArea>
+
+                  <ScrollArea className="h-[320px] rounded-md border p-3">
+                    <h3 className="mb-2 text-sm font-medium">Notes</h3>
+                    <div className="space-y-2">
+                      {thread.notes?.length ? (
+                        thread.notes.map((note) => (
+                          <div key={note.id} className="rounded-md bg-muted p-2 text-xs">
+                            <p>{note.content}</p>
+                            <p className="mt-1 text-[11px] text-muted-foreground">
+                              by {note.userId} at {formatDateTime(note.createdAt)}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-muted-foreground">No notes yet.</p>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </div>
+
+                <div className="grid gap-3 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Button variant="ghost" onClick={() => selected && setStatus(selected.id, "snoozed")} className="w-full justify-start">For 1 hour</Button>
-                    <Button variant="ghost" onClick={() => selected && setStatus(selected.id, "snoozed")} className="w-full justify-start">Until tomorrow</Button>
-                  </div>
-                </PopoverContent>
-              </Popover>
-              <Button size="sm" variant="destructive" onClick={() => selected && setStatus(selected.id, "closed")} className="rounded-xl"><X className="mr-2 h-4 w-4" />Close</Button>
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <ScrollArea className="h-[calc(100vh-340px)] p-4">
-            {/* Message thread placeholder */}
-            <div className="space-y-4">
-              <div className="max-w-[70%] rounded-2xl bg-muted/50 border p-4 shadow-sm">
-                Hi! Can you share your catalog?
-              </div>
-              <div className="ml-auto max-w-[70%] rounded-2xl bg-gradient-to-r from-primary to-primary/80 p-4 text-primary-foreground shadow-lg">
-                Absolutely, sharing now!
-              </div>
-            </div>
-          </ScrollArea>
-          <div className="border-t p-3 bg-gradient-to-t from-muted/20 to-transparent">
-            <div className="flex items-end gap-2">
-              <Textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Write a message..." className="min-h-[60px] rounded-xl" />
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="outline" onClick={suggestAiReply} className="rounded-xl bg-gradient-to-r from-purple-50 to-transparent hover:bg-purple-100">
-                      <Sparkles className="mr-2 h-4 w-4 text-purple-600" />AI Reply
+                    <Label>Send message</Label>
+                    <Textarea
+                      rows={3}
+                      value={composeMessage}
+                      onChange={(event) => setComposeMessage(event.target.value)}
+                      placeholder="Write a WhatsApp reply..."
+                    />
+                    <Button
+                      disabled={isSaving}
+                      onClick={() => {
+                        void onSendMessage();
+                      }}
+                    >
+                      Send Message
                     </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Suggest a reply</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <Button onClick={sendMessage} className="rounded-xl bg-gradient-to-r from-primary to-primary/80 font-semibold"><Send className="mr-2 h-4 w-4" />Send</Button>
-            </div>
-            <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-              <Paperclip className="h-4 w-4" /> Attachments supported (media, docs)
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Profile / Assignment / Labels / Notes */}
-      <Card className="col-span-12 lg:col-span-3 overflow-hidden rounded-2xl border-border/50 shadow-lg">
-        <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-transparent">
-          <CardTitle className="text-xl font-bold">Details</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 p-4">
-          <div className="space-y-2">
-            <div className="text-sm font-semibold">Assignee</div>
-            <Select onValueChange={(v) => selected && setAssignee(selected.id, v)} value={selected ? assigneeByConv[selected.id] || "" : undefined}>
-              <SelectTrigger className="rounded-xl"><SelectValue placeholder="Unassigned" /></SelectTrigger>
-              <SelectContent>
-                {availableAgents.map((a) => (
-                  <SelectItem key={a} value={a}>{a}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <div className="text-sm font-semibold">Labels</div>
-            <div className="space-y-2">
-              {availableLabels.map((l) => {
-                const checked = selected ? (labelsByConv[selected.id] || []).includes(l) : false;
-                return (
-                  <label key={l} className="flex items-center gap-2 text-sm">
-                    <Checkbox checked={checked} onCheckedChange={() => selected && toggleLabel(selected.id, l)} />
-                    {l}
-                  </label>
-                );
-              })}
-            </div>
-            <div className="flex flex-wrap gap-1">
-              {(selected ? labelsByConv[selected.id] || [] : []).map((t) => (
-                <Badge key={t} variant="outline" className="text-xs">{t}</Badge>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="text-sm font-semibold">Internal Notes</div>
-            <Textarea
-              value={selected ? (notesByConv[selected.id] || "") : ""}
-              onChange={(e) => selected && setNotesByConv((p) => ({ ...p, [selected.id]: e.target.value }))}
-              placeholder="Add notes for your team..."
-              className="min-h-[120px] rounded-xl"
-            />
-            <Button variant="outline" size="sm" className="rounded-xl hover:bg-primary/5" onClick={saveNote}>Save Note</Button>
-          </div>
-
-          {summary && (
-            <div className="space-y-2">
-              <div className="text-sm font-semibold flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-purple-600" />
-                AI Summary
-              </div>
-              <div className="rounded-xl border bg-gradient-to-br from-purple-50 to-transparent p-4 text-sm whitespace-pre-wrap text-foreground shadow-sm">
-                {summary}
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Add note</Label>
+                    <Textarea
+                      rows={2}
+                      value={noteInput}
+                      onChange={(event) => setNoteInput(event.target.value)}
+                      placeholder="Internal note for operators"
+                    />
+                    <Button
+                      variant="outline"
+                      disabled={isSaving}
+                      onClick={() => {
+                        void onAddNote();
+                      }}
+                    >
+                      Save Note
+                    </Button>
+                    <div className="space-y-2">
+                      <Label>Add tag</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          value={tagInput}
+                          onChange={(event) => setTagInput(event.target.value)}
+                          placeholder="vip-customer"
+                        />
+                        <Button
+                          variant="secondary"
+                          disabled={isSaving}
+                          onClick={() => {
+                            void onTagConversation();
+                          }}
+                        >
+                          Add Tag
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : null}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
