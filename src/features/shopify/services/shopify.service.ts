@@ -16,6 +16,29 @@ type Envelope<T> = {
   error?: string;
 };
 
+type ShopifyOauthStartData = {
+  authUrl: string;
+  state?: string;
+  shopDomain?: string;
+};
+
+export async function startShopifyOauth(shopDomain: string) {
+  const normalizedShopDomain = shopDomain.trim();
+  if (!normalizedShopDomain) {
+    throw new Error("shopDomain is required");
+  }
+  const response = await apiClient.get<Envelope<ShopifyOauthStartData>>(
+    `/shopify/oauth/start?shopDomain=${encodeURIComponent(normalizedShopDomain)}`
+  );
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  if (!response.data?.data?.authUrl) {
+    throw new Error("Missing Shopify authorization URL");
+  }
+  return response.data.data;
+}
+
 export async function connectShopifyStore(payload: {
   shopDomain: string;
   accessToken: string;

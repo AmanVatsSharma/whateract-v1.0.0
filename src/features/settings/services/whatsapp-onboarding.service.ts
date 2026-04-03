@@ -113,6 +113,22 @@ export async function setManagedWhatsAppChannelStatus(payload: {
   return response.data?.data;
 }
 
+export async function setManagedWhatsAppObaStatus(payload: {
+  tenantId: string;
+  obaStatus: "NOT_APPLIED" | "PENDING" | "APPROVED" | "REJECTED";
+  reason?: string;
+  reviewNotes?: string;
+}) {
+  const response = await apiClient.post<DataEnvelope<WhatsAppOnboardingStatusPayload>>(
+    "/whatsapp-onboarding/operator/oba-status",
+    payload,
+  );
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  return response.data?.data;
+}
+
 export async function listManagedWhatsAppChannels(status?: string) {
   const query = status ? `?status=${encodeURIComponent(status)}` : "";
   const response = await apiClient.get<DataEnvelope<ManagedWhatsAppChannelPayload[]>>(

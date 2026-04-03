@@ -2,7 +2,7 @@
 
 **Short:** Frontend Shopify service integration layer.
 
-**Purpose:** Support Shopify connect/sync/status actions from UI pages via BFF routes.
+**Purpose:** Support Shopify OAuth onboarding plus sync/status actions from UI pages via BFF routes.
 
 **Files:**
 - services/shopify.service.ts
@@ -12,6 +12,8 @@
 
 **APIs:**
 - `POST /api/shopify/connect`
+- `GET /api/shopify/oauth/start`
+- `GET /api/shopify/oauth/callback`
 - `POST /api/shopify/sync/orders`
 - `POST /api/shopify/sync/customers`
 - `POST /api/shopify/sync/products`
@@ -25,3 +27,4 @@
 - 2026-02-15: Updated `shopify.service.ts` to unwrap envelope payloads and throw normalized route errors.
 - 2026-02-15: Added shopify connect/status/sync BFF regression tests to prevent contract drift.
 - 2026-02-15: Surfaced commerce journey count in Shopify status panel for marketing automation readiness.
+- 2026-02-16: Shifted Shopify UI to OAuth-first connection flow with dedicated BFF start/callback routes.
