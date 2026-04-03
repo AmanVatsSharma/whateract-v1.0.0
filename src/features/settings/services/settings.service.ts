@@ -50,4 +50,3 @@ export async function saveWorkspaceSettings(payload: WorkspaceSettingsPayload) {
   );
   return response.data || {};
 }
-

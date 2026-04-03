@@ -13,12 +13,36 @@ import { apiClient } from "@/lib/api-client";
 import {
   AiReplyResponse,
   AiSummarizeResponse,
+  ConversationListItem,
+  ConversationThreadPayload,
   ConversationsResponse,
 } from "@/types/api-contracts";
 
-export async function fetchConversations() {
-  const response = await apiClient.get<ConversationsResponse>("/conversations");
+export async function fetchConversations(filters?: {
+  search?: string;
+  status?: "OPEN" | "PENDING" | "CLOSED";
+  assignedUserId?: string;
+  tag?: string;
+}) {
+  const response = await apiClient.get<ConversationsResponse>("/conversations", {
+    params: {
+      search: filters?.search || undefined,
+      status: filters?.status || undefined,
+      assignedUserId: filters?.assignedUserId || undefined,
+      tag: filters?.tag || undefined,
+    },
+  });
   return response.data?.data || [];
+}
+
+export async function fetchConversationThread(conversationId: string) {
+  const response = await apiClient.get<{ data?: ConversationThreadPayload; error?: string }>(
+    `/conversations/${conversationId}`,
+  );
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  return response.data?.data || null;
 }
 
 export async function fetchAiReply(payload: {
@@ -41,7 +65,7 @@ export async function summarizeConversation(payload: {
 
 export async function assignConversation(payload: {
   conversationId: string;
-  userId: string;
+  userId?: string | null;
 }) {
   const response = await apiClient.patch<{
     data?: { ok?: boolean };
@@ -107,6 +131,25 @@ export async function tagConversation(payload: {
   return Boolean(response.data?.data?.ok);
 }
 
+export async function untagConversation(payload: {
+  conversationId: string;
+  tag: string;
+}) {
+  const response = await apiClient.delete<{
+    data?: { ok?: boolean };
+    error?: string;
+  }>("/conversations", {
+    data: {
+      ...payload,
+      action: "untag",
+    },
+  });
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  return Boolean(response.data?.data?.ok);
+}
+
 export async function sendConversationMessage(payload: {
   conversationId: string;
   message: string;
@@ -124,3 +167,28 @@ export async function sendConversationMessage(payload: {
   return Boolean(response.data?.data?.ok);
 }
 
+export type AssignableMember = {
+  id: string;
+  userId: string;
+  userEmail?: string | null;
+  role?: string;
+  teamName?: string;
+};
+
+export async function fetchAssignableMembers(): Promise<AssignableMember[]> {
+  const response = await apiClient.get<{ data?: AssignableMember[]; error?: string }>(
+    "/team-onboarding/members",
+  );
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  return response.data?.data || [];
+}
+
+export function getConversationLabel(conversation: ConversationListItem) {
+  const contactName = `${conversation.contactName || ""}`.trim();
+  if (contactName) {
+    return `${contactName} (${conversation.contactPhone || conversation.contactId || conversation.id})`;
+  }
+  return conversation.contactPhone || conversation.contactId || conversation.id;
+}
