@@ -4,6 +4,8 @@ import {
   CAMPAIGNS_BFF_QUERY,
   CREATE_CAMPAIGN_BFF_MUTATION,
   DELETE_CAMPAIGN_BFF_MUTATION,
+  DUPLICATE_CAMPAIGN_BFF_MUTATION,
+  UPDATE_CAMPAIGN_BFF_MUTATION,
   SET_CAMPAIGN_STATUS_BFF_MUTATION,
 } from "@/services/bff/graphql-queries";
 import { CampaignsResponse } from "@/types/api-contracts";
@@ -15,6 +17,9 @@ type CampaignsGraphqlData = {
     status: string;
     type: string;
     scheduledAt?: string | null;
+    messageBody?: string | null;
+    templateName?: string | null;
+    audienceContactIds?: string[] | null;
     createdAt?: string | null;
   }>;
 };
@@ -46,6 +51,8 @@ export async function GET(request: Request) {
 
 type CampaignMutationData = {
   createCampaign: CampaignsGraphqlData["campaigns"][number];
+  updateCampaign: CampaignsGraphqlData["campaigns"][number];
+  duplicateCampaign: CampaignsGraphqlData["campaigns"][number];
   setCampaignStatus: CampaignsGraphqlData["campaigns"][number];
   deleteCampaign: boolean;
 };
@@ -53,10 +60,33 @@ type CampaignMutationData = {
 export async function POST(request: Request) {
   try {
     const body = (await request.json().catch(() => ({}))) as {
+      action?: "create" | "duplicate";
+      campaignId?: string;
+      newName?: string;
       name?: string;
       type?: string;
       scheduledAt?: string | null;
+      messageBody?: string | null;
+      templateName?: string | null;
+      audienceContactIds?: string[];
     };
+    if (body.action === "duplicate") {
+      if (!body.campaignId) {
+        return NextResponse.json(
+          { error: "campaignId is required for duplicate" },
+          { status: 400 },
+        );
+      }
+      const payload = await proxyGraphql<CampaignMutationData>(
+        request,
+        DUPLICATE_CAMPAIGN_BFF_MUTATION,
+        {
+          campaignId: body.campaignId,
+          newName: body.newName || null,
+        },
+      );
+      return NextResponse.json({ data: payload.duplicateCampaign });
+    }
     if (!body.name || !body.type) {
       return NextResponse.json(
         { error: "name and type are required" },
@@ -71,6 +101,11 @@ export async function POST(request: Request) {
           name: body.name,
           type: body.type,
           scheduledAt: body.scheduledAt || null,
+          messageBody: body.messageBody || null,
+          templateName: body.templateName || null,
+          audienceContactIds: Array.isArray(body.audienceContactIds)
+            ? body.audienceContactIds
+            : [],
         },
       },
     );
@@ -86,11 +121,54 @@ export async function POST(request: Request) {
   }
 }
 
+export async function PUT(request: Request) {
+  try {
+    const body = (await request.json().catch(() => ({}))) as {
+      campaignId?: string;
+      name?: string;
+      type?: string;
+      scheduledAt?: string | null;
+      messageBody?: string | null;
+      templateName?: string | null;
+      audienceContactIds?: string[];
+    };
+    if (!body.campaignId) {
+      return NextResponse.json({ error: "campaignId is required" }, { status: 400 });
+    }
+
+    const payload = await proxyGraphql<CampaignMutationData>(
+      request,
+      UPDATE_CAMPAIGN_BFF_MUTATION,
+      {
+        campaignId: body.campaignId,
+        input: {
+          name: body.name,
+          type: body.type,
+          scheduledAt: body.scheduledAt ?? undefined,
+          messageBody: body.messageBody ?? undefined,
+          templateName: body.templateName ?? undefined,
+          audienceContactIds: Array.isArray(body.audienceContactIds)
+            ? body.audienceContactIds
+            : undefined,
+        },
+      },
+    );
+    return NextResponse.json({ data: payload.updateCampaign });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : "Failed to update campaign",
+      },
+      { status: 502 },
+    );
+  }
+}
+
 export async function PATCH(request: Request) {
   try {
     const body = (await request.json().catch(() => ({}))) as {
       campaignId?: string;
-      status?: "DRAFT" | "SCHEDULED" | "SENT" | "FAILED";
+      status?: "DRAFT" | "SCHEDULED" | "PAUSED" | "SENT" | "FAILED";
       scheduledAt?: string | null;
     };
     if (!body.campaignId || !body.status) {

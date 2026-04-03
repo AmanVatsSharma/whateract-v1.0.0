@@ -4,7 +4,28 @@ import {
 } from "@/services/bff/backend-proxy";
 
 export async function GET(request: Request) {
-  return relayJsonResponse(request, "/inbox/conversations");
+  const url = new URL(request.url);
+  const params = new URLSearchParams();
+  const search = url.searchParams.get("search");
+  const status = url.searchParams.get("status");
+  const assignedUserId = url.searchParams.get("assignedUserId");
+  const tag = url.searchParams.get("tag");
+  if (search) {
+    params.set("search", search);
+  }
+  if (status) {
+    params.set("status", status);
+  }
+  if (assignedUserId) {
+    params.set("assignedUserId", assignedUserId);
+  }
+  if (tag) {
+    params.set("tag", tag);
+  }
+  const path = params.size
+    ? `/inbox/conversations?${params.toString()}`
+    : "/inbox/conversations";
+  return relayJsonResponse(request, path);
 }
 
 export async function PATCH(request: Request) {
@@ -89,6 +110,31 @@ export async function POST(request: Request) {
     {
       method: "POST",
       body: { message: body.message },
+    },
+  );
+}
+
+export async function DELETE(request: Request) {
+  const body = (await request.json().catch(() => ({}))) as {
+    conversationId?: string;
+    action?: "untag";
+    tag?: string;
+  };
+  if (!body.conversationId || body.action !== "untag" || !body.tag) {
+    return new Response(
+      JSON.stringify({ error: "conversationId, action=untag and tag are required" }),
+      {
+        status: 400,
+        headers: { "content-type": "application/json" },
+      },
+    );
+  }
+
+  return relayJsonDataResponse(
+    request,
+    `/inbox/conversations/${body.conversationId}/tags/${encodeURIComponent(body.tag)}`,
+    {
+      method: "DELETE",
     },
   );
 }
