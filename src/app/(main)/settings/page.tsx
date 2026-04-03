@@ -30,6 +30,7 @@ import {
   getWhatsAppOnboardingFunnel,
   getWhatsAppOnboardingStatus,
   listManagedWhatsAppNumbers,
+  setManagedWhatsAppObaStatus,
   setManagedWhatsAppChannelStatus,
   submitWhatsAppOnboardingRequest,
   upsertManagedWhatsAppNumber,
@@ -74,6 +75,9 @@ export default function SettingsPage() {
   const [operatorStatusTenantId, setOperatorStatusTenantId] = useState("");
   const [operatorStatus, setOperatorStatus] = useState("ACTIVE");
   const [operatorStatusReason, setOperatorStatusReason] = useState("");
+  const [operatorObaTenantId, setOperatorObaTenantId] = useState("");
+  const [operatorObaStatus, setOperatorObaStatus] = useState("NOT_APPLIED");
+  const [operatorObaReason, setOperatorObaReason] = useState("");
 
   useEffect(() => {
     const load = async () => {
@@ -242,6 +246,24 @@ export default function SettingsPage() {
     }
   };
 
+  const onUpdateObaStatus = async () => {
+    try {
+      setIsSaving(true);
+      await setManagedWhatsAppObaStatus({
+        tenantId: operatorObaTenantId,
+        obaStatus: operatorObaStatus as "NOT_APPLIED" | "PENDING" | "APPROVED" | "REJECTED",
+        reason: operatorObaReason || undefined,
+      });
+      toast.success("OBA status updated");
+      setOperatorObaReason("");
+      await refreshOnboarding();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update OBA status");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -405,6 +427,8 @@ export default function SettingsPage() {
             <div>Status: {onboardingStatus?.status || "NEW"}</div>
             <div>Assigned Number: {onboardingStatus?.phoneNumberE164 || "-"}</div>
             <div>Approved Templates: {onboardingStatus?.approvedTemplates ?? 0}</div>
+            <div>OBA Eligible: {onboardingStatus?.obaEligible ? "Yes" : "No"}</div>
+            <div>OBA Status: {onboardingStatus?.obaStatus || "NOT_APPLIED"}</div>
           </div>
           <div className="space-y-2">
             <Label>Business legal name</Label>
@@ -605,6 +629,46 @@ export default function SettingsPage() {
             disabled={isSaving || !operatorStatusTenantId || !operatorStatus}
           >
             Update Channel Status
+          </Button>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label>OBA tenant id</Label>
+              <Input
+                value={operatorObaTenantId}
+                onChange={(event) => setOperatorObaTenantId(event.target.value)}
+                placeholder="tenant uuid"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>OBA status</Label>
+              <Select value={operatorObaStatus} onValueChange={setOperatorObaStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select OBA status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="NOT_APPLIED">NOT_APPLIED</SelectItem>
+                  <SelectItem value="PENDING">PENDING</SelectItem>
+                  <SelectItem value="APPROVED">APPROVED</SelectItem>
+                  <SelectItem value="REJECTED">REJECTED</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>OBA reason</Label>
+              <Input
+                value={operatorObaReason}
+                onChange={(event) => setOperatorObaReason(event.target.value)}
+                placeholder="Meta review update"
+              />
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            onClick={onUpdateObaStatus}
+            disabled={isSaving || !operatorObaTenantId || !operatorObaStatus}
+          >
+            Update OBA Status
           </Button>
         </CardContent>
       </Card>

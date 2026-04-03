@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,8 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import {
-  connectShopifyStore,
   getShopifyStatus,
+  startShopifyOauth,
   syncShopifyCustomers,
   syncShopifyOrders,
   syncShopifyProducts,
@@ -28,11 +29,12 @@ type ShopifyStatus = {
 };
 
 export default function ShopifyPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [shopDomain, setShopDomain] = useState("");
-  const [accessToken, setAccessToken] = useState("");
-  const [scopes, setScopes] = useState("read_orders,read_customers,read_products");
   const [status, setStatus] = useState<ShopifyStatus>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const loadStatus = async () => {
     try {
@@ -47,23 +49,44 @@ export default function ShopifyPage() {
     loadStatus();
   }, []);
 
-  const handleConnect = async () => {
+  useEffect(() => {
+    const oauthState = searchParams.get("oauth");
+    if (!oauthState) {
+      return;
+    }
+
+    if (oauthState === "success") {
+      const connectedShop = searchParams.get("shopDomain");
+      toast.success(
+        connectedShop
+          ? `Shopify connected: ${connectedShop}`
+          : "Shopify OAuth connected successfully",
+      );
+      void loadStatus();
+    } else {
+      const reason = searchParams.get("reason");
+      toast.error(reason ? `Shopify OAuth failed: ${reason}` : "Shopify OAuth failed");
+    }
+
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete("oauth");
+    nextParams.delete("reason");
+    nextParams.delete("shopDomain");
+    const nextPath = nextParams.toString()
+      ? `/shopify?${nextParams.toString()}`
+      : "/shopify";
+    router.replace(nextPath);
+  }, [router, searchParams]);
+
+  const handleStartOauth = async () => {
     try {
-      setIsLoading(true);
-      await connectShopifyStore({
-        shopDomain,
-        accessToken,
-        scopes: scopes
-          .split(",")
-          .map((scope) => scope.trim())
-          .filter(Boolean),
-      });
-      toast.success("Shopify store connected");
-      await loadStatus();
+      setIsConnecting(true);
+      const payload = await startShopifyOauth(shopDomain);
+      window.location.href = payload.authUrl;
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Shopify connection failed");
+      toast.error(error instanceof Error ? error.message : "Shopify OAuth start failed");
     } finally {
-      setIsLoading(false);
+      setIsConnecting(false);
     }
   };
 
@@ -117,8 +140,10 @@ export default function ShopifyPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Connection</CardTitle>
-          <CardDescription>Set store domain and access token for API sync.</CardDescription>
+          <CardTitle>Connect with Shopify OAuth</CardTitle>
+          <CardDescription>
+            Start OAuth onboarding for secure token exchange and automated sync setup.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -130,26 +155,11 @@ export default function ShopifyPage() {
               onChange={(event) => setShopDomain(event.target.value)}
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="accessToken">Access token</Label>
-            <Input
-              id="accessToken"
-              type="password"
-              placeholder="shpat_..."
-              value={accessToken}
-              onChange={(event) => setAccessToken(event.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="scopes">Scopes (comma-separated)</Label>
-            <Input
-              id="scopes"
-              value={scopes}
-              onChange={(event) => setScopes(event.target.value)}
-            />
-          </div>
-          <Button onClick={handleConnect} disabled={isLoading || !shopDomain || !accessToken}>
-            {isLoading ? "Connecting..." : "Connect store"}
+          <Button
+            onClick={handleStartOauth}
+            disabled={isLoading || isConnecting || !shopDomain}
+          >
+            {isConnecting ? "Redirecting to Shopify..." : "Connect with OAuth"}
           </Button>
         </CardContent>
       </Card>
