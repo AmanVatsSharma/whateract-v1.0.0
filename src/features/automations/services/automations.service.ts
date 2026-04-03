@@ -7,7 +7,12 @@
  */
 
 import { apiClient } from "@/lib/api-client";
-import { AutomationListItem, AutomationsResponse } from "@/types/api-contracts";
+import {
+  AutomationExecutionLogItem,
+  AutomationExecutionLogsResponse,
+  AutomationListItem,
+  AutomationsResponse,
+} from "@/types/api-contracts";
 
 type DataEnvelope<T> = {
   data?: T;
@@ -70,4 +75,15 @@ export async function deleteAutomation(automationId: string) {
     throw new Error(response.data.error);
   }
   return Boolean(response.data?.data?.ok);
+}
+
+export async function fetchAutomationExecutionLogs(
+  automationId?: string,
+): Promise<AutomationExecutionLogItem[]> {
+  const params = automationId ? { automationId } : undefined;
+  const response = await apiClient.get<AutomationExecutionLogsResponse>(
+    "/automations/logs",
+    { params },
+  );
+  return response.data?.data || [];
 }
