@@ -41,4 +41,70 @@ describe("automations route", () => {
     );
     expect(response.status).toBe(400);
   });
+
+  it("creates automation payload on POST", async () => {
+    proxyGraphql.mockResolvedValue({
+      createAutomation: {
+        id: "auto-2",
+        type: "DRIP_SEQUENCE",
+      },
+    });
+    const { POST } = await import("./route");
+    const response = await POST(
+      new Request("http://localhost/api/automations", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          type: "DRIP_SEQUENCE",
+          trigger: "welcome",
+          definition: {
+            trigger: "welcome",
+            steps: [{ offsetMinutes: 0, message: "Hi" }],
+          },
+        }),
+      }),
+    );
+    const body = (await response.json()) as { data: { id: string } };
+    expect(response.status).toBe(200);
+    expect(body.data.id).toBe("auto-2");
+  });
+
+  it("updates automation payload on PATCH", async () => {
+    proxyGraphql.mockResolvedValue({
+      updateAutomation: {
+        id: "auto-1",
+      },
+    });
+    const { PATCH } = await import("./route");
+    const response = await PATCH(
+      new Request("http://localhost/api/automations", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          automationId: "auto-1",
+          enabled: false,
+        }),
+      }),
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("deletes automation by id", async () => {
+    proxyGraphql.mockResolvedValue({
+      deleteAutomation: true,
+    });
+    const { DELETE } = await import("./route");
+    const response = await DELETE(
+      new Request("http://localhost/api/automations", {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          automationId: "auto-1",
+        }),
+      }),
+    );
+    const body = (await response.json()) as { data: { ok: boolean } };
+    expect(response.status).toBe(200);
+    expect(body.data.ok).toBe(true);
+  });
 });

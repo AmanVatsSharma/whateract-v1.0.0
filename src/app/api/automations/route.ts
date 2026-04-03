@@ -13,6 +13,9 @@ type AutomationsGraphqlData = {
     type: string;
     enabled: boolean;
     trigger?: string | null;
+    definitionJson?: string | null;
+    stepsCount?: number;
+    conditionsCount?: number;
     createdAt?: string | null;
   }>;
 };
