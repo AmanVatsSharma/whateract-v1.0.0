@@ -14,6 +14,9 @@ export const CAMPAIGNS_BFF_QUERY = `
       status
       type
       scheduledAt
+      messageBody
+      templateName
+      audienceContactIds
       createdAt
     }
   }
@@ -27,6 +30,25 @@ export const CREATE_CAMPAIGN_BFF_MUTATION = `
       status
       type
       scheduledAt
+      messageBody
+      templateName
+      audienceContactIds
+      createdAt
+    }
+  }
+`;
+
+export const UPDATE_CAMPAIGN_BFF_MUTATION = `
+  mutation UpdateCampaignBff($campaignId: String!, $input: UpdateCampaignInput!) {
+    updateCampaign(campaignId: $campaignId, input: $input) {
+      id
+      name
+      status
+      type
+      scheduledAt
+      messageBody
+      templateName
+      audienceContactIds
       createdAt
     }
   }
@@ -40,6 +62,25 @@ export const SET_CAMPAIGN_STATUS_BFF_MUTATION = `
       status
       type
       scheduledAt
+      messageBody
+      templateName
+      audienceContactIds
+      createdAt
+    }
+  }
+`;
+
+export const DUPLICATE_CAMPAIGN_BFF_MUTATION = `
+  mutation DuplicateCampaignBff($campaignId: String!, $newName: String) {
+    duplicateCampaign(campaignId: $campaignId, newName: $newName) {
+      id
+      name
+      status
+      type
+      scheduledAt
+      messageBody
+      templateName
+      audienceContactIds
       createdAt
     }
   }
@@ -122,14 +163,27 @@ export const REGISTER_AND_LOGIN_BFF_MUTATION = `
 `;
 
 export const CONTACTS_BFF_QUERY = `
-  query ContactsBffList {
-    contacts {
+  query ContactsBffList($search: String, $segmentId: String) {
+    contacts(search: $search, segmentId: $segmentId) {
       id
       phone
       firstName
       lastName
       userId
+      subscribed
+      tags
       createdAt
+    }
+  }
+`;
+
+export const AUDIENCE_SEGMENTS_BFF_QUERY = `
+  query AudienceSegmentsBff {
+    audienceSegments {
+      id
+      name
+      description
+      count
     }
   }
 `;
@@ -147,6 +201,51 @@ export const TEMPLATES_BFF_QUERY = `
   }
 `;
 
+export const CREATE_TEMPLATE_BFF_MUTATION = `
+  mutation CreateTemplateBff($input: CreateTemplateInput!) {
+    createTemplate(input: $input) {
+      id
+      name
+      content
+      category
+      status
+      createdAt
+    }
+  }
+`;
+
+export const UPDATE_TEMPLATE_BFF_MUTATION = `
+  mutation UpdateTemplateBff($templateId: String!, $input: UpdateTemplateInput!) {
+    updateTemplate(templateId: $templateId, input: $input) {
+      id
+      name
+      content
+      category
+      status
+      createdAt
+    }
+  }
+`;
+
+export const SET_TEMPLATE_STATUS_BFF_MUTATION = `
+  mutation SetTemplateStatusBff($templateId: String!, $status: String!) {
+    setTemplateStatus(templateId: $templateId, status: $status) {
+      id
+      name
+      content
+      category
+      status
+      createdAt
+    }
+  }
+`;
+
+export const DELETE_TEMPLATE_BFF_MUTATION = `
+  mutation DeleteTemplateBff($templateId: String!) {
+    deleteTemplate(templateId: $templateId)
+  }
+`;
+
 export const AUTOMATIONS_BFF_QUERY = `
   query AutomationsBffList {
     automations {
@@ -154,6 +253,25 @@ export const AUTOMATIONS_BFF_QUERY = `
       type
       enabled
       trigger
+      definitionJson
+      stepsCount
+      conditionsCount
+      createdAt
+    }
+  }
+`;
+
+export const AUTOMATION_EXECUTION_LOGS_BFF_QUERY = `
+  query AutomationExecutionLogsBff($automationId: String) {
+    automationExecutionLogs(automationId: $automationId) {
+      id
+      automationId
+      automationType
+      triggerSource
+      status
+      recipient
+      messagePreview
+      detailsJson
       createdAt
     }
   }
@@ -176,6 +294,9 @@ export const CREATE_AUTOMATION_BFF_MUTATION = `
       type
       enabled
       trigger
+      definitionJson
+      stepsCount
+      conditionsCount
       createdAt
     }
   }
@@ -200,6 +321,9 @@ export const UPDATE_AUTOMATION_BFF_MUTATION = `
       type
       enabled
       trigger
+      definitionJson
+      stepsCount
+      conditionsCount
       createdAt
     }
   }
@@ -212,6 +336,9 @@ export const SET_AUTOMATION_ENABLED_BFF_MUTATION = `
       type
       enabled
       trigger
+      definitionJson
+      stepsCount
+      conditionsCount
       createdAt
     }
   }

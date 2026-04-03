@@ -15,6 +15,9 @@ export interface CampaignListItem {
   type: string;
   status: string;
   scheduledAt?: string | null;
+  messageBody?: string | null;
+  templateName?: string | null;
+  audienceContactIds?: string[] | null;
   createdAt?: string | null;
 }
 
@@ -30,11 +33,40 @@ export interface CampaignsResponse {
   data: CampaignListItem[];
 }
 
+export interface AudienceContactItem {
+  id: string;
+  phone: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  userId: string;
+  subscribed?: boolean;
+  tags?: string[] | null;
+  createdAt?: string | null;
+}
+
+export interface AudienceContactsResponse {
+  data: AudienceContactItem[];
+}
+
+export interface AudienceSegmentItem {
+  id: string;
+  name: string;
+  description: string;
+  count: number;
+}
+
+export interface AudienceSegmentsResponse {
+  data: AudienceSegmentItem[];
+}
+
 export interface AutomationListItem {
   id: string;
   type: string;
   enabled: boolean;
   trigger?: string | null;
+  definitionJson?: string | null;
+  stepsCount?: number;
+  conditionsCount?: number;
   createdAt?: string | null;
 }
 
@@ -42,11 +74,30 @@ export interface AutomationsResponse {
   data: AutomationListItem[];
 }
 
+export interface AutomationExecutionLogItem {
+  id: string;
+  automationId?: string | null;
+  automationType: string;
+  triggerSource: string;
+  status: string;
+  recipient?: string | null;
+  messagePreview?: string | null;
+  detailsJson?: string | null;
+  createdAt?: string | null;
+}
+
+export interface AutomationExecutionLogsResponse {
+  data: AutomationExecutionLogItem[];
+}
+
 export interface ConversationListItem {
   id: string;
   contactId?: string | null;
+  contactPhone?: string | null;
+  contactName?: string | null;
   status: "OPEN" | "PENDING" | "CLOSED";
   assignedUserId?: string | null;
+  assignedUserEmail?: string | null;
   lastMessage?: string | null;
   lastMessageAt?: string | null;
   tags: string[];
@@ -54,6 +105,34 @@ export interface ConversationListItem {
 
 export interface ConversationsResponse {
   data: ConversationListItem[];
+}
+
+export interface ConversationThreadMessageItem {
+  id: string;
+  content: string;
+  direction?: "INBOUND" | "OUTBOUND" | null;
+  status?: "DRAFT" | "SENT" | "FAILED" | null;
+  createdAt: string;
+  from?: string | null;
+  to?: string | null;
+}
+
+export interface ConversationThreadNoteItem {
+  id: string;
+  content: string;
+  userId: string;
+  createdAt: string;
+}
+
+export interface ConversationThreadPayload {
+  id: string;
+  contactId: string;
+  contactPhone?: string | null;
+  status: "OPEN" | "PENDING" | "CLOSED";
+  assignedUserId?: string | null;
+  tags: string[];
+  messages: ConversationThreadMessageItem[];
+  notes: ConversationThreadNoteItem[];
 }
 
 export interface AiReplyResponse {
@@ -111,6 +190,12 @@ export interface WhatsAppOnboardingStatusPayload {
   phoneNumberId?: string | null;
   phoneNumberE164?: string | null;
   wabaId?: string | null;
+  obaEligible?: boolean;
+  obaStatus?: string;
+  obaAppliedAt?: string | null;
+  obaApprovedAt?: string | null;
+  obaRejectedAt?: string | null;
+  obaReviewNotes?: string | null;
   webhookVerifiedAt?: string | null;
   activatedAt?: string | null;
   suspendedAt?: string | null;
@@ -138,6 +223,11 @@ export interface ManagedWhatsAppChannelPayload {
   phoneNumberId?: string | null;
   phoneNumberE164?: string | null;
   businessLegalName?: string | null;
+  obaEligible?: boolean;
+  obaStatus?: string;
+  obaAppliedAt?: string | null;
+  obaApprovedAt?: string | null;
+  obaRejectedAt?: string | null;
   webhookVerifiedAt?: string | null;
   activatedAt?: string | null;
   suspendedAt?: string | null;
