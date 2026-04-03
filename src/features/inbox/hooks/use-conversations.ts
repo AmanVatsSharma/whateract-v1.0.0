@@ -15,7 +15,7 @@ import { fetchConversations } from "../services/inbox.service";
 export function useConversations() {
   return useQuery({
     queryKey: ["conversations"],
-    queryFn: fetchConversations,
+    queryFn: () => fetchConversations(),
     staleTime: 15 * 1000,
   });
 }

@@ -26,6 +26,9 @@ export async function createCampaign(payload: {
   name: string;
   type: "BROADCAST" | "TRIGGERED" | "SEQUENCE";
   scheduledAt?: string | null;
+  messageBody?: string | null;
+  templateName?: string | null;
+  audienceContactIds?: string[];
 }) {
   const response = await apiClient.post<DataEnvelope<CampaignListItem>>(
     "/campaigns",
@@ -39,12 +42,49 @@ export async function createCampaign(payload: {
 
 export async function setCampaignStatus(payload: {
   campaignId: string;
-  status: "DRAFT" | "SCHEDULED" | "SENT" | "FAILED";
+  status: "DRAFT" | "SCHEDULED" | "PAUSED" | "SENT" | "FAILED";
   scheduledAt?: string | null;
 }) {
   const response = await apiClient.patch<DataEnvelope<CampaignListItem>>(
     "/campaigns",
     payload,
+  );
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  return response.data?.data;
+}
+
+export async function updateCampaign(payload: {
+  campaignId: string;
+  name?: string;
+  type?: "BROADCAST" | "TRIGGERED" | "SEQUENCE";
+  scheduledAt?: string | null;
+  messageBody?: string | null;
+  templateName?: string | null;
+  audienceContactIds?: string[];
+}) {
+  const response = await apiClient.put<DataEnvelope<CampaignListItem>>(
+    "/campaigns",
+    payload,
+  );
+  if (response.data?.error) {
+    throw new Error(response.data.error);
+  }
+  return response.data?.data;
+}
+
+export async function duplicateCampaign(payload: {
+  campaignId: string;
+  newName?: string;
+}) {
+  const response = await apiClient.post<DataEnvelope<CampaignListItem>>(
+    "/campaigns",
+    {
+      action: "duplicate",
+      campaignId: payload.campaignId,
+      newName: payload.newName,
+    },
   );
   if (response.data?.error) {
     throw new Error(response.data.error);
@@ -64,4 +104,3 @@ export async function deleteCampaign(campaignId: string) {
   }
   return Boolean(response.data?.data?.ok);
 }
-
