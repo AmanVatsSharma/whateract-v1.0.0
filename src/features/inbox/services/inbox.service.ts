@@ -176,13 +176,20 @@ export type AssignableMember = {
 };
 
 export async function fetchAssignableMembers(): Promise<AssignableMember[]> {
-  const response = await apiClient.get<{ data?: AssignableMember[]; error?: string }>(
-    "/team-onboarding/members",
-  );
-  if (response.data?.error) {
-    throw new Error(response.data.error);
+  const response = await apiClient.get<
+    AssignableMember[] | { data?: AssignableMember[]; error?: string }
+  >("/team-onboarding/members");
+  const body = response.data;
+  if (body && typeof body === "object" && !Array.isArray(body) && body.error) {
+    throw new Error(body.error);
   }
-  return response.data?.data || [];
+  if (Array.isArray(body)) {
+    return body;
+  }
+  if (body && typeof body === "object" && Array.isArray(body.data)) {
+    return body.data;
+  }
+  return [];
 }
 
 export function getConversationLabel(conversation: ConversationListItem) {
