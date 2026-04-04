@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       }
     );
     const response = NextResponse.json({ data: payload.login });
-    setAuthCookies(response, payload.login);
+    setAuthCookies(response, payload.login, { userEmail: body.email });
     return response;
   } catch (error) {
     return NextResponse.json(

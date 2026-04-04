@@ -10,8 +10,12 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import {
+  isAutomationsFeatureEnabled,
+  isInboxFeatureEnabled,
+} from "@/lib/feature-flags";
 
-const PROTECTED_PAGE_PREFIXES = [
+const PROTECTED_PAGE_PREFIXES_BASE = [
   "/dashboard",
   "/campaigns",
   "/inbox",
@@ -24,7 +28,16 @@ const PROTECTED_PAGE_PREFIXES = [
   "/shopify",
   "/team",
   "/settings",
+  "/support",
 ];
+
+function buildProtectedPagePrefixes(): string[] {
+  return PROTECTED_PAGE_PREFIXES_BASE.filter((p) => {
+    if (p === "/inbox" && !isInboxFeatureEnabled()) return false;
+    if (p === "/automations" && !isAutomationsFeatureEnabled()) return false;
+    return true;
+  });
+}
 
 const PUBLIC_API_PREFIXES = [
   "/api/auth/login",
@@ -41,7 +54,9 @@ function hasAuth(request: NextRequest): boolean {
 }
 
 function isProtectedPage(pathname: string): boolean {
-  return PROTECTED_PAGE_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  return buildProtectedPagePrefixes().some((prefix) =>
+    pathname.startsWith(prefix),
+  );
 }
 
 function isPublicApi(pathname: string): boolean {

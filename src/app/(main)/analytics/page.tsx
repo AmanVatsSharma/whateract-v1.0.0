@@ -8,7 +8,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { Download, RefreshCw } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -127,16 +127,28 @@ export default function AnalyticsPage() {
             Campaign and onboarding analytics sourced from live APIs only.
           </p>
         </div>
-        <Button
-          variant="outline"
-          disabled={isRefreshing}
-          onClick={() => {
-            void loadAnalytics();
-          }}
-        >
-          <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-          {isRefreshing ? "Refreshing..." : "Refresh"}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => {
+              window.location.assign("/api/analytics/export");
+            }}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
+          </Button>
+          <Button
+            variant="outline"
+            disabled={isRefreshing}
+            onClick={() => {
+              void loadAnalytics();
+            }}
+          >
+            <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+            {isRefreshing ? "Refreshing..." : "Refresh"}
+          </Button>
+        </div>
       </div>
 
       {errorMessage ? (
