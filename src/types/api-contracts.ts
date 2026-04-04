@@ -3,7 +3,7 @@
  * Module: frontend-shared-types
  * Purpose: Central typed contracts for BFF route responses.
  * Author: Aman Sharma / Vedpragya/ Codex
- * Last-updated: 2026-02-15
+ * Last-updated: 2026-04-04
  * Notes:
  * - Keep BFF route payloads aligned with backend capabilities.
  * - Read this file before editing any src/app/api/* handlers.
@@ -135,8 +135,20 @@ export interface ConversationThreadPayload {
   notes: ConversationThreadNoteItem[];
 }
 
+/** POST /ai/reply body — matches Nest `AiController` / BFF forward. */
+export interface AiReplyRequest {
+  text?: string;
+  conversationId?: string;
+}
+
 export interface AiReplyResponse {
   suggestion: string;
+}
+
+/** Backend `POST /support/feedback` (wrapped by BFF as `ApiDataEnvelope`). */
+export interface SupportFeedbackAcceptedPayload {
+  ticketId: string;
+  acceptedAt: string;
 }
 
 export interface AiGenerateResponse {

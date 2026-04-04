@@ -8,10 +8,12 @@
 - backend-proxy.ts
 - graphql-queries.ts
 - auth-cookies.ts
+- feature-bff-guard.ts — inbox/automations feature gating for BFF routes
 
 **Dependencies:** Next.js route handlers, backend GraphQL API, browser cookies.
 
 **Change-log:**
+- 2026-04-04: Added `feature-bff-guard.ts` to return 503 when inbox/automations public flags are off or when server `FEATURE_*` mirrors disagree with `NEXT_PUBLIC_*`.
 - 2026-02-15: Renamed service namespace from `services/backend` to `services/bff`.
 - 2026-02-15: Centralized GraphQL documents used by campaign/analytics/auth/audience/template/automation routes.
 - 2026-02-15: Added shared auth cookie helpers and tenant header propagation fallback.
