@@ -1,21 +1,23 @@
-# ✅ Complete Conversion Checklist
-## WhatsApp Marketing Platform v2.0
+# UI conversion checklist (historical / design tracking)
+## WhatsApp Marketing Platform
+
+> **Operational truth:** For running the MVP locally (migrations, ports, env, feature flags), use the repo **[RUNBOOK.md](../RUNBOOK.md)** at the repository root. Stack versions below must match **[package.json](package.json)** (currently **Next.js 14.2.15**, **React 18** — not Next 15 / React 19).
 
 ---
 
-## 🎯 **YES, EVERYTHING IS CONVERTED!**
+## Status snapshot
 
-Including Sidebar, Header, all pages, and **FULL DARK MODE SUPPORT!**
+Legacy design pass: Sidebar, Header, main app routes, and dark mode were refreshed. This file tracks that effort; it is **not** a substitute for integration tests or backend parity checks.
 
 ---
 
-## 📋 **Detailed Conversion Checklist**
+## **Detailed Conversion Checklist**
 
 ### **Core Infrastructure** ✅
 
 | Component | Status | Details |
 |-----------|--------|---------|
-| ✅ **package.json** | UPGRADED | Next.js 15, React 19, Tailwind v4, 40+ packages |
+| ✅ **package.json** | UPGRADED | Next.js 14.2.x, React 18, Tailwind v4, 40+ packages |
 | ✅ **tailwind.config.ts** | UPDATED | Tailwind v4 CSS-based configuration |
 | ✅ **postcss.config.mjs** | UPDATED | Simplified for Tailwind v4 |
 | ✅ **globals.css** | REDESIGNED | Modern light theme + full dark mode |
