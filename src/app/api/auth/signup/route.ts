@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     );
 
     const response = NextResponse.json({ data: payload.registerAndLogin });
-    setAuthCookies(response, payload.registerAndLogin);
+    setAuthCookies(response, payload.registerAndLogin, { userEmail: body.email });
     return response;
   } catch (error) {
     return NextResponse.json(

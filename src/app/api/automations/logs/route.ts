@@ -8,6 +8,7 @@
 
 import { NextResponse } from "next/server";
 import { proxyGraphql } from "@/services/bff/backend-proxy";
+import { automationsFeatureBffGuard } from "@/services/bff/feature-bff-guard";
 import { AUTOMATION_EXECUTION_LOGS_BFF_QUERY } from "@/services/bff/graphql-queries";
 
 type AutomationExecutionLogsGraphqlData = {
@@ -25,6 +26,10 @@ type AutomationExecutionLogsGraphqlData = {
 };
 
 export async function GET(request: Request) {
+  const denied = automationsFeatureBffGuard();
+  if (denied) {
+    return denied;
+  }
   try {
     const url = new URL(request.url);
     const automationId = url.searchParams.get("automationId");

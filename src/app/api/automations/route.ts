@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { proxyGraphql } from "@/services/bff/backend-proxy";
+import { automationsFeatureBffGuard } from "@/services/bff/feature-bff-guard";
 import {
   AUTOMATIONS_BFF_QUERY,
   CREATE_AUTOMATION_BFF_MUTATION,
@@ -21,6 +22,10 @@ type AutomationsGraphqlData = {
 };
 
 export async function GET(request: Request) {
+  const denied = automationsFeatureBffGuard();
+  if (denied) {
+    return denied;
+  }
   try {
     const payload = await proxyGraphql<AutomationsGraphqlData>(
       request,
@@ -76,6 +81,10 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  const denied = automationsFeatureBffGuard();
+  if (denied) {
+    return denied;
+  }
   try {
     const body = (await request.json().catch(() => ({}))) as {
       automationId?: string;
@@ -113,6 +122,10 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const denied = automationsFeatureBffGuard();
+  if (denied) {
+    return denied;
+  }
   try {
     const body = (await request.json().catch(() => ({}))) as {
       automationId?: string;
