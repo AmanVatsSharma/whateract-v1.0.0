@@ -1,6 +1,13 @@
-import { randomUUID } from "crypto";
+/**
+ * File: src/app/api/support/feedback/route.ts
+ * Module: frontend-bff
+ * Purpose: Proxies support feedback to Nest /support/feedback.
+ * Author: Aman Sharma / Vedpragya/ Codex
+ * Last-updated: 2026-04-04
+ */
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { relayJsonDataResponse } from "@/services/bff/backend-proxy";
 
 const feedbackSchema = z.object({
   type: z.enum(["general", "bug", "feature", "incident"]).default("general"),
@@ -21,14 +28,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const ticketId = `fbk_${randomUUID()}`;
-  return NextResponse.json(
-    {
-      data: {
-        ticketId,
-        acceptedAt: new Date().toISOString(),
-      },
-    },
-    { status: 202 },
-  );
+  return relayJsonDataResponse(request, "/support/feedback", {
+    method: "POST",
+    body: parsed.data,
+  });
 }

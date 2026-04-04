@@ -2,8 +2,13 @@ import {
   relayJsonDataResponse,
   relayJsonResponse,
 } from "@/services/bff/backend-proxy";
+import { inboxFeatureBffGuard } from "@/services/bff/feature-bff-guard";
 
 export async function GET(request: Request) {
+  const denied = inboxFeatureBffGuard();
+  if (denied) {
+    return denied;
+  }
   const url = new URL(request.url);
   const params = new URLSearchParams();
   const search = url.searchParams.get("search");
@@ -29,6 +34,10 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  const denied = inboxFeatureBffGuard();
+  if (denied) {
+    return denied;
+  }
   const body = (await request.json().catch(() => ({}))) as {
     conversationId?: string;
     action?: "assign" | "status";
@@ -67,6 +76,10 @@ export async function PATCH(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const denied = inboxFeatureBffGuard();
+  if (denied) {
+    return denied;
+  }
   const body = (await request.json().catch(() => ({}))) as {
     conversationId?: string;
     action?: "note" | "tag" | "message";
@@ -115,6 +128,10 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const denied = inboxFeatureBffGuard();
+  if (denied) {
+    return denied;
+  }
   const body = (await request.json().catch(() => ({}))) as {
     conversationId?: string;
     action?: "untag";
