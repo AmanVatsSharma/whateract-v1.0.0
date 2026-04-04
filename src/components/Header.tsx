@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   Bell,
@@ -19,6 +19,7 @@ import {
 import type { CampaignsResponse } from "@/types/api-contracts";
 import { createLogger } from "@/lib/logger";
 import { cn } from "@/lib/utils";
+import { initialsFromEmail, readBrowserCookie } from "@/lib/workspace-display";
 import { CompactThemeSelector } from "@/components/ThemeSelector";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -83,8 +84,11 @@ type Envelope<T> = {
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const logger = useMemo(() => createLogger("app-header"), []);
   const [mounted, setMounted] = useState(false);
+  const [workspaceLabel, setWorkspaceLabel] = useState("");
+  const [userEmailDisplay, setUserEmailDisplay] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
@@ -92,6 +96,15 @@ export default function Header() {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
   const [notifications, setNotifications] = useState<HeaderNotification[]>([]);
+
+  useEffect(() => {
+    setWorkspaceLabel(readBrowserCookie("tenant_label"));
+    setUserEmailDisplay(readBrowserCookie("user_email"));
+  }, [pathname]);
+
+  const headerWorkspace = workspaceLabel.trim() || "Workspace";
+  const headerEmail = userEmailDisplay.trim() || "";
+  const headerInitials = headerEmail ? initialsFromEmail(headerEmail) : "WA";
 
   const unreadCount = useMemo(
     () => notifications.filter((notification) => notification.unread).length,
@@ -391,14 +404,16 @@ export default function Header() {
                 <Button variant="ghost" className="h-10 w-10 rounded-full p-0">
                   <Avatar className="h-9 w-9">
                     <AvatarImage src="/placeholder-avatar.jpg" alt="User avatar" />
-                    <AvatarFallback>WA</AvatarFallback>
+                    <AvatarFallback>{headerInitials}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-72">
                 <DropdownMenuLabel className="space-y-1">
-                  <p className="text-sm font-semibold">Workspace User</p>
-                  <p className="text-xs text-muted-foreground">team@whaterakt.app</p>
+                  <p className="text-sm font-semibold">{headerWorkspace}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {headerEmail || "Signed in"}
+                  </p>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push("/settings")}>

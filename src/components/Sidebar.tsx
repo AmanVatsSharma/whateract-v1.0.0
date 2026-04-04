@@ -19,10 +19,10 @@
 
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 
 // UI Components
@@ -36,6 +36,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
+import { initialsFromEmail, readBrowserCookie } from "@/lib/workspace-display"
 
 // Icons
 import {
@@ -59,12 +60,22 @@ import {
     Crown,
 } from 'lucide-react'
 import { ThemeSelector } from '@/components/ThemeSelector'
+import { isAutomationsFeatureEnabled, isInboxFeatureEnabled } from '@/lib/feature-flags'
+
+type SidebarNavItem = {
+    name: string
+    icon: React.ComponentType<{ className?: string }>
+    href: string
+    description: string
+    badge?: string
+    badgeVariant?: 'default' | 'secondary' | 'destructive'
+}
 
 /**
  * Navigation Items Configuration
  * Structured data for sidebar navigation with icons and badges
  */
-const sidebarItems = [
+const sidebarItems: SidebarNavItem[] = [
     { 
         name: 'Dashboard', 
         icon: LayoutDashboard, 
@@ -75,16 +86,12 @@ const sidebarItems = [
         name: 'Inbox', 
         icon: MessageSquare, 
         href: '/inbox', 
-        badge: '2',
-        badgeVariant: 'default' as const,
         description: 'Messages & Conversations'
     },
     { 
         name: 'Campaigns', 
         icon: Zap, 
         href: '/campaigns', 
-        badge: '3',
-        badgeVariant: 'secondary' as const,
         description: 'Marketing Campaigns'
     },
     { 
@@ -121,8 +128,6 @@ const sidebarItems = [
         name: 'Notifications', 
         icon: Bell, 
         href: '/notifications', 
-        badge: '5',
-        badgeVariant: 'destructive' as const,
         description: 'System Notifications'
     },
     {
@@ -161,9 +166,12 @@ export default function Sidebar() {
     const [searchTerm, setSearchTerm] = useState('')
     const [isMobileOpen, setIsMobileOpen] = useState(false)
     const [mounted, setMounted] = useState(false)
-    
+    const [workspaceLabel, setWorkspaceLabel] = useState('')
+    const [userEmail, setUserEmail] = useState('')
+
     // Hooks
     const pathname = usePathname()
+    const router = useRouter()
     const { theme, setTheme } = useTheme()
 
     /**
@@ -171,17 +179,37 @@ export default function Sidebar() {
      */
     useEffect(() => {
         setMounted(true)
-        console.log('🎨 Sidebar: Component mounted with modern light theme')
-        console.log('📍 Current path:', pathname)
-        console.log('🎭 Current theme:', theme)
     }, [pathname, theme])
+
+    useEffect(() => {
+        setWorkspaceLabel(readBrowserCookie("tenant_label"))
+        setUserEmail(readBrowserCookie("user_email"))
+    }, [pathname])
 
     /**
      * Toggle sidebar collapse state
      */
     const toggleSidebar = () => {
-        console.log('🔄 Sidebar: Toggling collapse', { from: isCollapsed, to: !isCollapsed })
         setIsCollapsed(!isCollapsed)
+    }
+
+    const displayWorkspace = workspaceLabel.trim() || "Workspace"
+    const displayEmail = userEmail.trim() || ""
+    const avatarInitials = displayEmail ? initialsFromEmail(displayEmail) : "WA"
+
+    const navItems = useMemo(
+        () =>
+            sidebarItems.filter((item) => {
+                if (item.href === "/inbox" && !isInboxFeatureEnabled()) return false
+                if (item.href === "/automations" && !isAutomationsFeatureEnabled()) return false
+                return true
+            }),
+        []
+    )
+
+    const signOut = async () => {
+        await fetch("/api/auth/logout", { method: "POST" })
+        router.push("/login")
     }
 
     // Theme switching is now handled by ThemeSelector component
@@ -197,7 +225,7 @@ export default function Sidebar() {
     /**
      * Filter sidebar items based on search
      */
-    const filteredItems = sidebarItems.filter(item =>
+    const filteredItems = navItems.filter(item =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
@@ -217,7 +245,7 @@ export default function Sidebar() {
     /**
      * Render individual navigation item
      */
-    const renderNavItem = (item: typeof sidebarItems[0], isMobile = false) => {
+    const renderNavItem = (item: (typeof sidebarItems)[0], isMobile = false) => {
         const isActive = pathname?.startsWith(item.href)
         
         return (
@@ -311,7 +339,7 @@ export default function Sidebar() {
                     <Avatar className="h-10 w-10 border-2 border-primary/20">
                         <AvatarImage src="/placeholder-avatar.jpg" alt="User" />
                         <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-bold">
-                            JD
+                            {avatarInitials}
                         </AvatarFallback>
                     </Avatar>
                     {(!isCollapsed || isMobile) && (
@@ -321,14 +349,14 @@ export default function Sidebar() {
                                 animate={{ opacity: 1 }}
                                 className="truncate font-semibold text-sm"
                             >
-                                John Doe
+                                {displayWorkspace}
                             </motion.span>
                             <motion.span
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 className="truncate text-xs text-muted-foreground"
                             >
-                                Free Plan
+                                {displayEmail || "Signed in"}
                             </motion.span>
                         </div>
                     )}
@@ -340,12 +368,12 @@ export default function Sidebar() {
                         <Avatar className="h-12 w-12 border-2 border-primary/20">
                             <AvatarImage src="/placeholder-avatar.jpg" alt="User" />
                             <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-bold">
-                                JD
+                                {avatarInitials}
                             </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
-                            <p className="font-semibold">John Doe</p>
-                            <p className="text-xs text-muted-foreground">john.doe@example.com</p>
+                            <p className="font-semibold">{displayWorkspace}</p>
+                            <p className="text-xs text-muted-foreground">{displayEmail || "—"}</p>
                         </div>
                     </div>
                 </div>
@@ -354,7 +382,7 @@ export default function Sidebar() {
                     <Button 
                         variant="ghost" 
                         className="w-full justify-start gap-2 hover:bg-primary/5 text-primary"
-                        onClick={() => console.log('💎 Sidebar: Upgrade clicked')}
+                        onClick={() => router.push("/settings")}
                     >
                         <Crown className="h-4 w-4" /> 
                         Upgrade to Pro
@@ -372,7 +400,7 @@ export default function Sidebar() {
                     <Button 
                         variant="ghost" 
                         className="w-full justify-start gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() => console.log('👋 Sidebar: Logout clicked')}
+                        onClick={() => void signOut()}
                     >
                         <LogOut className="h-4 w-4" /> Log out
                     </Button>

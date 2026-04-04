@@ -26,6 +26,7 @@
 - `summarizeConversation()`
 
 **Change-log:**
+- 2026-04-04: `fetchAssignableMembers` accepts both a raw JSON array and `{ data: [...] }` from `GET /team-onboarding/members` (BFF proxy).
 - 2026-02-16: Added inbox filtering params on `fetchConversations` and added tag removal + assignable-member service methods for inbox productivity UX.
 - 2026-02-15: Added conversation mutation helpers for assignment/status/note/tag/send actions.
 - 2026-02-15: Kept AI assist requests in same feature service to keep inbox page orchestration cohesive.
